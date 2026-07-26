@@ -48,6 +48,19 @@ MAPS["ch10_chengdu"] = {
     { id: "dojo",   x: 17, y: 13, color: "#8a7a6a", name: "教头", facility: "dojo" },
     { id: "v1",     x: 7,  y: 7,  color: "#4f8cff", name: "市民",
       lines: ["天府之国，总算迎来了明主。", "铁匠铺能强化兵器，就是精铁难得。"] },
+    // 联动彩蛋 A6 · 兜售秘籍：巷口精瘦汉子与吐槽路人
+    { id: "miji",   x: 19, y: 11, color: "#8a7a5a", name: "精瘦汉子",
+      linesKey: "ch10.xjKui1" },
+    { id: "luren",  x: 18, y: 12, color: "#7a8a9a", name: "路人",
+      linesKey: "ch10.xjKui2" },
+    // 渡魂记 · 第十章：卖花女孩（需白莲；买一朵 10 金）
+    { id: "flower", x: 17, y: 8, color: "#e8a8b8", name: "卖花女孩",
+      appearIf: { flag: "relic_bailian", exists: true },
+      branches: [
+        { ask: { title: "卖花女孩：将军买朵花吧！", options: [
+          { label: "买一朵（10金）", say: "ch10.dhFlower", do: [{ gold: -10 }] },
+          { label: "不买", say: "ch10.dhFlowerNo" }] } },
+      ] },
     // 刘璋：成都受降
     { id: "liuzhang10", x: 10, y: 1, color: "#b8a05a", name: "刘璋",
       appearIf: { flag: "q10", is: "mianzhu" },

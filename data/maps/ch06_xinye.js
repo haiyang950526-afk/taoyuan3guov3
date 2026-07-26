@@ -1,6 +1,14 @@
 // 地图 · ch06_xinye 新野城（第六、七章主城；商店第六章价 / 第七章战时价两套 NPC）
 var MAPS = typeof MAPS !== "undefined" ? MAPS : {};
 
+// 联动彩蛋 C3 · 这瓜保熟吗：问完还能再买（自循环），买瓜 10 金换草药
+var GUA_ASK = { title: "瓜摊", options: [
+  { label: "这瓜保熟吗？", say: "ch06.xjGuaAsk",
+    do: [{ set: { xj_c3: "done" } }] },
+  { label: "来一块（10金）", say: "ch06.xjGuaBuy",
+    do: [{ gold: -10 }, { give: ["草药", 1] }] }] };
+GUA_ASK.options[0].do.push({ ask: GUA_ASK });
+
 MAPS["ch06_xinye"] = {
   name: "新野城",
   grid: [
@@ -43,6 +51,19 @@ MAPS["ch06_xinye"] = {
     { id: "camp", x: 16, y: 11, color: "#7a8a9a", name: "老兵", facility: "camp" },
     { id: "v1", x: 7, y: 7, color: "#4f8cff", name: "村民", linesKey: "ch06.xinyeVillager" },
     { id: "v2", x: 15, y: 13, color: "#d88a3a", name: "老者", linesKey: "ch06.xyVillager" },
+    // 联动彩蛋 C3 · 这瓜保熟吗：南横街市集瓜摊
+    { id: "guatan", x: 5, y: 11, color: "#5a8a3a", name: "瓜摊老板",
+      branches: [
+        { say: "ch06.xjGua1", do: [{ ask: GUA_ASK }] },
+      ] },
+    // 名品 · 密语事件3（wh3）：药农两次对话赠《伤寒杂病论》
+    { id: "herbalist", x: 17, y: 16, color: "#5a8a6a", name: "药农",
+      branches: [
+        { if: { flag: "wh3", is: "done" }, say: "ch06.xyHerbalistDone" },
+        { if: { flag: "wh3", is: "met" }, say: "ch06.xyHerbalist2",
+          do: [{ giveEquip: "伤寒杂病论" }, { set: { wh3: "done" } }, { set: { relic_shanghan: true } }] },
+        { say: "ch06.xyHerbalist1", do: [{ set: { wh3: "met" } }] },
+      ] },
     // 刘表：第六章任务发布
     { id: "liubiao", x: 10, y: 1, color: "#b8a05a", name: "刘表",
       appearIf: { flag: "q6", exists: true },

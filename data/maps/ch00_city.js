@@ -90,6 +90,14 @@ MAPS["ch00_city"] = {
         { say: "ch04.baoxin",
           do: [{ set: { q4: "ye" } }, { toast: "出城夜袭曹营（城外北面路口）" }] },
       ] },
+    // 彩蛋 · 织席贩履：横街西头街角的卖履老翁（序章起常驻，一次性赠旧草鞋）
+    { id: "oldshoes", x: 1, y: 9, color: "#a89a7a", name: "卖履老翁",
+      branches: [
+        { if: { flag: "egg_shoes", is: "done" }, say: "ch00.oldShoesDone" },
+        { say: "ch00.oldShoes1",
+          do: [{ say: "ch00.oldShoes2" }, { giveEquip: "旧草鞋" },
+               { set: { egg_shoes: "done" } }] },
+      ] },
   ],
   chests: [
     { x: 20, y: 5, id: "c1", gold: 150 },

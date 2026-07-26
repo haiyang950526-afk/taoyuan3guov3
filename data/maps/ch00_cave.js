@@ -37,6 +37,16 @@ MAPS["ch00_cave"] = {
     { x: 9,  y: 6, id: "c4", items: { "布衣": 1 } },
     { x: 16, y: 1, id: "c5", items: { "皮甲": 1 } },
   ],
+  triggers: [
+    // 渡魂记 · 序章：洞深处枯骨木牌（无前置，一次性）
+    { x: 3, y: 1, if: { flag: "relic_mupai", not: true },
+      do: [{ say: "ch00.dhCave" }, { give: ["焦黑的木牌", 1] },
+           { set: { relic_mupai: true } }] },
+    // 支线 sq1 · 夺回粮袋：接了支线才触发（洞深处黄巾头目旁）
+    { x: 2, y: 1, if: { flag: "sq1", is: "accept" },
+      do: [{ battle: "sq1_bandit",
+             onWin: [{ say: "ch00.sq1Bag" }, { set: { sq1: "bag" } }] }] },
+  ],
   transitions: [
     { x: 9,  y: 12, to: { map: "ch00_field", x: 2, y: 2 } },
     { x: 10, y: 12, to: { map: "ch00_field", x: 2, y: 2 } },

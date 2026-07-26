@@ -48,8 +48,23 @@ MAPS["ch02_xiapi"] = {
         { say: "ch02.xiapiVillager" },
       ] },
     { id: "v2", x: 15, y: 13, color: "#d88a3a", name: "老者", linesKey: "ch02.xiapiElder" },
+    // 渡魂记 · 第二章：陈登明镜观伏笔（末句"摸木牌"仅持木牌分支出现）
+    { id: "chendeng", x: 7, y: 13, color: "#7a9a6a", name: "陈登",
+      appearIf: { flag: "q2", exists: true },
+      branches: [
+        { if: { flag: "relic_mupai", exists: true }, say: "ch02.dhChendeng" },
+        { say: "ch02.dhChendengNo" },
+      ] },
     // 铁匠铺（武器强化，消耗精铁；第十章正式开放，此处先有设施）：东南楼下
     { id: "smith", x: 12, y: 11, color: "#a87a4a", name: "铁匠", facility: "smith" },
+    // 名品 · 密语事件2（wh2）：老儒两次对话赠《书经》（书在人身上，无藏匿点）
+    { id: "scholar", x: 17, y: 16, color: "#8a6a8a", name: "老儒",
+      branches: [
+        { if: { flag: "wh2", is: "done" }, say: "ch02.xpScholarDone" },
+        { if: { flag: "wh2", is: "met" }, say: "ch02.xpScholar2",
+          do: [{ giveEquip: "书经" }, { set: { wh2: "done" } }, { set: { relic_shujing: true } }] },
+        { say: "ch02.xpScholar1", do: [{ set: { wh2: "met" } }] },
+      ] },
   ],
   chests: [],
   transitions: [

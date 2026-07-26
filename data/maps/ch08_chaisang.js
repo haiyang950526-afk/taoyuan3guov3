@@ -16,6 +16,15 @@ var ASK1 = { title: "舌战群儒 · 一", say: "ch08.debateSay", options: [
   { label: "胜败乃兵家常事。", say: "ch08.debateOpt1W" }] };
 ASK1.options[1].do = [{ ask: ASK1 }];
 
+// 彩蛋 · 横槊赋诗：三选一，正解得玉佩，两个错项自循环重答（同舌战群儒写法）
+var DUANGE_ASK = { title: "鲁肃：下一句是？", options: [
+  { label: "慨当以慷，忧思难忘。", say: "ch08.duangeR",
+    do: [{ giveEquip: "玉佩" }, { set: { egg_duange: "done" } }] },
+  { label: "明明如月，何时可掇。", say: "ch08.duangeW1" },
+  { label: "青青子衿，悠悠我心。", say: "ch08.duangeW2" }] };
+DUANGE_ASK.options[1].do = [{ ask: DUANGE_ASK }];
+DUANGE_ASK.options[2].do = [{ ask: DUANGE_ASK }];
+
 MAPS["ch08_chaisang"] = {
   name: "柴桑",
   grid: [
@@ -84,9 +93,26 @@ MAPS["ch08_chaisang"] = {
         { say: "ch08.windSay",
           do: [{ set: { q8: "wind" } }, { toast: "东风已起！去三江口决战" }] },
       ] },
+    // 渡魂记 · 第八章：鲁肃传话（需明镜观铜镜）
+    { id: "lusu", x: 14, y: 7, color: "#8ab8d8", name: "鲁肃",
+      appearIf: { flag: "q8", exists: true },
+      branches: [
+        { if: { flag: "dh_lusu", is: "done" },
+          say: ["鲁肃：于吉道长云游未归。那句话带到了，子敬便安心了。"] },
+        { if: { flag: "relic_tongjing", exists: true },
+          say: "ch08.dhLusu", do: [{ set: { dh_lusu: "done" } }] },
+        { say: ["鲁肃：玄德公，孙刘联盟，唇齿相依。江上的事，包在子敬身上。"] },
+      ] },
   ],
   chests: [
     { x: 18, y: 14, id: "c1", gold: 800 },
+  ],
+  triggers: [
+    // 彩蛋 · 横槊赋诗：东北江边隔江闻曹操《短歌行》，一次性（答错重答）
+    { x: 18, y: 1, if: { flag: "egg_duange", is: "done" },
+      do: [{ say: "ch08.duangeDone" }] },
+    { x: 18, y: 1, if: { flag: "egg_duange", not: "done" },
+      do: [{ say: "ch08.duange1" }, { ask: DUANGE_ASK }] },
   ],
   transitions: [
     // 北门：三江口水寨

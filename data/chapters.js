@@ -67,7 +67,7 @@ const CHAPTERS = {
   },
   ch03: {
     name: "第三章 · 寄人篱下",
-    maps: ["ch03_xudu", "ch03_field", "ch03_hunt",
+    maps: ["ch03_xudu", "ch03_field", "ch03_hunt", "ch03_study",
            "ch03_inn_in", "ch03_weapon_in", "ch03_armor_in", "ch03_item_in", "ch03_village",
            "ch03_village_inn_in", "ch03_village_item_in", "ch03_village_house_in", "ch03_xudu_house_in"],
     start: { map: "ch03_xudu", x: 10, y: 16 },
@@ -103,7 +103,7 @@ const CHAPTERS = {
   ch05: {
     name: "第五章 · 千里走单骑",
     maps: ["ch05_dongling", "ch05_luoyang", "ch05_sishui", "ch05_xingyang",
-           "ch05_ferry", "ch05_woniu", "ch05_gucheng",
+           "ch05_ferry", "ch05_taoyuan", "ch05_woniu", "ch05_gucheng",
            "ch05_inn_in", "ch05_weapon_in", "ch05_armor_in", "ch05_item_in", "ch05_luoyang_house_in", "ch05_gucheng_house_in"],
     start: { map: "ch05_dongling", x: 2, y: 8 },
     home: { map: "ch05_luoyang", x: 10, y: 16 },
@@ -123,7 +123,7 @@ const CHAPTERS = {
   },
   ch06: {
     name: "第六章 · 卧龙出山",
-    maps: ["ch06_xinye", "ch06_field", "ch06_xiangyang", "ch06_longzhong", "ch06_tanxi",
+    maps: ["ch06_xinye", "ch06_field", "ch06_xiangyang", "ch06_longzhong", "ch06_tanxi", "ch06_school",
            "ch06_inn_in", "ch06_weapon_in", "ch06_armor_in", "ch06_item_in", "ch06_book_in", "ch06_village",
            "ch06_village_inn_in", "ch06_village_item_in", "ch06_village_house_in", "ch06_xinye_house_in", "ch06_xiangyang_house_in"],
     start: { map: "ch06_xinye", x: 10, y: 16 },
@@ -158,7 +158,7 @@ const CHAPTERS = {
   },
   ch08: {
     name: "第八章 · 赤壁鏖兵",
-    maps: ["ch08_chaisang", "ch08_xiakou", "ch08_shuizhai", "ch08_huarong",
+    maps: ["ch08_chaisang", "ch08_xiakou", "ch08_shuizhai", "ch08_huarong", "ch08_mingjing",
            "ch08_inn_in", "ch08_weapon_in", "ch08_armor_in", "ch08_item_in", "ch08_chaisang_house_in"],
     start: { map: "ch08_chaisang", x: 10, y: 16 },
     home: { map: "ch08_chaisang", x: 10, y: 16 },
@@ -217,7 +217,7 @@ const CHAPTERS = {
   },
   ch11: {
     name: "终章 · 出师未捷",
-    maps: ["ch11_hanzhong", "ch11_tianshui", "ch11_jieting", "ch11_qishan", "ch11_wuzhang",
+    maps: ["ch11_hanzhong", "ch11_tianshui", "ch11_jieting", "ch11_qishan", "ch11_wuzhang", "ch11_luoyang",
            "ch11_inn_in", "ch11_weapon_in", "ch11_armor_in", "ch11_item_in", "ch11_hanzhong_house_in"],
     start: { map: "ch11_hanzhong", x: 10, y: 16 },
     home: { map: "ch11_hanzhong", x: 10, y: 16 },

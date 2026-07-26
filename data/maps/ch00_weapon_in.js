@@ -22,6 +22,12 @@ MAPS["ch00_weapon_in"] = {
       lines: ["买了装备，要去菜单→装备里给好汉穿戴整齐，才算配上。"] },
   ],
   chests: [],
+  triggers: [
+    // 渡魂记 · 序章：武器店铺垫（老板 shop 字段优先于 branches，
+    // 故用地面触发器实现一次性氛围对话，不影响开店——同旅店 D7 写法）
+    { x: 7, y: 8, if: { flag: "dhShop", not: "done" },
+      do: [{ say: "ch00.dhShop" }, { set: { dhShop: "done" } }] },
+  ],
   transitions: [
     { x: 7, y: 9, to: { map: "ch00_city", x: 16, y: 9 } },
     { x: 8, y: 9, to: { map: "ch00_city", x: 16, y: 9 } },

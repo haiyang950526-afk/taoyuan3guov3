@@ -20,7 +20,7 @@ MAPS["ch01_tancheng"] = {
     "#.BBBB....,,.........#",
     "#.BBBB....,,.........#",
     "#.BDBB....,,.........#",
-    "#.........,,.........#",
+    "#v........,,.........#",
     "##########GG##########",
   ],
   encounterTiles: [],
@@ -39,7 +39,14 @@ MAPS["ch01_tancheng"] = {
               "西街：旅店·杂货店　东街：武器店·防具店",
               "东南府邸：郯城守将"] },
     // 店主已迁入各自店内（门口 D 格朝门下钻）
-    { id: "v1",     x: 7,  y: 7,  color: "#4f8cff", name: "村民", linesKey: "ch01.tanVillager" },
+    // 名品 · 密语事件1（wh1）：同一村民两次对话——寒暄 → 密语（城西枯井藏六韬残页）
+    { id: "v1",     x: 7,  y: 7,  color: "#4f8cff", name: "村民",
+      branches: [
+        { if: { flag: "wh1", in: ["told", "done"] }, say: "ch01.tanVillagerDone" },
+        { if: { flag: "wh1", is: "met" }, say: "ch01.tanVillager2",
+          do: [{ set: { wh1: "told" } }, { toast: "城西枯井边，似有旧物" }] },
+        { say: "ch01.tanVillager", do: [{ set: { wh1: "met" } }] },
+      ] },
     { id: "v2",     x: 15, y: 13, color: "#d88a3a", name: "老者", linesKey: "ch01.tanElder" },
     // 郯城守将：第一章任务链引导人
     { id: "general", x: 12, y: 11, color: "#b03a3a", name: "郯城守将",
@@ -55,6 +62,12 @@ MAPS["ch01_tancheng"] = {
       ] },
   ],
   chests: [],
+  triggers: [
+    // 名品 · 密语事件1：城西枯井（v 格旁）摸到油布包——六韬残页（引擎挂钩 relic_liutao）
+    { x: 2, y: 16, if: { flag: "wh1", is: "told" },
+      do: [{ say: "ch01.liuTao" }, { giveEquip: "六韬残页" },
+           { set: { wh1: "done" } }, { set: { relic_liutao: true } }] },
+  ],
   transitions: [
     { x: 10, y: 17, to: { map: "ch01_field", x: 11, y: 1 } },
     { x: 11, y: 17, to: { map: "ch01_field", x: 11, y: 1 } },

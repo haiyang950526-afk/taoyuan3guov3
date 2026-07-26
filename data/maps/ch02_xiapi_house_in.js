@@ -18,7 +18,13 @@ MAPS["ch02_xiapi_house_in"] = {
   encounterTiles: [],
   npcs: [
     { id: "owner", x: 4, y: 2, color: "#9a8a6a", name: "屋主",
-      lines: ["下邳临着泗水，水运便利，城里铁匠铺的手艺远近闻名。"] },
+      branches: [
+        // 名品 · 易经（wh6）：屋主追加一段，赠家传《易经》
+        { if: { flag: "wh6", is: "done" }, say: "ch02.xpHouseDone" },
+        { say: ["下邳临着泗水，水运便利，城里铁匠铺的手艺远近闻名。"],
+          do: [{ say: "ch02.xpHouse2" }, { giveEquip: "易经" },
+               { set: { wh6: "done" } }, { set: { relic_yijing: true } }] },
+      ] },
   ],
   chests: [
     { x: 14, y: 1, id: "c1", gold: 120 },

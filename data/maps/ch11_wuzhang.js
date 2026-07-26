@@ -69,11 +69,34 @@ MAPS["ch11_wuzhang"] = {
   ],
   chests: [
     { x: 17, y: 11, id: "w1", items: { "七星杖": 1 } },
+    { x: 1, y: 1, id: "w2", items: { "遁甲天书": 1 } }, // 名品 · 遁甲天书：西北角深处隐藏箱
   ],
-  triggers: WZ_TRIGGERS,
+  triggers: WZ_TRIGGERS.concat([
+    // 渡魂记 · 终章：托付遗物包裹（需白莲，一次性；已托付则指路）
+    { x: 8, y: 3, if: { flag: "relic_package", exists: true },
+      do: [{ say: ["（布包在怀里，沉甸甸的。丞相说：埋在洛阳，花开得最多的地方。）",
+                   "（西南角似有通路，隐隐透着花香。）"] }] },
+    { x: 8, y: 3, if: { flag: "relic_bailian", exists: true },
+      do: [{ say: "ch11.dhTrust" }, { give: ["遗物包裹", 1] },
+           { set: { relic_package: true } }] },
+    // 彩蛋 · 七星灯：主帅帐旁，一次性（护灯得七星杖线索 / 凑近被姜维拦下）
+    { x: 8, y: 2, if: { flag: "egg_qixing", not: "done" },
+      do: [{ say: "ch11.qiXingDeng" },
+           { ask: { title: "七星灯", options: [
+             { label: "远远肃立，替丞相护灯", say: "ch11.qiXingHu",
+               do: [{ toast: "七星杖的线索：汉中军需" }] },
+             { label: "凑近看看", say: "ch11.qiXingKao" }] } },
+           { set: { egg_qixing: "done" } }] },
+  ]),
   transitions: [
     { x: 9,  y: 14, to: { map: "ch11_qishan", x: 16, y: 8 } },
     { x: 10, y: 14, to: { map: "ch11_qishan", x: 16, y: 8 } },
+    // 渡魂记 · 终章：西南角通往洛阳废墟·白莲花海（托付包裹后开放）
+    { x: 1, y: 14, if: { flag: "relic_package", exists: true }, to: { map: "ch11_luoyang", x: 2, y: 8 } },
+  ],
+  // 渡魂记：托付包裹后，西南角荒草间露出一条小路（洞口）
+  tileOverrides: [
+    { x: 1, y: 14, ch: "C", if: { flag: "relic_package", exists: true } },
   ],
 };
 

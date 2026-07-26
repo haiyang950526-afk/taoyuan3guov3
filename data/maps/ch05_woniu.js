@@ -26,6 +26,15 @@ MAPS["ch05_woniu"] = {
       appearIf: { flag: "q5", is: "sunqian" },
       onWin: [{ say: "ch05.zhaoyunJoin" }, { join: "赵云" }, { set: { q5: "zhaoyun" } },
               { toast: "赵云同行！东出山口往古城" }] },
+    // 桥段 mt4 · 童渊试枪：赵云入队后现身山道旁，一次性（B案赠铁枪）
+    { id: "tongyuan", x: 2, y: 10, color: "#c8c8d8", name: "白髯老翁",
+      appearIf: { flag: "q5", in: ["zhaoyun", "gucheng", "done"] },
+      branches: [
+        { if: { flag: "mt4", is: "done" }, say: "ch05.mt4After" },
+        { say: "ch05.mt4Meet",
+          do: [{ say: "ch05.mt4Talk" }, { giveEquip: "铁枪" },
+               { set: { mt4: "done" } }] },
+      ] },
   ],
   chests: [
     { x: 8, y: 10, id: "w1", items: { "还魂丹": 1 } },

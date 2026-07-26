@@ -1,6 +1,11 @@
 // 地图 · ch02_xiaopei 小沛（第二章主城：旅店+武器店+防具店+杂货店；吕布、报信兵、简雍在此）
 var MAPS = typeof MAPS !== "undefined" ? MAPS : {};
 
+// 彩蛋 · 塞翁失马：慰/贺只改一句台词（参考舌战群儒 ASK 写法）
+var SAI_ASK = { title: "塞上老翁：这是祸么？", say: "ch02.saiWengAsk1", options: [
+  { label: "慰问老丈", say: "ch02.saiWengWei" },
+  { label: "恭贺老丈", say: "ch02.saiWengHe" }] };
+
 MAPS["ch02_xiaopei"] = {
   name: "小沛",
   grid: [
@@ -66,6 +71,25 @@ MAPS["ch02_xiaopei"] = {
                { say: "ch03.intro" }, { chapter: "ch03" }, { set: { q3: "start" } },
                { warp: { map: "ch03_xudu", x: 10, y: 16 } },
                { toast: "第三章 · 寄人篱下" }] },
+      ] },
+    // 彩蛋 · 塞翁失马：村边老翁，两段式（失马 → 吕布袭下邳后回访领赏）
+    { id: "saiweng", x: 17, y: 16, color: "#a89a7a", name: "塞上老翁",
+      branches: [
+        { if: { flag: "egg_saiweng", is: "done" }, say: "ch02.saiWengDone" },
+        { if: { flag: "q2", in: ["lost", "done"] }, say: "ch02.saiWeng2",
+          do: [{ give: ["精铁", 2] }, { giveEquip: "淮南子" },
+               { set: { relic_huainanzi: true } }, { set: { egg_saiweng: "done" } }] },
+        { if: { flag: "egg_saiweng", is: "lost" }, say: "ch02.saiWeng1" },
+        { say: "ch02.saiWeng1",
+          do: [{ ask: SAI_ASK }, { set: { egg_saiweng: "lost" } }] },
+      ] },
+    // 名品 · 春秋左氏传（wh5）：老学究两次对话赠书（关羽夜读《春秋》梗）
+    { id: "oldman", x: 7, y: 13, color: "#8a7a9a", name: "老学究",
+      branches: [
+        { if: { flag: "wh5", is: "done" }, say: "ch02.xpOldManDone" },
+        { if: { flag: "wh5", is: "met" }, say: "ch02.xpOldMan2",
+          do: [{ giveEquip: "春秋左氏传" }, { set: { wh5: "done" } }, { set: { relic_chunqiu: true } }] },
+        { say: "ch02.xpOldMan1", do: [{ set: { wh5: "met" } }] },
       ] },
   ],
   chests: [],

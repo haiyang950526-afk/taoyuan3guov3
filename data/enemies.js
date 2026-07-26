@@ -25,11 +25,11 @@ const ENEMIES = {
 
   // —— 第一章 · 曹军（lv4-9） ——
   "曹兵":     { lv: 4, hp: 60,  atk: 17, int: 4,  def: 8,  spd: 6,  luck: 5, gold: [62, 100],   color: "#8a93a8", ai: "brute",
-                drops: [{ item: "草药", rate: 0.15 }, { item: "金疮药", rate: 0.08 }, { item: "皮甲", rate: 0.03 }, { item: "铁盔", rate: 0.03 }] },
+                drops: [{ item: "草药", rate: 0.15 }, { item: "金疮药", rate: 0.08 }, { item: "皮甲", rate: 0.03 }, { item: "铁盔", rate: 0.03 }, { item: "黄纸符", rate: 0.05 }] },
   "曹军弓手": { lv: 5, hp: 50,  atk: 21, int: 5,  def: 6,  spd: 10, luck: 8, gold: [75, 112],   color: "#6a8ab8", ai: "archer",
-                drops: [{ item: "草药", rate: 0.15 }, { item: "金疮药", rate: 0.08 }, { item: "皮盾", rate: 0.03 }, { item: "皮护腿", rate: 0.03 }] },
+                drops: [{ item: "草药", rate: 0.15 }, { item: "金疮药", rate: 0.08 }, { item: "皮盾", rate: 0.03 }, { item: "皮护腿", rate: 0.03 }, { item: "黄纸符", rate: 0.05 }] },
   "曹军什长": { lv: 7, hp: 110, atk: 20, int: 6,  def: 12, spd: 8,  luck: 6, gold: [112, 162],  color: "#5a6a88", ai: "brute", elite: true,
-                drops: [{ item: "金疮药", rate: 0.20 }, { item: "铁甲", rate: 0.05 }] },
+                drops: [{ item: "金疮药", rate: 0.20 }, { item: "铁甲", rate: 0.05 }, { item: "黄纸符", rate: 0.05 }] },
   "于禁":     { lv: 9, hp: 400, atk: 24, int: 12, def: 14, spd: 10, luck: 8, gold: [1000, 1000], color: "#3a4a78", ai: "strategist", boss: true, skill: "zhengshu",
                 drops: [{ item: "铁甲", rate: 1 }] },
 
@@ -207,6 +207,9 @@ const ENEMIES = {
 const BATTLE_GROUPS = {
   ch00_boss:      { enemies: ["黄巾头目", "黄巾贼", "黄巾贼"], boss: true,
                     pre: "ch00.bossPre", half: "ch00.bossHalf" },
+  // 支线 sq1 · 流民聚落：山洞深处的抢粮山贼
+  sq1_bandit:     { enemies: ["黄巾贼", "黄巾弓手", "黄巾贼"], boss: false,
+                    pre: "ch00.sq1Pre" },
   ch01_patrol:    { enemies: ["曹兵", "曹兵", "曹军弓手"], boss: false,
                     pre: "ch01.patrolPre" },
   ch01_boss:      { enemies: ["于禁", "曹军什长", "曹军弓手"], boss: true,

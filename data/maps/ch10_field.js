@@ -27,6 +27,15 @@ MAPS["ch10_field"] = {
   encounterRate: 0.11,
   encounterGroups: [["西川兵"], ["西川兵", "蜀军弓手"], ["蜀军弓手", "蜀军弓手"], ["西川兵", "蜀军名将"]],
   npcs: [],
+  triggers: [
+    // 桥段 mt5 · 义释严颜：雒城入口前的路径格，一次性（B案赠玉佩）
+    { x: 10, y: 1, if: { flag: "mt5", not: "done" },
+      do: [{ say: "ch10.mt5Pre" }, { say: "ch10.mt5Talk" }, { say: "ch10.mt5Talk2" },
+           { giveEquip: "玉佩" }, { set: { mt5: "done" } }] },
+    { x: 11, y: 1, if: { flag: "mt5", not: "done" },
+      do: [{ say: "ch10.mt5Pre" }, { say: "ch10.mt5Talk" }, { say: "ch10.mt5Talk2" },
+           { giveEquip: "玉佩" }, { set: { mt5: "done" } }] },
+  ],
   chests: [
     { x: 2, y: 12, id: "f1", items: { "精铁": 1 } },
     { x: 20, y: 4, id: "f2", items: { "精铁": 1 } },

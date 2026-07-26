@@ -50,6 +50,12 @@ MAPS["ch01_field"] = {
     { x: 23, y: 9,  if: { flag: "q1", is: "march" }, to: { map: "ch01_sishui", x: 1, y: 8 } },
     // 郯南村村口（路南）：走上小屋图标即进村
     { x: 11, y: 13, to: { map: "ch01_village", x: 9, y: 12 } },
+    // 渡魂记 · 第八章：郯城北郊明镜观旧址（q8 起开放）
+    { x: 1, y: 1, if: { flag: "q8", exists: true }, to: { map: "ch08_mingjing", x: 4, y: 4 } },
+  ],
+  // 渡魂记：q8 起，北郊荒草间露出明镜观山门（洞口）
+  tileOverrides: [
+    { x: 1, y: 1, ch: "C", if: { flag: "q8", exists: true } },
   ],
 };
 

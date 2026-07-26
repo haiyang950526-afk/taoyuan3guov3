@@ -50,6 +50,8 @@ MAPS["ch03_xudu"] = {
     { id: "dojo",   x: 14, y: 15, color: "#8a7a6a", name: "教头", facility: "dojo" },
     { id: "v1",     x: 7,  y: 11, color: "#4f8cff", name: "市民", linesKey: "ch03.xuduVillager" },
     { id: "v2",     x: 15, y: 13, color: "#d88a3a", name: "老者", linesKey: "ch03.xuduElder" },
+    // 渡魂记 · 第三章：街市百姓埋竹简线伏笔
+    { id: "v3",     x: 10, y: 11, color: "#6a9a7a", name: "百姓", linesKey: "ch03.dhStreet" },
     // 献帝：宫前召见
     { id: "xiandi", x: 10, y: 4, color: "#e8d84a", name: "献帝",
       branches: [
@@ -78,6 +80,18 @@ MAPS["ch03_xudu"] = {
           do: [{ set: { q3: "leave" } }, { toast: "火速离许！往南城门走" }] },
         { say: ["曹操：玄德公，许都住得可还习惯？"] },
       ] },
+    // 联动彩蛋 A1 · 倚天剑：相府前擦剑的侍卫
+    { id: "shiwei", x: 8, y: 15, color: "#8a93a8", name: "相府侍卫",
+      linesKey: "ch03.xjYi1" },
+    // 桥段 mt1 · 刘备问学郑玄：煮酒之后、离许之前可访，一次性（B案赠玉佩）
+    { id: "zhengxuan", x: 20, y: 13, color: "#b8a87a", name: "郑玄",
+      appearIf: { flag: "q3", in: ["wine", "zhao", "leave"] },
+      branches: [
+        { if: { flag: "mt1", is: "done" }, say: "ch03.mt1After" },
+        { say: "ch03.mt1Meet",
+          do: [{ say: "ch03.mt1Talk" }, { giveEquip: "玉佩" },
+               { set: { mt1: "done" } }] },
+      ] },
   ],
   chests: [
     { x: 20, y: 5, id: "c1", gold: 300 },
@@ -92,6 +106,13 @@ MAPS["ch03_xudu"] = {
     { x: 4,  y: 15, face: [0, -1], to: { map: "ch03_item_in", x: 7, y: 8 } },
     // 民房下钻（朝门才进，路过不触发）
     { x: 18, y: 13, face: [0, -1], to: { map: "ch03_xudu_house_in", x: 7, y: 8 } },
+    // 渡魂记 · 第三章：相府荀彧书房（煮酒之后可入；南向推门）
+    { x: 5, y: 15, face: [0, 1], if: { flag: "q3", in: ["wine", "zhao", "leave"] },
+      to: { map: "ch03_study", x: 4, y: 4 } },
+  ],
+  // 渡魂记：煮酒之后，相府墙上门扉显现（仅视觉，通行仍靠上方传送）
+  tileOverrides: [
+    { x: 5, y: 16, ch: "D", if: { flag: "q3", in: ["wine", "zhao", "leave"] } },
   ],
 };
 

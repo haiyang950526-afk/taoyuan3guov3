@@ -32,6 +32,16 @@ MAPS["ch06_longzhong"] = {
                { warp: { map: "ch06_xinye", x: 10, y: 16 } },
                { toast: "第七章 · 火烧博望（军师/图鉴就绪）" }] },
       ] },
+    // 桥段 mt3 · 黄承彦授阵图：三顾完成后现身草庐旁，一次性（B案赠《石阵书》）
+    { id: "huangcy", x: 13, y: 1, color: "#b8a05a", name: "黄承彦",
+      appearIf: { flag: "q6", is: "done" },
+      branches: [
+        { if: { flag: "mt3", is: "done" }, say: "ch06.mt3After" },
+        { say: "ch06.mt3Meet",
+          do: [{ say: "ch06.mt3Talk" }, { give: ["石阵书", 1] },
+               { giveEquip: "白羽扇" }, { set: { relic_baiyushan: true } },
+               { set: { mt3: "done" } }] },
+      ] },
   ],
   chests: [
     { x: 1, y: 10, id: "l1", items: { "石阵书": 1 } },

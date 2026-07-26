@@ -25,6 +25,15 @@ MAPS["ch05_xingyang"] = {
       boss: "ch05_wangzhi",
       appearIf: { flag: "q5", is: "bianxi" },
       onWin: [{ set: { q5: "wangzhi" } }, { toast: "荥阳已过，前往黄河渡口" }] },
+    // 渡魂记 · 第五章：城外废弃茶棚的瞎眼老妪（"你身上有她的味道"需木牌）
+    { id: "laoyu", x: 2, y: 5, color: "#9a8a7a", name: "瞎眼老妪",
+      branches: [
+        { if: { flag: "dh_tea", is: "done" },
+          say: ["老妪：那句话，老婆子只讲一遍。记下了，就替她好好走。"] },
+        { if: { flag: "relic_mupai", exists: true },
+          say: "ch05.dhTea", do: [{ set: { dh_tea: "done" } }] },
+        { say: ["老妪：过路的军爷，喝口粗茶再走吧……这棚子，好久没人来了。"] },
+      ] },
   ],
   chests: [
     { x: 2, y: 2, id: "x1", items: { "还魂丹": 1 } },

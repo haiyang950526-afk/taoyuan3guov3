@@ -84,6 +84,7 @@ function startBattle(groupKey, opts) {
   B.over = false;
   B.heroIdx = 0;
   B.actions = [];
+  B.seedUsed = false;   // 白莲之种：每场战斗限触发一次
   S.party.forEach(h => { h.defending = false; h.atkBuff = 1; h.defBuffHero = 1; });
   // 图鉴：见过即录
   for (const k of names) {
@@ -385,6 +386,8 @@ function runQueue(queue) {
       let coef = sk.coef * skillScale(a.lv);
       if (B.strat && B.strat.type === "magicDmg") coef *= (1 + B.strat.value);
       let dmg = magicDmg(bStat(a, "int"), coef, tInt, linked);
+      // 名品 · 六韬残页被动：军师计策伤害+10%（全游戏唯一百分比被动，relic_liutao flag）
+      if (S.flags.relic_liutao) dmg = Math.round(dmg * 1.1);
       // 八卦阵等计策抗性（敌方施放时对我方生效，预留）
       if (!isEnemy(act.target) && S.formation && FORMATIONS[S.formation] &&
           FORMATIONS[S.formation].magicResist) {
@@ -405,7 +408,9 @@ function runQueue(queue) {
       blog(actorName(a) + " 祭起" + sk.name + "！");
       for (const e of aliveEnemies()) {
         const linked = sk.terrain && sk.terrain === B.terrain;
-        const dmg = magicDmg(bStat(a, "int"), coef, e.int, linked);
+        let dmg = magicDmg(bStat(a, "int"), coef, e.int, linked);
+        // 名品 · 六韬残页被动：军师计策伤害+10%（同上，全体计策也生效）
+        if (S.flags.relic_liutao) dmg = Math.round(dmg * 1.1);
         e.hp = Math.max(0, e.hp - dmg);
         blog(e.name + " 受到 " + dmg + " 点伤害" + (linked ? "（地形联动！）" : "") +
           (e.hp <= 0 ? "，倒下了！" : "。"));
@@ -713,6 +718,18 @@ function battleLose() {
       S.party.forEach(h => { h.hp = Math.max(1, h.hp); });
       endBattle("loss");
     }, 1500);
+    return;
+  }
+  // 白莲之种：队伍里有人饰品位装备且本场未触发过——全队力竭时自动重整旗鼓
+  if (!B.seedUsed && S.party.some(h => { const a = equipOf(h, "acc"); return a && a.id === "白莲之种"; })) {
+    S.party.forEach(h => { h.hp = Math.ceil(h.maxHp * 0.3); });
+    blog("（白莲之种泛起微光——'渡人，不必非用命。'）");
+    blog("（全军重整旗鼓！）");
+    B.seedUsed = true;
+    B.over = false;
+    B.heroIdx = 0;
+    B.actions = [];
+    battleInput();
     return;
   }
   blog("全军覆没……");

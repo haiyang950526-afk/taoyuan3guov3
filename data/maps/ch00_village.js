@@ -33,6 +33,21 @@ MAPS["ch00_village"] = {
       lines: ["曹老太爷在境内遇害，曹将军怕是要兴兵报仇，徐州要遭殃喽。"] },
     { id: "vil3", x: 11, y: 12, color: "#7a8a9a", name: "樵夫",
       lines: ["北边山里有处山洞，黑黢黢的，村里人砍柴都绕着走。"] },
+    // 支线 sq1 · 流民聚落：寄居村边的流民（头领发布支线）
+    { id: "sq1_boss", x: 13, y: 10, color: "#a89a7a", name: "流民头领",
+      branches: [
+        { if: { flag: "sq1", is: "done" }, say: "ch00.sq1After" },
+        { if: { flag: "sq1", is: "bag" }, say: "ch00.sq1Done",
+          do: [{ gold: 800 }, { give: ["金疮药", 2] },
+               { set: { sq1: "done" } }, { toast: "流民心意：800 金 + 金疮药×2" }] },
+        { if: { flag: "sq1", is: "accept" }, say: "ch00.sq1Accepted" },
+        { say: "ch00.sq1Ask",
+          do: [{ set: { sq1: "accept" } }, { toast: "接取支线：夺回粮袋（西北山洞深处）" }] },
+      ] },
+    { id: "sq1_granny", x: 15, y: 12, color: "#9a8a8a", name: "流民老婆婆",
+      linesKey: "ch00.sq1Granny" },
+    { id: "sq1_kid", x: 13, y: 12, color: "#d8b93a", name: "流民孩童",
+      linesKey: "ch00.sq1Kid" },
   ],
   chests: [],
   transitions: [

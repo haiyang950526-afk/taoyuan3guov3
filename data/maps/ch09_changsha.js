@@ -43,6 +43,13 @@ MAPS["ch09_changsha"] = {
     { id: "camp",   x: 16, y: 11, color: "#7a8a9a", name: "老兵", facility: "camp" },
     { id: "v1",     x: 7,  y: 7,  color: "#4f8cff", name: "市民",
       lines: ["黄老将军箭术通神，就是韩太守待他不好。", "听说关羽也是使刀的好手，这下有好戏看了。"] },
+    // 联动彩蛋 D6 · 三国杀：市集打竹牌的孩童（两段口风循环）
+    { id: "haitong", x: 6, y: 11, color: "#d8b93a", name: "孩童",
+      branches: [
+        { if: { flag: "xj_d6", not: "done" }, say: "ch09.xjPai1",
+          do: [{ set: { xj_d6: "done" } }] },
+        { say: "ch09.xjPai2", do: [{ set: { xj_d6: "p1" } }] },
+      ] },
     // 收服战：黄忠（3 回合内逼至三成血即收服；打死则击退可重试）
     { id: "huangzhong", x: 10, y: 1, color: "#c8a03a", name: "黄忠",
       boss: "ch09_huangzhong",

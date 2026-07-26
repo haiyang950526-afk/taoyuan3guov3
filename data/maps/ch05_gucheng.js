@@ -70,6 +70,10 @@ MAPS["ch05_gucheng"] = {
                      { joinBench: "周仓" },
                      { set: { q5: "gucheng" } },
                      { toast: "兄弟重聚！赵云入队，孙乾、周仓入后备" }] }] },
+    // 联动彩蛋 B3 · 俺也一样：重聚后经过城门内侧触发，一次性（前置空触发器吞掉已触发状态）
+    { x: 2, y: 8, if: { flag: "xj_b3", is: "done" }, do: [] },
+    { x: 2, y: 8, if: { flag: "q5", is: "gucheng" },
+      do: [{ say: "ch05.xjYiYang" }, { set: { xj_b3: "done" } }] },
   ],
   transitions: [
     { x: 0, y: 8, to: { map: "ch05_woniu", x: 14, y: 6 } },
