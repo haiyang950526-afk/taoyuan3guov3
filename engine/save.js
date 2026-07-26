@@ -16,6 +16,9 @@ function unpackHero(p) {
   h.exp = p.exp;
   h.hp = Math.min(p.hp, h.maxHp);
   h.mp = Math.min(p.mp, h.maxMp);
+  // 旧档可能被剧情物品 bug 污染（NaN/Infinity），兜底回满
+  if (!isFinite(h.hp)) h.hp = h.maxHp;
+  if (!isFinite(h.mp)) h.mp = h.maxMp;
   h.equips = p.equips || { weapon: null, armor: null, helmet: null, legs: null, acc: null };
   h.skills = p.skills || h.skills;
   return h;

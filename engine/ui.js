@@ -614,6 +614,11 @@ function showItems() {
       }
       if (it.type !== "item") continue;
       any = true;
+      // 剧情物品：只展示，不可使用（没有 heal/mp/revive/dmgAll 字段，用了会算出 NaN）
+      if (!it.heal && !it.mp && !it.revive && !it.dmgAll) {
+        body.appendChild(line(id + " × " + S.inv[id] + "（剧情物品：" + it.desc + "）"));
+        continue;
+      }
       body.appendChild(line(id + " × " + S.inv[id] + "（" + it.desc + "）"));
       if (it.revive) {
         // 复活类：只能给阵亡队友用

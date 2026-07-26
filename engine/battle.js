@@ -172,7 +172,9 @@ function pickItem(h, done) {
   let any = false;
   for (const id in S.inv) {
     const it = ITEMS[id];
-    if (!it || it.type !== "item" || S.inv[id] <= 0 || it.mat) continue;
+    // 剧情物品（无任何使用效果字段）不进战斗道具栏
+    if (!it || it.type !== "item" || S.inv[id] <= 0 || it.mat ||
+        (!it.heal && !it.mp && !it.revive && !it.dmgAll)) continue;
     any = true;
     cmd.appendChild(btn(id + " ×" + S.inv[id] + "（" + it.desc + "）", () => {
       if (it.revive) pickDeadAlly(t => done({ actor: h, type: "item", item: id, target: t }));
