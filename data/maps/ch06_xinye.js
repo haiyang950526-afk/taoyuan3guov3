@@ -14,15 +14,15 @@ MAPS["ch06_xinye"] = {
   grid: [
     "##########GG##########",
     "#.......,,,,.........#",
-    "#..BBBB...BBBBBBBB...#",
-    "#..BBBB...BBBBBBBBT..#",
-    "#..BDBB...BBDBBDBB...#",
+    "#....................#",
+    "#..BB......BB.BB..T..#",
+    "#..DB......DB.DB.....#",
     "#,,,,,,,,,,,,,,,,,,,,#",
     "#...T...,,.....T.....#",
     "#.......,,...........#",
-    "#..BBBB.,,BBBB.......#",
-    "#..BBBB.,,BBBB....T..#",
-    "#..BDBB.,,BBDB.......#",
+    "#.......,,...........#",
+    "#..BB...,,.BB.....T..#",
+    "#..DB...,,.DB........#",
     "#,,,,,,,,,,,,,,,,,,,,#",
     "#.....T...,,.T.......#",
     "#.........,,.........#",
@@ -34,10 +34,10 @@ MAPS["ch06_xinye"] = {
   encounterTiles: [],
   // 建筑招牌（画在顶部居中的 B 格上）
   signs: [
-    { x: 4,  y: 2, text: "客", color: "#ffd166" },
-    { x: 12, y: 2, text: "武", color: "#ffd166" },
-    { x: 4,  y: 8, text: "药", color: "#ffd166" },
-    { x: 12, y: 8, text: "装", color: "#ffd166" },
+    { x: 3, y: 3, text: "客", color: "#ffd166" },
+    { x: 11, y: 3, text: "武", color: "#ffd166" },
+    { x: 3, y: 9, text: "药", color: "#ffd166" },
+    { x: 11, y: 9, text: "装", color: "#ffd166" },
   ],
   npcs: [
     // 北门口告示牌
@@ -106,20 +106,22 @@ MAPS["ch06_xinye"] = {
                      { toast: "护送百姓渡江（野外三场遭遇战）" }] }] },
   ],
   chests: [],
-  transitions: [
-    // 北门：第六章通野外；第七章通博望坡
+    transitions: [
     { x: 10, y: 0,  to: { map: "ch06_field", x: 10, y: 16 } },
     { x: 11, y: 0,  to: { map: "ch06_field", x: 10, y: 16 } },
-    // 南门：第七章起通博望坡
     { x: 10, y: 17, if: { flag: "q7", exists: true }, to: { map: "ch07_bowang", x: 10, y: 12 } },
     { x: 11, y: 17, if: { flag: "q7", exists: true }, to: { map: "ch07_bowang", x: 10, y: 12 } },
-    // 店铺室内下钻（朝门才进，路过不触发）
-    { x: 4,  y: 5,  face: [0, -1], to: { map: "ch06_inn_in", x: 7, y: 8 } },
-    { x: 12, y: 5,  face: [0, -1], to: { map: "ch06_weapon_in", x: 7, y: 8 } },
-    { x: 12, y: 11, face: [0, -1], to: { map: "ch06_armor_in", x: 7, y: 8 } },
-    { x: 4,  y: 11, face: [0, -1], to: { map: "ch06_item_in", x: 7, y: 8 } },
-    // 民房下钻（朝门才进，路过不触发）
+    // 室内下钻（朝门才进，路过不触发）
+    { x: 3, y: 5, face: [0, -1], to: { map: "ch06_inn_in", x: 7, y: 8 } },
+    { x: 4, y: 5, face: [0, -1], to: { map: "ch06_inn_in", x: 7, y: 8 } },
+    { x: 11, y: 5, face: [0, -1], to: { map: "ch06_weapon_in", x: 7, y: 8 } },
+    { x: 12, y: 5, face: [0, -1], to: { map: "ch06_weapon_in", x: 7, y: 8 } },
+    { x: 14, y: 5, face: [0, -1], to: { map: "ch06_xinye_house_in", x: 7, y: 8 } },
     { x: 15, y: 5, face: [0, -1], to: { map: "ch06_xinye_house_in", x: 7, y: 8 } },
+    { x: 3, y: 11, face: [0, -1], to: { map: "ch06_item_in", x: 7, y: 8 } },
+    { x: 4, y: 11, face: [0, -1], to: { map: "ch06_item_in", x: 7, y: 8 } },
+    { x: 11, y: 11, face: [0, -1], to: { map: "ch06_armor_in", x: 7, y: 8 } },
+    { x: 12, y: 11, face: [0, -1], to: { map: "ch06_armor_in", x: 7, y: 8 } },
   ],
 };
 

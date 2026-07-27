@@ -6,9 +6,9 @@ MAPS["ch05_gucheng"] = {
   grid: [
     "RRRRRRRRRRRRRRRR",
     "R..............R",
-    "R..BBBBBBBB....R",
-    "R..BBBBBBBBT...R",
-    "R..BDBBBDBB....R",
+    "R..............R",
+    "R..BB..BB..T...R",
+    "R..DB..DB......R",
     "R..............R",
     "R...,T.....T...R",
     "R...,..........R",
@@ -20,7 +20,7 @@ MAPS["ch05_gucheng"] = {
   encounterTiles: [],
   // 建筑招牌（画在顶部居中的 B 格上）
   signs: [
-    { x: 4,  y: 2, text: "客", color: "#ffd166" },
+    { x: 3, y: 3, text: "客", color: "#ffd166" },
   ],
   npcs: [
     // 城门口告示牌（西门内侧路旁）
@@ -75,9 +75,10 @@ MAPS["ch05_gucheng"] = {
     { x: 2, y: 8, if: { flag: "q5", is: "gucheng" },
       do: [{ say: "ch05.xjYiYang" }, { set: { xj_b3: "done" } }] },
   ],
-  transitions: [
+    transitions: [
     { x: 0, y: 8, to: { map: "ch05_woniu", x: 14, y: 6 } },
-    // 民房下钻（朝门才进，路过不触发）
+    // 室内下钻（朝门才进，路过不触发）
+    { x: 7, y: 5, face: [0, -1], to: { map: "ch05_gucheng_house_in", x: 7, y: 8 } },
     { x: 8, y: 5, face: [0, -1], to: { map: "ch05_gucheng_house_in", x: 7, y: 8 } },
   ],
 };

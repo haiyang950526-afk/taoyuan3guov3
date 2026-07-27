@@ -5,9 +5,9 @@ MAPS["ch00_field"] = {
   name: "徐州城外",
   grid: [
     "RRRRRRRRRRRRRRRRRRRCCRRR",
-    "RCC..TT..........WW....R",
+    "RCC..TT.........WW.....R",
     "RC...TTT....T...WW.....G",
-    "R......T.....T...WW....G",
+    "R......T.....T..WW.....G",
     "R....................,.R",
     "R..T......T......T..,..R",
     "R...................,..R",
@@ -23,6 +23,26 @@ MAPS["ch00_field"] = {
     "R..............,WW.....R",
     "RRRRRRRRRRGGRRRRRRRRRRRR",
   ],
+  tileArt: {
+    "22,4": "Derived/road_junction_left.png",
+    "21,5": "Derived/road_junction_up.png",
+    "22,5": "Derived/road_corner_bottom_right.png",
+    "19,7": "Derived/road_edge_right.png",
+    "20,7": "Derived/road_junction_up.png",
+    "21,7": "Derived/road_horizontal.png",
+    "22,7": "Derived/road_junction_down.png",
+    "19,8": "Derived/road_junction_right.png",
+    "22,8": "Derived/road_corner_bottom_left.png",
+    "18,11": "Derived/road_junction_up.png",
+    "17,12": "Derived/road_junction_up.png",
+    "15,15": "Derived/road_edge_right.png",
+    "16,15": "Derived/road_junction_left.png",
+    "17,15": "Terrain/Water/water_center.png",
+    "18,15": "Terrain/Water/water_center.png",
+    "15,16": "Derived/road_junction_right.png",
+    "16,16": "Terrain/Water/water_center.png",
+    "17,16": "Terrain/Water/water_center.png",
+  },
   // 藏宝洞口（樗蒲首次全白后才发现）：平时显示山石 R，条件成立才变为洞口 C
   tileOverrides: [
     { x: 2, y: 17, ch: "C", if: { flag: "tavern_clue", exists: true } },
@@ -73,19 +93,14 @@ MAPS["ch00_field"] = {
     { x: 1,  y: 1,  to: { map: "ch00_cave", x: 10, y: 11 } },
     { x: 10, y: 17, to: { map: "ch00_city", x: 10, y: 16 } },
     { x: 11, y: 17, to: { map: "ch00_city", x: 10, y: 16 } },
-    // 北缘山地洞口：北山山洞（迷宫）
     { x: 19, y: 0,  to: { map: "ch00_cave2", x: 8, y: 11 } },
     { x: 20, y: 0,  to: { map: "ch00_cave2", x: 9, y: 11 } },
-    // 南缘山地洞口：藏宝山洞（酒馆樗蒲首次全白后洞口才生效）
     { x: 2,  y: 17, if: { flag: "tavern_clue", exists: true }, to: { map: "ch00_cave3", x: 6, y: 6 } },
     { x: 3,  y: 17, if: { flag: "tavern_clue", exists: true }, to: { map: "ch00_cave3", x: 6, y: 6 } },
-    // 东南门：第一章起通郯城野外
     { x: 23, y: 8,  if: { flag: "q1", exists: true }, to: { map: "ch01_field", x: 1, y: 8 } },
     { x: 23, y: 9,  if: { flag: "q1", exists: true }, to: { map: "ch01_field", x: 1, y: 8 } },
-    // 东北门：第二章起通小沛方向
     { x: 23, y: 2,  if: { flag: "q2", exists: true }, to: { map: "ch02_field_east", x: 1, y: 2 } },
     { x: 23, y: 3,  if: { flag: "q2", exists: true }, to: { map: "ch02_field_east", x: 1, y: 2 } },
-    // 徐家庄村口（西南）：走上小屋图标即进村
     { x: 4, y: 13, to: { map: "ch00_village", x: 9, y: 12 } },
   ],
 };

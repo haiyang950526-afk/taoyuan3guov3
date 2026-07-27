@@ -23,8 +23,8 @@ MAPS["ch02b_weapon_in"] = {
   ],
   chests: [],
   transitions: [
-    { x: 7, y: 9, to: { map: "ch02_xiapi", x: 11, y: 5 } },
-    { x: 8, y: 9, to: { map: "ch02_xiapi", x: 11, y: 5 } },
+    { x: 7, y: 9, to: { map: "ch02_xiapi", x: 12, y: 5 } },
+    { x: 8, y: 9, to: { map: "ch02_xiapi", x: 12, y: 5 } },
   ],
 };
 

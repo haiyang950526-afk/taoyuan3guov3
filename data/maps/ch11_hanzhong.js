@@ -6,15 +6,15 @@ MAPS["ch11_hanzhong"] = {
   grid: [
     "##########GG##########",
     "#.......,,,,.........#",
-    "#..BBBB...BBBBBBBB...#",
-    "#..BBBB...BBBBBBBBT..#",
-    "#..BDBB...BBDBBDBB...#",
+    "#....................#",
+    "#..BB......BB.BB..T..#",
+    "#..DB......DB.DB.....#",
     "#,,,,,,,,,,,,,,,,,,,,#",
     "#...T...,,.....T.....#",
     "#.......,,...........#",
-    "#..BBBB.,,BBBB.......#",
-    "#..BBBB.,,BBBB....T..#",
-    "#..BDBB.,,BBDB.......#",
+    "#.......,,...........#",
+    "#..BB...,,.BB.....T..#",
+    "#..DB...,,.DB........#",
     "#,,,,,,,,,,,,,,,,,,,,#",
     "#.....T...,,.T.......#",
     "#.........,,.........#",
@@ -26,10 +26,10 @@ MAPS["ch11_hanzhong"] = {
   encounterTiles: [],
   // 建筑招牌（画在顶部居中的 B 格上）
   signs: [
-    { x: 4,  y: 2, text: "客", color: "#ffd166" },
-    { x: 12, y: 2, text: "武", color: "#ffd166" },
-    { x: 4,  y: 8, text: "药", color: "#ffd166" },
-    { x: 12, y: 8, text: "装", color: "#ffd166" },
+    { x: 3, y: 3, text: "客", color: "#ffd166" },
+    { x: 11, y: 3, text: "武", color: "#ffd166" },
+    { x: 3, y: 9, text: "药", color: "#ffd166" },
+    { x: 11, y: 9, text: "装", color: "#ffd166" },
   ],
   npcs: [
     // 北门口告示牌
@@ -52,16 +52,20 @@ MAPS["ch11_hanzhong"] = {
       ] },
   ],
   chests: [],
-  transitions: [
+    transitions: [
     { x: 10, y: 0,  if: { flag: "q11", in: ["tianshui", "jiangwei"] }, to: { map: "ch11_tianshui", x: 8, y: 10 } },
     { x: 11, y: 0,  if: { flag: "q11", in: ["tianshui", "jiangwei"] }, to: { map: "ch11_tianshui", x: 8, y: 10 } },
-    // 店铺室内下钻（朝门才进，路过不触发）
-    { x: 4,  y: 5,  face: [0, -1], to: { map: "ch11_inn_in", x: 7, y: 8 } },
-    { x: 12, y: 5,  face: [0, -1], to: { map: "ch11_weapon_in", x: 7, y: 8 } },
-    { x: 12, y: 11, face: [0, -1], to: { map: "ch11_armor_in", x: 7, y: 8 } },
-    { x: 4,  y: 11, face: [0, -1], to: { map: "ch11_item_in", x: 7, y: 8 } },
-    // 民房下钻（朝门才进，路过不触发）
+    // 室内下钻（朝门才进，路过不触发）
+    { x: 3, y: 5, face: [0, -1], to: { map: "ch11_inn_in", x: 7, y: 8 } },
+    { x: 4, y: 5, face: [0, -1], to: { map: "ch11_inn_in", x: 7, y: 8 } },
+    { x: 11, y: 5, face: [0, -1], to: { map: "ch11_weapon_in", x: 7, y: 8 } },
+    { x: 12, y: 5, face: [0, -1], to: { map: "ch11_weapon_in", x: 7, y: 8 } },
+    { x: 14, y: 5, face: [0, -1], to: { map: "ch11_hanzhong_house_in", x: 7, y: 8 } },
     { x: 15, y: 5, face: [0, -1], to: { map: "ch11_hanzhong_house_in", x: 7, y: 8 } },
+    { x: 3, y: 11, face: [0, -1], to: { map: "ch11_item_in", x: 7, y: 8 } },
+    { x: 4, y: 11, face: [0, -1], to: { map: "ch11_item_in", x: 7, y: 8 } },
+    { x: 11, y: 11, face: [0, -1], to: { map: "ch11_armor_in", x: 7, y: 8 } },
+    { x: 12, y: 11, face: [0, -1], to: { map: "ch11_armor_in", x: 7, y: 8 } },
   ],
 };
 

@@ -26,8 +26,8 @@ MAPS["ch03_xudu_house_in"] = {
   ], // 宝箱已启用
   transitions: [
     // 门口：回许都（落在民房门旁一格，不踩入口 transition）
-    { x: 7, y: 9, to: { map: "ch03_xudu", x: 17, y: 13 } },
-    { x: 8, y: 9, to: { map: "ch03_xudu", x: 17, y: 13 } },
+    { x: 7, y: 9, to: { map: "ch03_xudu", x: 16, y: 13 } },
+    { x: 8, y: 9, to: { map: "ch03_xudu", x: 16, y: 13 } },
   ],
 };
 

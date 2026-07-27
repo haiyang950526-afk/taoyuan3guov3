@@ -23,8 +23,8 @@ MAPS["ch02_xiaopei_house_in"] = {
   chests: [], // 预留宝箱位（未来支线用）
   transitions: [
     // 门口：回小沛（落在民房门旁一格，不踩入口 transition）
-    { x: 7, y: 9, to: { map: "ch02_xiaopei", x: 3, y: 16 } },
-    { x: 8, y: 9, to: { map: "ch02_xiaopei", x: 3, y: 16 } },
+    { x: 7, y: 9, to: { map: "ch02_xiaopei", x: 4, y: 16 } },
+    { x: 8, y: 9, to: { map: "ch02_xiaopei", x: 4, y: 16 } },
   ],
 };
 

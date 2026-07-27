@@ -6,15 +6,15 @@ MAPS["ch06_village"] = {
   grid: [
     "RRRRRRRRRRRRRRRRRRRR",
     "R..T...........T...R",
-    "R.BBBB.....BBBB....R",
-    "R.BBBB.....BBBB....R",
-    "R.BDBB.....BDBB....R",
+    "R..................R",
+    "R.BB.......BB......R",
+    "R.BD.......BD......R",
     "R..,........,......R",
     "R..,........,...T..R",
     "R..,,,,,,,,,,......R",
-    "R.BBBB...,,........R",
-    "R.BBBB...,,....v...R",
-    "R.BDBB...,,....T...R",
+    "R........,,........R",
+    "R.BB.....,,....v...R",
+    "R.BD.....,,....T...R",
     "R..,,,,,,,.........R",
     "R........,,.....T..R",
     "RRRRRRRRRGGRRRRRRRRR",
@@ -22,8 +22,8 @@ MAPS["ch06_village"] = {
   encounterTiles: [],
   // 建筑招牌（画在建筑顶格）
   signs: [
-    { x: 3, y: 2, text: "客", color: "#ffd166" },
-    { x: 12, y: 2, text: "药", color: "#ffd166" },
+    { x: 2, y: 3, text: "客", color: "#ffd166" },
+    { x: 11, y: 3, text: "药", color: "#ffd166" },
   ],
   // 左下民房：原预留宝箱房，现已可进入（室内 ch06_village_house_in，宝箱位预留）
   npcs: [
@@ -35,14 +35,17 @@ MAPS["ch06_village"] = {
       lines: ["西边隆中住着位卧龙先生，村里人都说他是星宿下凡。"] },
   ],
   chests: [],
-  transitions: [
-    // 村口：回新野野外（落在村图标旁的草地）
+    transitions: [
+    // 村口：出村（落在村图标旁的路上）
     { x: 9, y: 13, to: { map: "ch06_field", x: 9, y: 13 } },
     { x: 10, y: 13, to: { map: "ch06_field", x: 9, y: 13 } },
     // 客栈/药铺室内下钻（朝门才进，路过不触发）
+    { x: 2, y: 5, face: [0, -1], to: { map: "ch06_village_inn_in", x: 7, y: 8 } },
     { x: 3, y: 5, face: [0, -1], to: { map: "ch06_village_inn_in", x: 7, y: 8 } },
+    { x: 11, y: 5, face: [0, -1], to: { map: "ch06_village_item_in", x: 7, y: 8 } },
     { x: 12, y: 5, face: [0, -1], to: { map: "ch06_village_item_in", x: 7, y: 8 } },
     // 民房下钻（朝门才进，路过不触发）
+    { x: 2, y: 11, face: [0, -1], to: { map: "ch06_village_house_in", x: 7, y: 8 } },
     { x: 3, y: 11, face: [0, -1], to: { map: "ch06_village_house_in", x: 7, y: 8 } },
   ],
 };

@@ -6,15 +6,15 @@ MAPS["ch09_changsha"] = {
   grid: [
     "##########GG##########",
     "#.......,,,,.........#",
-    "#..BBBB...BBBB.......#",
-    "#..BBBB...BBBB....T..#",
-    "#..BDBB...BBDB.......#",
+    "#....................#",
+    "#..BB......BB.....T..#",
+    "#..DB......DB........#",
     "#,,,,,,,,,,,,,,,,,,,,#",
     "#...T...,,.....T.....#",
     "#.......,,...........#",
-    "#..BBBB.,,BBBB.......#",
-    "#..BBBB.,,BBBB....T..#",
-    "#..BDBB.,,BBDB.......#",
+    "#.......,,...........#",
+    "#..BB...,,.BB.....T..#",
+    "#..DB...,,.DB........#",
     "#,,,,,,,,,,,,,,,,,,,,#",
     "#.....T...,,.T.......#",
     "#.........,,.........#",
@@ -26,9 +26,9 @@ MAPS["ch09_changsha"] = {
   encounterTiles: [],
   // 建筑招牌（画在顶部居中的 B 格上）
   signs: [
-    { x: 4,  y: 2, text: "客", color: "#ffd166" },
-    { x: 12, y: 2, text: "武", color: "#ffd166" },
-    { x: 4,  y: 8, text: "药", color: "#ffd166" },
+    { x: 3, y: 3, text: "客", color: "#ffd166" },
+    { x: 11, y: 3, text: "武", color: "#ffd166" },
+    { x: 3, y: 9, text: "药", color: "#ffd166" },
   ],
   npcs: [
     // 城门口告示牌（南门内侧路旁）
@@ -70,13 +70,13 @@ MAPS["ch09_changsha"] = {
       ] },
   ],
   chests: [],
-  transitions: [
+    transitions: [
     { x: 10, y: 17, to: { map: "ch09_field_s", x: 16, y: 8 } },
     { x: 11, y: 17, to: { map: "ch09_field_s", x: 16, y: 8 } },
-    // 南门：零陵（黄忠收服后开放）
     { x: 10, y: 0,  if: { flag: "q9", is: "changsha" }, to: { map: "ch09_lingling", x: 10, y: 16 } },
     { x: 11, y: 0,  if: { flag: "q9", is: "changsha" }, to: { map: "ch09_lingling", x: 10, y: 16 } },
-    // 民房下钻（朝门才进，路过不触发）
+    // 室内下钻（朝门才进，路过不触发）
+    { x: 11, y: 11, face: [0, -1], to: { map: "ch09_changsha_house_in", x: 7, y: 8 } },
     { x: 12, y: 11, face: [0, -1], to: { map: "ch09_changsha_house_in", x: 7, y: 8 } },
   ],
 };

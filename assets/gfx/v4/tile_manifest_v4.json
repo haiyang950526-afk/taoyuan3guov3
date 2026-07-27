@@ -1,0 +1,1120 @@
+{
+  "pack_name": "three_kingdoms_tileset_v4_strict_tile_units",
+  "version": "V4",
+  "tile_unit_px": 32,
+  "rule": "Every exported PNG has pixel dimensions equal to tile_span * 32.",
+  "assets": [
+    {
+      "file": "Terrain/Base/grass_center.png",
+      "description": "grass center",
+      "category": "terrain",
+      "pixel_size": [
+        32,
+        32
+      ],
+      "tile_span": [
+        1,
+        1
+      ],
+      "source_sheet": "terrain_source_sheet.png"
+    },
+    {
+      "file": "Terrain/Base/deep_grass_center.png",
+      "description": "deep grass",
+      "category": "terrain",
+      "pixel_size": [
+        32,
+        32
+      ],
+      "tile_span": [
+        1,
+        1
+      ],
+      "source_sheet": "terrain_source_sheet.png"
+    },
+    {
+      "file": "Terrain/Base/flower_grass_center.png",
+      "description": "flower grass",
+      "category": "terrain",
+      "pixel_size": [
+        32,
+        32
+      ],
+      "tile_span": [
+        1,
+        1
+      ],
+      "source_sheet": "terrain_source_sheet.png"
+    },
+    {
+      "file": "Terrain/Base/sand_center.png",
+      "description": "sand center",
+      "category": "terrain",
+      "pixel_size": [
+        32,
+        32
+      ],
+      "tile_span": [
+        1,
+        1
+      ],
+      "source_sheet": "terrain_source_sheet.png"
+    },
+    {
+      "file": "Terrain/Base/dirt_stone_mixed_center.png",
+      "description": "dirt and stone mixed ground",
+      "category": "terrain",
+      "pixel_size": [
+        32,
+        32
+      ],
+      "tile_span": [
+        1,
+        1
+      ],
+      "source_sheet": "terrain_source_sheet.png"
+    },
+    {
+      "file": "Terrain/Water/water_center.png",
+      "description": "water center",
+      "category": "terrain",
+      "pixel_size": [
+        32,
+        32
+      ],
+      "tile_span": [
+        1,
+        1
+      ],
+      "source_sheet": "terrain_source_sheet.png"
+    },
+    {
+      "file": "Terrain/Forest/forest_center.png",
+      "description": "forest center",
+      "category": "terrain",
+      "pixel_size": [
+        32,
+        32
+      ],
+      "tile_span": [
+        1,
+        1
+      ],
+      "source_sheet": "terrain_source_sheet.png"
+    },
+    {
+      "file": "Terrain/Forest/bamboo_forest_center.png",
+      "description": "bamboo forest center",
+      "category": "terrain",
+      "pixel_size": [
+        32,
+        32
+      ],
+      "tile_span": [
+        1,
+        1
+      ],
+      "source_sheet": "terrain_source_sheet.png"
+    },
+    {
+      "file": "Terrain/Base/wasteland_dead_grass.png",
+      "description": "wasteland dead grass",
+      "category": "terrain",
+      "pixel_size": [
+        32,
+        32
+      ],
+      "tile_span": [
+        1,
+        1
+      ],
+      "source_sheet": "terrain_source_sheet.png"
+    },
+    {
+      "file": "Terrain/Farm/farm_field_seedlings.png",
+      "description": "farm field seedlings",
+      "category": "terrain",
+      "pixel_size": [
+        32,
+        32
+      ],
+      "tile_span": [
+        1,
+        1
+      ],
+      "source_sheet": "terrain_source_sheet.png"
+    },
+    {
+      "file": "Terrain/Mountain/mountain_brown.png",
+      "description": "brown mountain",
+      "category": "terrain",
+      "pixel_size": [
+        32,
+        32
+      ],
+      "tile_span": [
+        1,
+        1
+      ],
+      "source_sheet": "terrain_source_sheet.png"
+    },
+    {
+      "file": "Terrain/Mountain/snow_mountain.png",
+      "description": "snow mountain",
+      "category": "terrain",
+      "pixel_size": [
+        32,
+        32
+      ],
+      "tile_span": [
+        1,
+        1
+      ],
+      "source_sheet": "terrain_source_sheet.png"
+    },
+    {
+      "file": "Terrain/Mountain/cave_entrance.png",
+      "description": "cave entrance",
+      "category": "terrain",
+      "pixel_size": [
+        32,
+        32
+      ],
+      "tile_span": [
+        1,
+        1
+      ],
+      "source_sheet": "terrain_source_sheet.png"
+    },
+    {
+      "file": "Terrain/Mountain/volcano_active.png",
+      "description": "active volcano",
+      "category": "terrain",
+      "pixel_size": [
+        32,
+        32
+      ],
+      "tile_span": [
+        1,
+        1
+      ],
+      "source_sheet": "terrain_source_sheet.png"
+    },
+    {
+      "file": "Terrain/River/river_vertical.png",
+      "description": "vertical river",
+      "category": "terrain",
+      "pixel_size": [
+        32,
+        32
+      ],
+      "tile_span": [
+        1,
+        1
+      ],
+      "source_sheet": "terrain_source_sheet.png"
+    },
+    {
+      "file": "Terrain/River/river_horizontal.png",
+      "description": "horizontal river",
+      "category": "terrain",
+      "pixel_size": [
+        32,
+        32
+      ],
+      "tile_span": [
+        1,
+        1
+      ],
+      "source_sheet": "terrain_source_sheet.png"
+    },
+    {
+      "file": "Terrain/River/river_bend_top_left.png",
+      "description": "river bend top left",
+      "category": "terrain",
+      "pixel_size": [
+        32,
+        32
+      ],
+      "tile_span": [
+        1,
+        1
+      ],
+      "source_sheet": "terrain_source_sheet.png"
+    },
+    {
+      "file": "Terrain/River/river_bend_top_right.png",
+      "description": "river bend top right",
+      "category": "terrain",
+      "pixel_size": [
+        32,
+        32
+      ],
+      "tile_span": [
+        1,
+        1
+      ],
+      "source_sheet": "terrain_source_sheet.png"
+    },
+    {
+      "file": "Terrain/River/river_bend_bottom_left.png",
+      "description": "river bend bottom left",
+      "category": "terrain",
+      "pixel_size": [
+        32,
+        32
+      ],
+      "tile_span": [
+        1,
+        1
+      ],
+      "source_sheet": "terrain_source_sheet.png"
+    },
+    {
+      "file": "Terrain/River/river_bend_bottom_right.png",
+      "description": "river bend bottom right",
+      "category": "terrain",
+      "pixel_size": [
+        32,
+        32
+      ],
+      "tile_span": [
+        1,
+        1
+      ],
+      "source_sheet": "terrain_source_sheet.png"
+    },
+    {
+      "file": "Terrain/Base/grass_alt_center.png",
+      "description": "alternate grass center",
+      "category": "terrain",
+      "pixel_size": [
+        32,
+        32
+      ],
+      "tile_span": [
+        1,
+        1
+      ],
+      "source_sheet": "terrain_source_sheet.png"
+    },
+    {
+      "file": "Terrain/Transitions/Grass_Sand/grass_sand_edge_top.png",
+      "description": "grass-sand edge top",
+      "category": "terrain",
+      "pixel_size": [
+        32,
+        32
+      ],
+      "tile_span": [
+        1,
+        1
+      ],
+      "source_sheet": "terrain_source_sheet.png"
+    },
+    {
+      "file": "Terrain/Transitions/Grass_Sand/grass_sand_edge_bottom.png",
+      "description": "grass-sand edge bottom",
+      "category": "terrain",
+      "pixel_size": [
+        32,
+        32
+      ],
+      "tile_span": [
+        1,
+        1
+      ],
+      "source_sheet": "terrain_source_sheet.png"
+    },
+    {
+      "file": "Terrain/Transitions/Grass_Sand/grass_sand_edge_left.png",
+      "description": "grass-sand edge left",
+      "category": "terrain",
+      "pixel_size": [
+        32,
+        32
+      ],
+      "tile_span": [
+        1,
+        1
+      ],
+      "source_sheet": "terrain_source_sheet.png"
+    },
+    {
+      "file": "Terrain/Transitions/Grass_Sand/grass_sand_edge_right.png",
+      "description": "grass-sand edge right",
+      "category": "terrain",
+      "pixel_size": [
+        32,
+        32
+      ],
+      "tile_span": [
+        1,
+        1
+      ],
+      "source_sheet": "terrain_source_sheet.png"
+    },
+    {
+      "file": "Terrain/Transitions/Grass_Sand/grass_sand_diagonal_a.png",
+      "description": "grass-sand diagonal A",
+      "category": "terrain",
+      "pixel_size": [
+        32,
+        32
+      ],
+      "tile_span": [
+        1,
+        1
+      ],
+      "source_sheet": "terrain_source_sheet.png"
+    },
+    {
+      "file": "Terrain/Transitions/Grass_Water/grass_water_edge_top.png",
+      "description": "grass-water edge top",
+      "category": "terrain",
+      "pixel_size": [
+        32,
+        32
+      ],
+      "tile_span": [
+        1,
+        1
+      ],
+      "source_sheet": "terrain_source_sheet.png"
+    },
+    {
+      "file": "Terrain/Transitions/Grass_Water/grass_water_edge_bottom.png",
+      "description": "grass-water edge bottom",
+      "category": "terrain",
+      "pixel_size": [
+        32,
+        32
+      ],
+      "tile_span": [
+        1,
+        1
+      ],
+      "source_sheet": "terrain_source_sheet.png"
+    },
+    {
+      "file": "Terrain/Transitions/Grass_Water/grass_water_edge_left.png",
+      "description": "grass-water edge left",
+      "category": "terrain",
+      "pixel_size": [
+        32,
+        32
+      ],
+      "tile_span": [
+        1,
+        1
+      ],
+      "source_sheet": "terrain_source_sheet.png"
+    },
+    {
+      "file": "Terrain/Transitions/Grass_Water/grass_water_edge_right.png",
+      "description": "grass-water edge right",
+      "category": "terrain",
+      "pixel_size": [
+        32,
+        32
+      ],
+      "tile_span": [
+        1,
+        1
+      ],
+      "source_sheet": "terrain_source_sheet.png"
+    },
+    {
+      "file": "Terrain/Transitions/Grass_Water/grass_water_diagonal_a.png",
+      "description": "grass-water diagonal A",
+      "category": "terrain",
+      "pixel_size": [
+        32,
+        32
+      ],
+      "tile_span": [
+        1,
+        1
+      ],
+      "source_sheet": "terrain_source_sheet.png"
+    },
+    {
+      "file": "Terrain/Transitions/Grass_Water/grass_water_diagonal_b.png",
+      "description": "grass-water diagonal B",
+      "category": "terrain",
+      "pixel_size": [
+        32,
+        32
+      ],
+      "tile_span": [
+        1,
+        1
+      ],
+      "source_sheet": "terrain_source_sheet.png"
+    },
+    {
+      "file": "Terrain/Transitions/Sand_Water/sand_water_diagonal_a.png",
+      "description": "sand-water diagonal A",
+      "category": "terrain",
+      "pixel_size": [
+        32,
+        32
+      ],
+      "tile_span": [
+        1,
+        1
+      ],
+      "source_sheet": "terrain_source_sheet.png"
+    },
+    {
+      "file": "Terrain/Transitions/Sand_Water/sand_water_edge_top.png",
+      "description": "sand-water edge top",
+      "category": "terrain",
+      "pixel_size": [
+        32,
+        32
+      ],
+      "tile_span": [
+        1,
+        1
+      ],
+      "source_sheet": "terrain_source_sheet.png"
+    },
+    {
+      "file": "Terrain/Transitions/Sand_Water/sand_water_edge_right_river.png",
+      "description": "sand-water river edge right",
+      "category": "terrain",
+      "pixel_size": [
+        32,
+        32
+      ],
+      "tile_span": [
+        1,
+        1
+      ],
+      "source_sheet": "terrain_source_sheet.png"
+    },
+    {
+      "file": "Terrain/Transitions/Sand_Water/sand_water_edge_bottom.png",
+      "description": "sand-water edge bottom",
+      "category": "terrain",
+      "pixel_size": [
+        32,
+        32
+      ],
+      "tile_span": [
+        1,
+        1
+      ],
+      "source_sheet": "terrain_source_sheet.png"
+    },
+    {
+      "file": "Terrain/Transitions/Sand_Water/sand_water_edge_left.png",
+      "description": "sand-water edge left",
+      "category": "terrain",
+      "pixel_size": [
+        32,
+        32
+      ],
+      "tile_span": [
+        1,
+        1
+      ],
+      "source_sheet": "terrain_source_sheet.png"
+    },
+    {
+      "file": "Terrain/Transitions/Sand_Water/sand_water_narrow_channel.png",
+      "description": "sand-water narrow channel",
+      "category": "terrain",
+      "pixel_size": [
+        32,
+        32
+      ],
+      "tile_span": [
+        1,
+        1
+      ],
+      "source_sheet": "terrain_source_sheet.png"
+    },
+    {
+      "file": "Terrain/Transitions/Grass_Road/grass_road_corner_top_left.png",
+      "description": "grass-road corner top left",
+      "category": "terrain",
+      "pixel_size": [
+        32,
+        32
+      ],
+      "tile_span": [
+        1,
+        1
+      ],
+      "source_sheet": "terrain_source_sheet.png"
+    },
+    {
+      "file": "Terrain/Transitions/Grass_Road/grass_road_edge_top.png",
+      "description": "grass-road edge top",
+      "category": "terrain",
+      "pixel_size": [
+        32,
+        32
+      ],
+      "tile_span": [
+        1,
+        1
+      ],
+      "source_sheet": "terrain_source_sheet.png"
+    },
+    {
+      "file": "Terrain/Transitions/Grass_Road/grass_road_edge_left.png",
+      "description": "grass-road edge left",
+      "category": "terrain",
+      "pixel_size": [
+        32,
+        32
+      ],
+      "tile_span": [
+        1,
+        1
+      ],
+      "source_sheet": "terrain_source_sheet.png"
+    },
+    {
+      "file": "Terrain/Transitions/Grass_Road/grass_road_vertical.png",
+      "description": "grass-road vertical",
+      "category": "terrain",
+      "pixel_size": [
+        32,
+        32
+      ],
+      "tile_span": [
+        1,
+        1
+      ],
+      "source_sheet": "terrain_source_sheet.png"
+    },
+    {
+      "file": "Terrain/Transitions/Grass_Road/grass_road_center_blob.png",
+      "description": "grass-road center blob",
+      "category": "terrain",
+      "pixel_size": [
+        32,
+        32
+      ],
+      "tile_span": [
+        1,
+        1
+      ],
+      "source_sheet": "terrain_source_sheet.png"
+    },
+    {
+      "file": "Terrain/Transitions/Grass_Road/grass_road_corner_top_right.png",
+      "description": "grass-road corner top right",
+      "category": "terrain",
+      "pixel_size": [
+        32,
+        32
+      ],
+      "tile_span": [
+        1,
+        1
+      ],
+      "source_sheet": "terrain_source_sheet.png"
+    },
+    {
+      "file": "Buildings/Residence/Town/town_residence_blue_roof_a.png",
+      "description": "town residence A",
+      "category": "building",
+      "pixel_size": [
+        32,
+        32
+      ],
+      "tile_span": [
+        1,
+        1
+      ],
+      "source_sheet": "buildings_source_sheet.png"
+    },
+    {
+      "file": "Buildings/Residence/Town/town_residence_gray_roof_b.png",
+      "description": "town residence B",
+      "category": "building",
+      "pixel_size": [
+        32,
+        32
+      ],
+      "tile_span": [
+        1,
+        1
+      ],
+      "source_sheet": "buildings_source_sheet.png"
+    },
+    {
+      "file": "Buildings/Residence/Rural/rural_residence_thatched_roof_a.png",
+      "description": "rural residence A",
+      "category": "building",
+      "pixel_size": [
+        32,
+        32
+      ],
+      "tile_span": [
+        1,
+        1
+      ],
+      "source_sheet": "buildings_source_sheet.png"
+    },
+    {
+      "file": "Buildings/Residence/Rural/rural_residence_clay_wall_b.png",
+      "description": "rural residence B",
+      "category": "building",
+      "pixel_size": [
+        32,
+        32
+      ],
+      "tile_span": [
+        1,
+        1
+      ],
+      "source_sheet": "buildings_source_sheet.png"
+    },
+    {
+      "file": "Buildings/Shops/weapon_shop_sword_sign_2x2.png",
+      "description": "weapon shop 2x2",
+      "category": "building",
+      "pixel_size": [
+        64,
+        64
+      ],
+      "tile_span": [
+        2,
+        2
+      ],
+      "source_sheet": "buildings_source_sheet.png"
+    },
+    {
+      "file": "Buildings/Shops/equipment_shop_armor_sign_2x2.png",
+      "description": "equipment shop 2x2",
+      "category": "building",
+      "pixel_size": [
+        64,
+        64
+      ],
+      "tile_span": [
+        2,
+        2
+      ],
+      "source_sheet": "buildings_source_sheet.png"
+    },
+    {
+      "file": "Buildings/Shops/tavern_wine_jar_sign_2x2.png",
+      "description": "tavern 2x2",
+      "category": "building",
+      "pixel_size": [
+        64,
+        64
+      ],
+      "tile_span": [
+        2,
+        2
+      ],
+      "source_sheet": "buildings_source_sheet.png"
+    },
+    {
+      "file": "Buildings/Shops/training_hall_banner_2x2.png",
+      "description": "training hall 2x2",
+      "category": "building",
+      "pixel_size": [
+        64,
+        64
+      ],
+      "tile_span": [
+        2,
+        2
+      ],
+      "source_sheet": "buildings_source_sheet.png"
+    },
+    {
+      "file": "Buildings/Shops/inn_lantern_sign_2x2.png",
+      "description": "inn 2x2",
+      "category": "building",
+      "pixel_size": [
+        64,
+        64
+      ],
+      "tile_span": [
+        2,
+        2
+      ],
+      "source_sheet": "buildings_source_sheet.png"
+    },
+    {
+      "file": "Buildings/Shops/medicine_shop_gourd_sign_2x2.png",
+      "description": "medicine shop 2x2",
+      "category": "building",
+      "pixel_size": [
+        64,
+        64
+      ],
+      "tile_span": [
+        2,
+        2
+      ],
+      "source_sheet": "buildings_source_sheet.png"
+    },
+    {
+      "file": "Buildings/Shops/formation_office_flag_roster_2x2.png",
+      "description": "formation office 2x2",
+      "category": "building",
+      "pixel_size": [
+        64,
+        64
+      ],
+      "tile_span": [
+        2,
+        2
+      ],
+      "source_sheet": "buildings_source_sheet.png"
+    },
+    {
+      "file": "Buildings/Large/palace_main_hall_4x2.png",
+      "description": "palace main hall 4x2",
+      "category": "building",
+      "pixel_size": [
+        128,
+        64
+      ],
+      "tile_span": [
+        4,
+        2
+      ],
+      "source_sheet": "buildings_source_sheet.png"
+    },
+    {
+      "file": "Buildings/Large/city_gate_4x2.png",
+      "description": "city gate 4x2",
+      "category": "building",
+      "pixel_size": [
+        128,
+        64
+      ],
+      "tile_span": [
+        4,
+        2
+      ],
+      "source_sheet": "buildings_source_sheet.png"
+    },
+    {
+      "file": "Buildings/Large/military_barracks_4x2.png",
+      "description": "military barracks 4x2",
+      "category": "building",
+      "pixel_size": [
+        128,
+        64
+      ],
+      "tile_span": [
+        4,
+        2
+      ],
+      "source_sheet": "buildings_source_sheet.png"
+    },
+    {
+      "file": "Props/Outdoor/stone_well.png",
+      "description": "stone well",
+      "category": "prop",
+      "pixel_size": [
+        32,
+        32
+      ],
+      "tile_span": [
+        1,
+        1
+      ],
+      "source_sheet": "props_source_sheet.png"
+    },
+    {
+      "file": "Props/Collectibles/flower_yellow_collectible.png",
+      "description": "yellow collectible flower",
+      "category": "prop",
+      "pixel_size": [
+        32,
+        32
+      ],
+      "tile_span": [
+        1,
+        1
+      ],
+      "source_sheet": "props_source_sheet.png"
+    },
+    {
+      "file": "Props/Collectibles/flower_purple_collectible.png",
+      "description": "purple collectible flower",
+      "category": "prop",
+      "pixel_size": [
+        32,
+        32
+      ],
+      "tile_span": [
+        1,
+        1
+      ],
+      "source_sheet": "props_source_sheet.png"
+    },
+    {
+      "file": "Props/Collectibles/flower_red_collectible.png",
+      "description": "red collectible flower",
+      "category": "prop",
+      "pixel_size": [
+        32,
+        32
+      ],
+      "tile_span": [
+        1,
+        1
+      ],
+      "source_sheet": "props_source_sheet.png"
+    },
+    {
+      "file": "Props/Interior/palace_lantern_gold_red.png",
+      "description": "palace lantern",
+      "category": "prop",
+      "pixel_size": [
+        32,
+        32
+      ],
+      "tile_span": [
+        1,
+        1
+      ],
+      "source_sheet": "props_source_sheet.png"
+    },
+    {
+      "file": "Props/Interior/round_wooden_table.png",
+      "description": "round wooden table",
+      "category": "prop",
+      "pixel_size": [
+        32,
+        32
+      ],
+      "tile_span": [
+        1,
+        1
+      ],
+      "source_sheet": "props_source_sheet.png"
+    },
+    {
+      "file": "Props/Interior/wooden_stool.png",
+      "description": "wooden stool",
+      "category": "prop",
+      "pixel_size": [
+        32,
+        32
+      ],
+      "tile_span": [
+        1,
+        1
+      ],
+      "source_sheet": "props_source_sheet.png"
+    },
+    {
+      "file": "Props/Interior/palace_pillar_red_gold.png",
+      "description": "red palace pillar",
+      "category": "prop",
+      "pixel_size": [
+        32,
+        32
+      ],
+      "tile_span": [
+        1,
+        1
+      ],
+      "source_sheet": "props_source_sheet.png"
+    },
+    {
+      "file": "Props/Interior/palace_pillar_white_jade.png",
+      "description": "white jade palace pillar",
+      "category": "prop",
+      "pixel_size": [
+        32,
+        32
+      ],
+      "tile_span": [
+        1,
+        1
+      ],
+      "source_sheet": "props_source_sheet.png"
+    },
+    {
+      "file": "Props/Interior/imperial_dragon_throne.png",
+      "description": "imperial dragon throne",
+      "category": "prop",
+      "pixel_size": [
+        32,
+        32
+      ],
+      "tile_span": [
+        1,
+        1
+      ],
+      "source_sheet": "props_source_sheet.png"
+    },
+    {
+      "file": "Props/Outdoor/barrel.png",
+      "description": "barrel",
+      "category": "prop",
+      "pixel_size": [
+        32,
+        32
+      ],
+      "tile_span": [
+        1,
+        1
+      ],
+      "source_sheet": "props_source_sheet.png"
+    },
+    {
+      "file": "Props/Outdoor/treasure_chest_red.png",
+      "description": "treasure chest",
+      "category": "prop",
+      "pixel_size": [
+        32,
+        32
+      ],
+      "tile_span": [
+        1,
+        1
+      ],
+      "source_sheet": "props_source_sheet.png"
+    },
+    {
+      "file": "Props/Outdoor/rocks.png",
+      "description": "rocks",
+      "category": "prop",
+      "pixel_size": [
+        32,
+        32
+      ],
+      "tile_span": [
+        1,
+        1
+      ],
+      "source_sheet": "props_source_sheet.png"
+    },
+    {
+      "file": "Props/Outdoor/tombstone_stone.png",
+      "description": "tombstone",
+      "category": "prop",
+      "pixel_size": [
+        32,
+        32
+      ],
+      "tile_span": [
+        1,
+        1
+      ],
+      "source_sheet": "props_source_sheet.png"
+    },
+    {
+      "file": "Props/Outdoor/haystack.png",
+      "description": "haystack",
+      "category": "prop",
+      "pixel_size": [
+        32,
+        32
+      ],
+      "tile_span": [
+        1,
+        1
+      ],
+      "source_sheet": "props_source_sheet.png"
+    },
+    {
+      "file": "Props/Outdoor/wooden_fence.png",
+      "description": "wooden fence",
+      "category": "prop",
+      "pixel_size": [
+        32,
+        32
+      ],
+      "tile_span": [
+        1,
+        1
+      ],
+      "source_sheet": "props_source_sheet.png"
+    },
+    {
+      "file": "Props/Outdoor/campfire.png",
+      "description": "campfire",
+      "category": "prop",
+      "pixel_size": [
+        32,
+        32
+      ],
+      "tile_span": [
+        1,
+        1
+      ],
+      "source_sheet": "props_source_sheet.png"
+    },
+    {
+      "file": "Props/Outdoor/battlefield_banner.png",
+      "description": "battlefield banner",
+      "category": "prop",
+      "pixel_size": [
+        32,
+        32
+      ],
+      "tile_span": [
+        1,
+        1
+      ],
+      "source_sheet": "props_source_sheet.png"
+    },
+    {
+      "file": "Props/Outdoor/rice_sack.png",
+      "description": "rice sack",
+      "category": "prop",
+      "pixel_size": [
+        32,
+        32
+      ],
+      "tile_span": [
+        1,
+        1
+      ],
+      "source_sheet": "props_source_sheet.png"
+    },
+    {
+      "file": "Props/Outdoor/wooden_crate.png",
+      "description": "wooden crate",
+      "category": "prop",
+      "pixel_size": [
+        32,
+        32
+      ],
+      "tile_span": [
+        1,
+        1
+      ],
+      "source_sheet": "props_source_sheet.png"
+    },
+    {
+      "file": "StoryEvents/burned_body_non_graphic_2x1.png",
+      "description": "burned body non graphic story event",
+      "category": "story_event",
+      "pixel_size": [
+        64,
+        32
+      ],
+      "tile_span": [
+        2,
+        1
+      ],
+      "source_sheet": "props_source_sheet.png"
+    }
+  ],
+  "validation": {
+    "tile_unit_px": 32,
+    "total_assets": 79,
+    "validation_errors": [],
+    "status": "PASS"
+  }
+}

@@ -31,8 +31,8 @@ MAPS["ch02_xiapi_house_in"] = {
   ], // 宝箱已启用
   transitions: [
     // 门口：回下邳城（落在民房门旁一格，不踩入口 transition）
-    { x: 7, y: 9, to: { map: "ch02_xiapi", x: 3, y: 16 } },
-    { x: 8, y: 9, to: { map: "ch02_xiapi", x: 3, y: 16 } },
+    { x: 7, y: 9, to: { map: "ch02_xiapi", x: 4, y: 16 } },
+    { x: 8, y: 9, to: { map: "ch02_xiapi", x: 4, y: 16 } },
   ],
 };
 

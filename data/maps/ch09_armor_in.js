@@ -23,8 +23,8 @@ MAPS["ch09_armor_in"] = {
   ],
   chests: [],
   transitions: [
-    { x: 7, y: 9, to: { map: "ch09_guiyang", x: 14, y: 5 } },
-    { x: 8, y: 9, to: { map: "ch09_guiyang", x: 14, y: 5 } },
+    { x: 7, y: 9, to: { map: "ch09_guiyang", x: 15, y: 5 } },
+    { x: 8, y: 9, to: { map: "ch09_guiyang", x: 15, y: 5 } },
   ],
 };
 

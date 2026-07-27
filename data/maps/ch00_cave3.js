@@ -12,12 +12,11 @@ MAPS["ch00_cave3"] = {
     "RFFFFFFFRFFR",
     "RRRRRRFRRFRR",
     "RFFFFEEFFFFR",
-    "RRRRRRRRRRRR",
+    "RRRRRFFRRRRR",
   ],
   encounterTiles: [],
   npcs: [],
   chests: [
-    // 藏宝：金箱合计恰好 400（150+150+100），附草药一箱
     { x: 10, y: 1, id: "c1", gold: 150 },
     { x: 10, y: 5, id: "c2", gold: 150 },
     { x: 1,  y: 1, id: "c3", gold: 100 },

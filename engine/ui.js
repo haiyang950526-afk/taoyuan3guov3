@@ -18,10 +18,14 @@ function nextLine() {
     if (cb) cb();
     return;
   }
-  // 说话人头像："名字：……" 开头且在注册表中（assets/portraits/）
-  const m = line0.match(/^(.{1,5})：/);
+  // 说话人头像："名字：……" 开头——优先 assets/chars/face/ 新像素立绘，回退 assets/portraits/ 旧头像
+  const m = line0.match(/^(.{1,8})：/);
   const face = $("dialog-face");
-  if (m && typeof PORTRAIT_NAMES !== "undefined" && PORTRAIT_NAMES[m[1]]) {
+  const art = m && typeof CHAR_ART !== "undefined" ? CHAR_ART[m[1]] : null;
+  if (art && art.face) {
+    face.src = "assets/chars/face/" + art.face + ".png";
+    face.style.display = "block";
+  } else if (m && typeof PORTRAIT_NAMES !== "undefined" && PORTRAIT_NAMES[m[1]]) {
     face.src = PORTRAIT_NAMES[m[1]];
     face.style.display = "block";
   } else {

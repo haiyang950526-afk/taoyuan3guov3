@@ -6,31 +6,30 @@ MAPS["ch10_chengdu"] = {
   grid: [
     "##########GG##########",
     "#.......,,,,.........#",
-    "#..BBBB...BBBB.......#",
-    "#..BBBB...BBBB....T..#",
-    "#..BDBB...BBDD.......#",
+    "#....................#",
+    "#..BB.....BB.BB...T..#",
+    "#..DB.....DB.DB......#",
     "#,,,,,,,,,,,,,,,,,,,,#",
     "#...T...,,.....T....,#",
     "#.......,,..........,#",
-    "#..BBBB.,,BBBB......,G",
-    "#..BBBB.,,BBBB....T.,G",
-    "#..BDBB.,,BBDB......,#",
+    "#.......,,..........,G",
+    "#..BB...,,.BB.....T.,G",
+    "#..DB...,,.DB.......,#",
     "#,,,,,,,,,,,,,,,,,,,,#",
     "#.....T...,,.T.......#",
-    "#BBBB.....,,.........#",
-    "#BBBB.....,,.........#",
-    "#BDBBT....,,.T.......#",
+    "#.........,,.........#",
+    "#.BB......,,.........#",
+    "#.DB.T....,,.T.......#",
     "#.........,,.........#",
     "##########GG##########",
   ],
   encounterTiles: [],
   // 建筑招牌（画在顶部居中的 B 格上）
   signs: [
-    { x: 4,  y: 2, text: "客", color: "#ffd166" },
-    { x: 12, y: 2, text: "武", color: "#ffd166" },
-    { x: 13, y: 2, text: "装", color: "#ffd166" },
-    { x: 4,  y: 8, text: "药", color: "#ffd166" },
-    { x: 12, y: 8, text: "铁", color: "#ffd166" },
+    { x: 3, y: 3, text: "客", color: "#ffd166" },
+    { x: 10, y: 3, text: "武", color: "#ffd166" },
+    { x: 13, y: 3, text: "装", color: "#ffd166" },
+    { x: 3, y: 9, text: "药", color: "#ffd166" },
   ],
   npcs: [
     // 城门口告示牌
@@ -72,19 +71,22 @@ MAPS["ch10_chengdu"] = {
   chests: [
     { x: 18, y: 14, id: "c1", items: { "精铁": 2 } },
   ],
-  transitions: [
-    // 东门：定军山（受降后开放）
+    transitions: [
     { x: 21, y: 8,  if: { flag: "q10", is: "chengdu" }, to: { map: "ch10_dingjun", x: 1, y: 8 } },
     { x: 21, y: 9,  if: { flag: "q10", is: "chengdu" }, to: { map: "ch10_dingjun", x: 1, y: 8 } },
     { x: 10, y: 17, to: { map: "ch10_field", x: 22, y: 8 } },
     { x: 11, y: 17, to: { map: "ch10_field", x: 22, y: 8 } },
-    // 店铺室内下钻（朝门才进，路过不触发）
-    { x: 4,  y: 5,  face: [0, -1], to: { map: "ch10_inn_in", x: 7, y: 8 } },
-    { x: 12, y: 5,  face: [0, -1], to: { map: "ch10_weapon_in", x: 7, y: 8 } },
-    { x: 13, y: 5,  face: [0, -1], to: { map: "ch10_armor_in", x: 7, y: 8 } },
-    { x: 4,  y: 11, face: [0, -1], to: { map: "ch10_item_in", x: 7, y: 8 } },
-    // 民房下钻（朝门才进，路过不触发）
+    // 室内下钻（朝门才进，路过不触发）
+    { x: 3, y: 5, face: [0, -1], to: { map: "ch10_inn_in", x: 7, y: 8 } },
+    { x: 4, y: 5, face: [0, -1], to: { map: "ch10_inn_in", x: 7, y: 8 } },
+    { x: 10, y: 5, face: [0, -1], to: { map: "ch10_weapon_in", x: 7, y: 8 } },
+    { x: 11, y: 5, face: [0, -1], to: { map: "ch10_weapon_in", x: 7, y: 8 } },
+    { x: 13, y: 5, face: [0, -1], to: { map: "ch10_armor_in", x: 7, y: 8 } },
+    { x: 14, y: 5, face: [0, -1], to: { map: "ch10_armor_in", x: 7, y: 8 } },
+    { x: 3, y: 11, face: [0, -1], to: { map: "ch10_item_in", x: 7, y: 8 } },
+    { x: 4, y: 11, face: [0, -1], to: { map: "ch10_item_in", x: 7, y: 8 } },
     { x: 2, y: 16, face: [0, -1], to: { map: "ch10_chengdu_house_in", x: 7, y: 8 } },
+    { x: 3, y: 16, face: [0, -1], to: { map: "ch10_chengdu_house_in", x: 7, y: 8 } },
   ],
 };
 

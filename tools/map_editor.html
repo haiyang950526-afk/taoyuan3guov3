@@ -8,10 +8,11 @@
   h1 { font-size: 18px; color: #ffd166; margin: 0 0 8px; }
   #bar { margin-bottom: 10px; }
   #wrap { display: flex; gap: 14px; align-items: flex-start; flex-wrap: wrap; }
-  #palette { width: 190px; }
-  .sw { display: flex; align-items: center; gap: 6px; padding: 3px 6px; border-radius: 6px; cursor: pointer; }
+  #palette { width: 200px; }
+  .pg { color: #ffd166; font-size: 13px; margin: 6px 0 2px; }
+  .sw { display: flex; align-items: center; gap: 6px; padding: 2px 6px; border-radius: 6px; cursor: pointer; }
   .sw.sel { background: #31427a; outline: 1px solid #ffd166; }
-  .sw canvas { border: 1px solid #000; }
+  .sw canvas { border: 1px solid #000; background: #222; }
   #cv { border: 2px solid #4a5a88; image-rendering: pixelated; cursor: crosshair; background: #000; }
   textarea { width: 100%; height: 90px; background: #0e1526; color: #cfe; border: 1px solid #3a4a78; border-radius: 8px; font: 12px/1.4 monospace; }
   button { background: #24304f; color: #e8ecf4; border: 1px solid #3a4a78; border-radius: 8px; padding: 7px 12px; cursor: pointer; margin: 2px 2px 2px 0; }
@@ -25,12 +26,22 @@
   #markers div { font: 12px/1.5 monospace; }
   details { margin-top: 10px; }
   summary { cursor: pointer; color: #8a93a8; }
+  #lib { width: 300px; }
+  #liblist { max-height: 66vh; overflow-y: auto; border: 1px solid #3a4a78; border-radius: 8px; padding: 4px; }
+  #liblist .pg { color: #ffd166; font-size: 12px; margin: 6px 0 2px; }
+  .ti { display: inline-flex; flex-direction: column; align-items: center; width: 64px; margin: 2px;
+        padding: 3px 1px; border-radius: 6px; cursor: pointer; vertical-align: top; }
+  .ti.sel { background: #31427a; outline: 1px solid #ffd166; }
+  .ti.big { opacity: .45; cursor: not-allowed; }
+  .ti canvas { border: 1px solid #000; background: #222; }
+  .ti span { font-size: 10px; color: #aab3c8; word-break: break-all; text-align: center; line-height: 1.2; max-height: 24px; overflow: hidden; }
+  #artsel { color: #7ee2a0; font-size: 12px; margin: 4px 0; word-break: break-all; }
 </style>
 </head>
 <body>
-<h1>桃园三国 · 地图小工具 <span class="dim">左键画 / 右键擦成草地 · 请用 Chrome 或 Edge 打开</span></h1>
+<h1>桃园三国 · 地图小工具 <span class="dim">V4 贴图所见即所得 · 左键画 / 右键擦成草地 · 请用 Chrome 或 Edge 打开</span></h1>
 <div id="bar">
-  <button id="pickdir">① 选择游戏目录（桃园三国0724 - 副本）</button>
+  <button id="pickdir">① 选择游戏目录</button>
   <select id="filelist" disabled></select>
   <button id="load" disabled>② 载入</button>
   <button id="save" disabled>③ 保存回原文件</button>
@@ -57,45 +68,335 @@
         <button id="doexp">生成导出</button><button id="copy">复制结果</button></div>
     </details>
   </div>
+  <div id="lib"><b>素材库</b>（点选后用素材笔：左键铺 / 右键清除覆盖）
+    <div id="artsel">素材笔：未使用（当前为图块笔）</div>
+    <div id="liblist"></div>
+  </div>
 </div>
 <script>
 "use strict";
-const TILES = {
-  "#": ["#4a5060", "城墙"], "B": ["#8a6a45", "建筑"], "D": ["#3a2a1a", "门"],
-  "G": ["#6a7288", "城门"], "T": ["#3d7a3d", "树"], "W": ["#3a6ac0", "水"],
-  "R": ["#6a5a4a", "山石"], "C": ["#1a1410", "洞口"], "F": ["#3a332c", "洞地"],
-  "E": ["#c9b89a", "洞出口"], "M": ["#a8845a", "桥/渡"], "P": ["#7a5a8a", "宫殿"],
-  ".": ["#4f8a45", "草地"], ",": ["#a89468", "土路"], "L": ["#9a7a52", "室内地板"],
-  "X": ["#7a4a3a", "殿柱"], "s": ["#9a9aa8", "石板路"], "v": ["#8a8a96", "井"],
-  "h": ["#4f8a45", "村庄图标"],
+// ---------------- V4 素材（与 engine/map.js 同一套映射） ----------------
+const V4 = "../assets/gfx/v4/";
+// [字符, 名称, 调色板缩略图(V4路径|null), 兜底色]
+const TILE_GROUPS = [
+  ["地形", [
+    [".", "草地", "Terrain/Base/grass_center.png"],
+    [",", "土路", "Terrain/Transitions/Grass_Road/grass_road_vertical.png"],
+    ["W", "水/河", "Terrain/Water/water_center.png"],
+    ["s", "沙地", "Terrain/Base/sand_center.png"],
+    ["n", "农田", "Terrain/Farm/farm_field_seedlings.png"],
+    ["T", "森林", "Terrain/Forest/forest_center.png"],
+    ["y", "竹林", "Terrain/Forest/bamboo_forest_center.png"],
+    ["R", "山石", "Terrain/Mountain/mountain_brown.png"],
+    ["i", "雪山", "Terrain/Mountain/snow_mountain.png"],
+    ["j", "火山", "Terrain/Mountain/volcano_active.png"],
+    ["C", "洞口", "Terrain/Mountain/cave_entrance.png"],
+    ["F", "洞地", "Derived/cave_floor.png"],
+    ["E", "洞出口", "Derived/cave_floor.png"],
+    ["M", "桥/渡", null, "#a8845a"],
+  ]],
+  ["建筑", [
+    ["#", "城墙", "Derived/wall.png"],
+    ["B", "建筑", "Buildings/Residence/Town/town_residence_blue_roof_a.png"],
+    ["D", "门", null, "#3a2a1a"],
+    ["G", "城门", "Buildings/Large/city_gate_4x2.png"],
+    ["P", "宫殿", "Buildings/Large/palace_main_hall_4x2.png"],
+    ["h", "村庄图标", "Buildings/Residence/Rural/rural_residence_thatched_roof_a.png"],
+    ["v", "井", "Props/Outdoor/stone_well.png"],
+  ]],
+  ["道具", [
+    ["f", "栅栏", "Props/Outdoor/wooden_fence.png"],
+    ["o", "石堆", "Props/Outdoor/rocks.png"],
+    ["k", "篝火", "Props/Outdoor/campfire.png"],
+    ["a", "草垛", "Props/Outdoor/haystack.png"],
+    ["b", "木桶", "Props/Outdoor/barrel.png"],
+    ["w", "木箱", "Props/Outdoor/wooden_crate.png"],
+    ["r", "米袋", "Props/Outdoor/rice_sack.png"],
+    ["u", "墓碑", "Props/Outdoor/tombstone_stone.png"],
+    ["q", "军旗", "Props/Outdoor/battlefield_banner.png"],
+    ["z", "花丛", "Props/Collectibles/flower_red_collectible.png"],
+  ]],
+  ["室内", [
+    ["L", "木地板", "Derived/floor_wood.png"],
+    ["t", "桌子", "Props/Interior/round_wooden_table.png"],
+    ["c", "椅子", "Props/Interior/wooden_stool.png"],
+    ["X", "殿柱", "Props/Interior/palace_pillar_red_gold.png"],
+  ]],
+];
+const TILES = {};   // ch -> {label, thumb, color}
+for (const [, items] of TILE_GROUPS)
+  for (const [ch, label, thumb, color] of items)
+    TILES[ch] = { label, thumb, color: color || "#4f8a45" };
+
+const IMGS = {};
+function gi(path) {          // path 相对 assets/gfx/v4/
+  let rec = IMGS[path];
+  if (!rec) {
+    rec = { img: new Image(), ok: false };
+    rec.img.onload = () => { rec.ok = true; draw(); };
+    rec.img.onerror = () => { rec.dead = true; };
+    rec.img.src = V4 + path;
+    IMGS[path] = rec;
+  }
+  return rec.ok ? rec.img : null;
+}
+function th(x, y, n) { return (((x * 7 + y * 13) % n) + n) % n; }
+
+const PROP_IMG = {
+  f: "Props/Outdoor/wooden_fence.png", o: "Props/Outdoor/rocks.png",
+  k: "Props/Outdoor/campfire.png",   a: "Props/Outdoor/haystack.png",
+  b: "Props/Outdoor/barrel.png",     w: "Props/Outdoor/wooden_crate.png",
+  r: "Props/Outdoor/rice_sack.png",  u: "Props/Outdoor/tombstone_stone.png",
+  q: "Props/Outdoor/battlefield_banner.png",
 };
+const FLOWER_IMGS = [
+  "Props/Collectibles/flower_red_collectible.png",
+  "Props/Collectibles/flower_yellow_collectible.png",
+  "Props/Collectibles/flower_purple_collectible.png",
+];
+const SHOP_BY_SIGN = {
+  "武": "Buildings/Shops/weapon_shop_sword_sign_2x2.png",
+  "装": "Buildings/Shops/equipment_shop_armor_sign_2x2.png",
+  "客": "Buildings/Shops/inn_lantern_sign_2x2.png",
+  "药": "Buildings/Shops/medicine_shop_gourd_sign_2x2.png",
+  "酒": "Buildings/Shops/tavern_wine_jar_sign_2x2.png",
+  "训": "Buildings/Shops/training_hall_banner_2x2.png",
+  "编": "Buildings/Shops/formation_office_flag_roster_2x2.png",
+};
+
+const V4_LIST = ["Buildings/Large/city_gate_4x2.png", "Buildings/Large/military_barracks_4x2.png", "Buildings/Large/palace_main_hall_4x2.png", "Buildings/Residence/Rural/rural_residence_clay_wall_b.png", "Buildings/Residence/Rural/rural_residence_thatched_roof_a.png", "Buildings/Residence/Town/town_residence_blue_roof_a.png", "Buildings/Residence/Town/town_residence_gray_roof_b.png", "Buildings/Shops/equipment_shop_armor_sign_2x2.png", "Buildings/Shops/formation_office_flag_roster_2x2.png", "Buildings/Shops/inn_lantern_sign_2x2.png", "Buildings/Shops/medicine_shop_gourd_sign_2x2.png", "Buildings/Shops/tavern_wine_jar_sign_2x2.png", "Buildings/Shops/training_hall_banner_2x2.png", "Buildings/Shops/weapon_shop_sword_sign_2x2.png", "Derived/cave_floor.png", "Derived/cave_wall.png", "Derived/deep_grass_center_flat.png", "Derived/farm_flat.png", "Derived/floor_cand_table.png", "Derived/floor_wood.png", "Derived/floor_wood_flat.png", "Derived/flower_grass_center_flat.png", "Derived/grass_alt_center_flat.png", "Derived/grass_center_flat.png", "Derived/road_corner_bottom_left.png", "Derived/road_corner_bottom_right.png", "Derived/road_cross.png", "Derived/road_edge_bottom.png", "Derived/road_edge_right.png", "Derived/road_horizontal.png", "Derived/road_junction_down.png", "Derived/road_junction_left.png", "Derived/road_junction_right.png", "Derived/road_junction_up.png", "Derived/sand_flat.png", "Derived/wall.png", "Derived/wall_cand_left_bottom.png", "Derived/wall_cand_left_top.png", "Derived/wall_cand_right_bottom.png", "Derived/wall_flat.png", "Derived/water_diaga_ne.png", "Derived/water_diaga_nw.png", "Derived/water_diaga_se.png", "Derived/water_diaga_sw.png", "Derived/water_diagb_ne.png", "Derived/water_diagb_nw.png", "Derived/water_diagb_se.png", "Derived/water_diagb_sw.png", "Derived/water_shore_e.png", "Derived/water_shore_n.png", "Derived/water_shore_s.png", "Derived/water_shore_w.png", "Props/Collectibles/flower_purple_collectible.png", "Props/Collectibles/flower_red_collectible.png", "Props/Collectibles/flower_yellow_collectible.png", "Props/Interior/imperial_dragon_throne.png", "Props/Interior/palace_lantern_gold_red.png", "Props/Interior/palace_pillar_red_gold.png", "Props/Interior/palace_pillar_white_jade.png", "Props/Interior/round_wooden_table.png", "Props/Interior/wooden_stool.png", "Props/Outdoor/barrel.png", "Props/Outdoor/battlefield_banner.png", "Props/Outdoor/campfire.png", "Props/Outdoor/haystack.png", "Props/Outdoor/rice_sack.png", "Props/Outdoor/rocks.png", "Props/Outdoor/stone_well.png", "Props/Outdoor/tombstone_stone.png", "Props/Outdoor/treasure_chest_red.png", "Props/Outdoor/wooden_crate.png", "Props/Outdoor/wooden_fence.png", "StoryEvents/burned_body_non_graphic_2x1.png", "Terrain/Base/deep_grass_center.png", "Terrain/Base/dirt_stone_mixed_center.png", "Terrain/Base/flower_grass_center.png", "Terrain/Base/grass_alt_center.png", "Terrain/Base/grass_center.png", "Terrain/Base/sand_center.png", "Terrain/Base/wasteland_dead_grass.png", "Terrain/Farm/farm_field_seedlings.png", "Terrain/Forest/bamboo_forest_center.png", "Terrain/Forest/forest_center.png", "Terrain/Interior/indoor_floor_center.png", "Terrain/Mountain/cave_entrance.png", "Terrain/Mountain/mountain_brown.png", "Terrain/Mountain/snow_mountain.png", "Terrain/Mountain/volcano_active.png", "Terrain/River/river_bend_bottom_left.png", "Terrain/River/river_bend_bottom_right.png", "Terrain/River/river_bend_top_left.png", "Terrain/River/river_bend_top_right.png", "Terrain/River/river_horizontal.png", "Terrain/River/river_vertical.png", "Terrain/Road/stone_slab_road_center.png", "Terrain/Transitions/Grass_Road/grass_road_center_blob.png", "Terrain/Transitions/Grass_Road/grass_road_corner_top_left.png", "Terrain/Transitions/Grass_Road/grass_road_corner_top_right.png", "Terrain/Transitions/Grass_Road/grass_road_edge_left.png", "Terrain/Transitions/Grass_Road/grass_road_edge_top.png", "Terrain/Transitions/Grass_Road/grass_road_vertical.png", "Terrain/Transitions/Grass_Sand/grass_sand_diagonal_a.png", "Terrain/Transitions/Grass_Sand/grass_sand_edge_bottom.png", "Terrain/Transitions/Grass_Sand/grass_sand_edge_left.png", "Terrain/Transitions/Grass_Sand/grass_sand_edge_right.png", "Terrain/Transitions/Grass_Sand/grass_sand_edge_top.png", "Terrain/Transitions/Grass_Sand/sand_patch_grass_edges_all_sides.png", "Terrain/Transitions/Grass_Water/grass_water_diagonal_a.png", "Terrain/Transitions/Grass_Water/grass_water_diagonal_b.png", "Terrain/Transitions/Grass_Water/grass_water_edge_bottom.png", "Terrain/Transitions/Grass_Water/grass_water_edge_left.png", "Terrain/Transitions/Grass_Water/grass_water_edge_right.png", "Terrain/Transitions/Grass_Water/grass_water_edge_top.png", "Terrain/Transitions/Sand_Water/sand_water_diagonal_a.png", "Terrain/Transitions/Sand_Water/sand_water_edge_bottom.png", "Terrain/Transitions/Sand_Water/sand_water_edge_left.png", "Terrain/Transitions/Sand_Water/sand_water_edge_right_river.png", "Terrain/Transitions/Sand_Water/sand_water_edge_top.png", "Terrain/Transitions/Sand_Water/sand_water_narrow_channel.png", "Terrain/Water/water_center.png"];
+
+// ---------------- 状态 ----------------
 const Z = 26;
 let W = 20, H = 14, grid = [], sel = ".", markMode = "", marks = [];
+let curSigns = [];
+let artSel = null, artMap = {};   // 素材笔：选中的 V4 路径；美术覆盖 {"x,y": 路径}
 let mapsDir = null, curHandle = null, curName = "", curText = "", dirty = false;
 const cv = document.getElementById("cv"), ctx = cv.getContext("2d");
+ctx.imageSmoothingEnabled = false;
 const status = t => document.getElementById("status").textContent = t;
 
 function blank() { grid = Array.from({ length: H }, () => Array(W).fill(".")); }
-function drawCell(x, y) {
-  const ch = grid[y][x], col = TILES[ch] || TILES["."];
-  ctx.fillStyle = col[0];
-  ctx.fillRect(x * Z, y * Z, Z, Z);
-  ctx.fillStyle = "rgba(0,0,0,.35)";
-  if (ch === "B") ctx.fillRect(x * Z, y * Z, Z, 6);
-  else if (ch === "D") ctx.fillRect(x * Z + 9, y * Z + 3, 8, 20);
-  else if (ch === "T") { ctx.fillStyle = "#2a5a2a"; ctx.beginPath(); ctx.arc(x*Z+13, y*Z+11, 9, 0, 7); ctx.fill();
-    ctx.fillStyle = "#6a4a2a"; ctx.fillRect(x*Z+11, y*Z+15, 4, 8); }
-  else if (ch === "W") { ctx.fillStyle = "#2a4f96"; ctx.fillRect(x*Z+4, y*Z+12, 18, 2); }
-  else if (ch === "C") { ctx.fillStyle = "#6a5a4a"; ctx.beginPath(); ctx.arc(x*Z+13, y*Z+15, 8, Math.PI, 0); ctx.fill(); }
-  else if (ch === "G") ctx.fillRect(x*Z+3, y*Z+2, 20, 5);
-  else if (ch === "h") { ctx.fillStyle = "#8a4a2a"; ctx.beginPath();
-    ctx.moveTo(x*Z+4, y*Z+13); ctx.lineTo(x*Z+13, y*Z+4); ctx.lineTo(x*Z+22, y*Z+13); ctx.fill();
-    ctx.fillStyle = "#c9a876"; ctx.fillRect(x*Z+6, y*Z+13, 14, 9); }
-  else if (ch === "v") { ctx.fillStyle = "#5a5a64"; ctx.fillRect(x*Z+7, y*Z+11, 12, 12);
-    ctx.fillStyle = "#6a4a2a"; ctx.fillRect(x*Z+5, y*Z+6, 16, 4); }
-  else if (ch === "X") { ctx.fillStyle = "#5a3428"; ctx.beginPath(); ctx.arc(x*Z+13, y*Z+13, 8, 0, 7); ctx.fill(); }
-  ctx.strokeStyle = "rgba(0,0,0,.25)";
-  ctx.strokeRect(x * Z + .5, y * Z + .5, Z, Z);
+function tile(x, y) {
+  if (y < 0 || y >= H || x < 0 || x >= W) return "#";
+  return grid[y][x];
+}
+function mapKind() {
+  const js = grid.map(r => r.join("")).join("");
+  return js.indexOf("F") >= 0 ? "cave" : (js.indexOf("L") >= 0 ? "interior" : "outdoor");
+}
+
+// ---------------- 渲染（镜像 engine/map.js drawTileImage + buildingStamps） ----------------
+function grassImg(x, y) {
+  const h = th(x, y, 16);
+  const f = h === 0 ? "flower_grass_center" : h === 1 ? "deep_grass_center"
+          : h === 2 ? "grass_alt_center" : "grass_center";
+  return gi("Derived/" + f + "_flat.png");
+}
+function inWaterBlock(x, y) {
+  for (const bd of [[0,0],[-1,0],[0,-1],[-1,-1]]) {
+    let all = true;
+    for (const ad of [[0,0],[1,0],[0,1],[1,1]])
+      if (tile(x + bd[0] + ad[0], y + bd[1] + ad[1]) !== "W") { all = false; break; }
+    if (all) return true;
+  }
+  return false;
+}
+function isLake(x, y) { return tile(x, y) === "W" && inWaterBlock(x, y); }
+function riverImg(x, y) {
+  const at = (x, y) => {
+    if (y < 0 || y >= H || x < 0 || x >= W) return true;
+    const ch = tile(x, y);
+    return ch === "W" || ch === "M";
+  };
+  const U = at(x,y-1), D = at(x,y+1), L = at(x-1,y), R = at(x+1,y);
+  let f = "Water/water_center";
+  if (U && D && !L && !R) f = "River/river_vertical";
+  else if (L && R && !U && !D) f = "River/river_horizontal";
+  else if (U && L && !D && !R) f = "River/river_bend_top_left";
+  else if (U && R && !D && !L) f = "River/river_bend_top_right";
+  else if (D && L && !U && !R) f = "River/river_bend_bottom_left";
+  else if (D && R && !U && !L) f = "River/river_bend_bottom_right";
+  else if ((U || D) && !L && !R) f = "River/river_vertical";
+  else if ((L || R) && !U && !D) f = "River/river_horizontal";
+  return gi("Terrain/" + f + ".png");
+}
+function shoreImgPaths(x, y) {
+  const U = isLake(x,y-1), D = isLake(x,y+1), L = isLake(x-1,y), R = isLake(x+1,y);
+  const d = "Derived/", out = [];
+  const sides = (U?1:0) + (D?1:0) + (L?1:0) + (R?1:0);
+  if (sides === 2 && ((U&&R)||(R&&D)||(D&&L)||(L&&U))) {
+    out.push(d + "water_diagb_" + (U&&R ? "ne" : R&&D ? "se" : D&&L ? "sw" : "nw") + ".png");
+  } else {
+    if (U) out.push(d + "water_shore_n.png");
+    if (D) out.push(d + "water_shore_s.png");
+    if (L) out.push(d + "water_shore_w.png");
+    if (R) out.push(d + "water_shore_e.png");
+    if (sides === 0) {
+      if (isLake(x+1,y-1)) out.push(d + "water_diagb_ne.png");
+      if (isLake(x-1,y-1)) out.push(d + "water_diagb_nw.png");
+      if (isLake(x+1,y+1)) out.push(d + "water_diagb_se.png");
+      if (isLake(x-1,y+1)) out.push(d + "water_diagb_sw.png");
+    }
+  }
+  return out;
+}
+function roadImg(x, y) {
+  const at = (x, y) => {
+    if (y < 0 || y >= H || x < 0 || x >= W) return true;
+    return ",GMh".indexOf(tile(x, y)) >= 0;
+  };
+  const U = at(x,y-1), D = at(x,y+1), L = at(x-1,y), R = at(x+1,y);
+  const n = (U?1:0) + (D?1:0) + (L?1:0) + (R?1:0);
+  const GR = "Terrain/Transitions/Grass_Road/", d = "Derived/";
+  let f;
+  if (n >= 4) f = d + "road_cross.png";
+  else if (n === 3) f = d + (!U ? "road_junction_down.png" : !D ? "road_junction_up.png"
+                          : !L ? "road_junction_right.png" : "road_junction_left.png");
+  else if (U && D) f = GR + "grass_road_vertical.png";
+  else if (L && R) f = d + "road_horizontal.png";
+  else if (U && R) f = d + "road_corner_bottom_left.png";
+  else if (U && L) f = d + "road_corner_bottom_right.png";
+  else if (D && R) f = GR + "grass_road_corner_top_left.png";
+  else if (D && L) f = GR + "grass_road_corner_top_right.png";
+  else if (U) f = d + "road_corner_bottom_left.png";
+  else if (D) f = GR + "grass_road_corner_top_left.png";
+  else if (L) f = GR + "grass_road_corner_top_right.png";
+  else if (R) f = GR + "grass_road_corner_top_left.png";
+  else f = GR + "grass_road_center_blob.png";
+  return gi(f);
+}
+// 建筑图章（镜像 engine buildingStamps；含地图 signs 推导）
+function buildingStamps() {
+  const stamps = [];
+  if (mapKind() !== "outdoor") return { stamps, covered: {} };
+  const covered = {};
+  const cov = (x, y, w, h) => {
+    for (let yy = y; yy < y+h; yy++) for (let xx = x; xx < x+w; xx++) covered[xx+","+yy] = true;
+  };
+  const free = (x, y, w, h) => {
+    for (let yy = y; yy < y+h; yy++) for (let xx = x; xx < x+w; xx++) {
+      if (yy < 0 || yy >= H || xx < 0 || xx >= W) return false;
+      if (covered[xx+","+yy]) return false;
+      if ("BDGP".indexOf(grid[yy][xx]) < 0) return false;
+    }
+    return true;
+  };
+  const freeAny = (x, y, w, h) => {
+    for (let yy = y; yy < y+h; yy++) for (let xx = x; xx < x+w; xx++) {
+      if (yy < 0 || yy >= H || xx < 0 || xx >= W) return false;
+      if (covered[xx+","+yy]) return false;
+    }
+    return true;
+  };
+  const push = (img, x, y, w, h) => { stamps.push({ img, x, y, w, h }); cov(x, y, w, h); };
+  for (let y = 0; y < H; y++) {
+    for (let x = 0; x < W; x++) {
+      const ch = grid[y][x];
+      if ((ch === "P" || ch === "G") && (x === 0 || grid[y][x-1] !== ch)) {
+        let x1 = x;
+        while (x1 + 1 < W && grid[y][x1+1] === ch) x1++;
+        const img = ch === "P" ? "Buildings/Large/palace_main_hall_4x2.png"
+                               : "Buildings/Large/city_gate_4x2.png";
+        const cx = Math.floor((x + x1 + 1) / 2) - 2, cy = y > 0 ? y - 1 : y;
+        if (freeAny(cx, cy, 4, 2)) push(img, cx, cy, 4, 2);
+        x = x1;
+      }
+    }
+  }
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    if (grid[y][x] !== "D") continue;
+    const sg = curSigns.find(s => SHOP_BY_SIGN[s.text] &&
+      Math.abs(s.x - x) <= 2 && s.y <= y && y - s.y <= 3);
+    if (!sg) continue;
+    if (free(x-1, y-1, 2, 2)) push(SHOP_BY_SIGN[sg.text], x-1, y-1, 2, 2);
+    else if (free(x, y-1, 2, 2)) push(SHOP_BY_SIGN[sg.text], x, y-1, 2, 2);
+  }
+  return { stamps, covered };
+}
+
+function drawCell(x, y, covered) {
+  const ch = grid[y][x], kind = mapKind();
+  const px = x * Z, py = y * Z;
+  // 美术覆盖（tileArt）：整格换成指定素材，字符只管通行
+  const art = artMap[x + "," + y];
+  if (art) {
+    const img = gi(art);
+    if (img) {
+      ctx.drawImage(img, px, py, Z, Z);
+      ctx.fillStyle = "#ffd166";   // 覆盖标记（小黄角）
+      ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(px + 7, py); ctx.lineTo(px, py + 7); ctx.fill();
+      ctx.strokeStyle = "rgba(0,0,0,.15)";
+      ctx.strokeRect(px + .5, py + .5, Z, Z);
+      return;
+    }
+    // 未加载完：先按字符画，gi 的 onload 会触发重绘
+  }
+  const put = (img) => { if (img) ctx.drawImage(img, px, py, Z, Z); return !!img; };
+  const grass = () => put(grassImg(x, y));
+  const fb = (color) => { ctx.fillStyle = color || TILES[ch].color; ctx.fillRect(px, py, Z, Z); };
+  const prop = () => {
+    let p = PROP_IMG[ch];
+    if (ch === "z") p = FLOWER_IMGS[th(x, y, 3)];
+    return p ? put(gi(p)) : false;
+  };
+  let ok = false;
+  if (kind === "interior") {
+    if (ch === "B" || ch === "D" || ch === "#") { fb(ch === "B" ? "#8a6a45" : ch === "D" ? "#3a2a1a" : "#4a5060"); return; }
+    ok = put(gi("Derived/floor_wood_flat.png"));
+    if (ok) {
+      let p = null;
+      if (ch === "t") p = "Props/Interior/round_wooden_table.png";
+      else if (ch === "c") p = "Props/Interior/wooden_stool.png";
+      else if (ch === "X") p = th(x, y, 2) ? "Props/Interior/palace_pillar_white_jade.png"
+                                           : "Props/Interior/palace_pillar_red_gold.png";
+      else if (ch === "P") p = "Props/Interior/imperial_dragon_throne.png";
+      if (p) ok = put(gi(p));
+      else if (PROP_IMG[ch] || ch === "z") ok = prop();
+    }
+  } else if (kind === "cave") {
+    if (ch === "F" || ch === "," || ch === "E") ok = put(gi("Derived/cave_floor.png"));
+    else if (ch === "R") ok = put(gi("Terrain/Mountain/mountain_brown.png"));
+    else if (ch === "C") ok = put(gi("Terrain/Mountain/cave_entrance.png"));
+    else if (PROP_IMG[ch] || ch === "z") { ok = put(gi("Derived/cave_floor.png")) && prop(); }
+  } else {
+    if (ch === ".") ok = grass();
+    else if (ch === "T") ok = put(gi("Terrain/Forest/forest_center.png"));
+    else if (ch === "y") ok = put(gi("Terrain/Forest/bamboo_forest_center.png"));
+    else if (ch === "i") ok = put(gi("Terrain/Mountain/snow_mountain.png"));
+    else if (ch === "j") ok = put(gi("Terrain/Mountain/volcano_active.png"));
+    else if (ch === "s") ok = put(gi("Derived/sand_flat.png"));
+    else if (ch === "n") ok = put(gi("Derived/farm_flat.png"));
+    else if (ch === ",") ok = put(roadImg(x, y));
+    else if (ch === "W") ok = inWaterBlock(x, y) ? put(gi("Terrain/Water/water_center.png")) : put(riverImg(x, y));
+    else if (ch === "R") ok = put(gi("Terrain/Mountain/mountain_brown.png"));
+    else if (ch === "C") ok = put(gi("Terrain/Mountain/cave_entrance.png"));
+    else if (ch === "#") ok = put(gi("Derived/wall_flat.png"));
+    else if (ch === "M") ok = put(grassImg(x, y));
+    else if (ch === "v") ok = grass() && put(gi("Props/Outdoor/stone_well.png"));
+    else if (ch === "h") ok = grass() && put(gi("Buildings/Residence/Rural/rural_residence_thatched_roof_a.png"));
+    else if (ch === "G") ok = put(roadImg(x, y));
+    else if (PROP_IMG[ch] || ch === "z") ok = grass() && prop();
+    else if (ch === "B" || ch === "D" || ch === "P") {
+      ok = grass();
+      if (ok && !covered[x+","+y]) {
+        const rural = curName.indexOf("village") >= 0;
+        const rs = rural
+          ? (th(x, y, 2) ? "Buildings/Residence/Rural/rural_residence_thatched_roof_a.png"
+                         : "Buildings/Residence/Rural/rural_residence_clay_wall_b.png")
+          : (th(x, y, 2) ? "Buildings/Residence/Town/town_residence_blue_roof_a.png"
+                         : "Buildings/Residence/Town/town_residence_gray_roof_b.png");
+        ok = put(gi(rs));
+        if (ok && ch === "D") { ctx.fillStyle = "#2a1f12"; ctx.fillRect(px+10, py+16, 7, 10); }
+      }
+    }
+    // 湖岸过渡（草地系）
+    if (ok && (ch === "." || ch === "v"))
+      for (const p of shoreImgPaths(x, y)) put(gi(p));
+  }
+  if (!ok) fb();
+  ctx.strokeStyle = "rgba(0,0,0,.15)";
+  ctx.strokeRect(px + .5, py + .5, Z, Z);
 }
 function drawMarks() {
   for (const m of marks) {
@@ -109,24 +410,104 @@ function drawMarks() {
 }
 function draw() {
   cv.width = W * Z; cv.height = H * Z;
-  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) drawCell(x, y);
+  const { stamps, covered } = buildingStamps();
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) drawCell(x, y, covered);
+  // 建筑图章（盖在地形之上）
+  for (const st of stamps) {
+    const img = gi(st.img);
+    if (img) ctx.drawImage(img, st.x * Z, st.y * Z, st.w * Z, st.h * Z);
+  }
+  // 未被图章覆盖的招牌文字
+  for (const sg of curSigns) {
+    const sup = stamps.some(s => sg.x >= s.x-1 && sg.x <= s.x+s.w && sg.y >= s.y-1 && sg.y <= s.y+s.h);
+    if (sup || sg.x >= W || sg.y >= H) continue;
+    ctx.fillStyle = sg.color || "#ffd166";
+    ctx.font = "bold 12px sans-serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.fillText(sg.text, sg.x * Z + Z/2, sg.y * Z + Z/2);
+    ctx.textAlign = "left"; ctx.textBaseline = "alphabetic";
+  }
   drawMarks();
 }
+
+// ---------------- 调色板 ----------------
 const pal = document.getElementById("pal");
-for (const ch in TILES) {
-  const d = document.createElement("div");
-  d.className = "sw" + (ch === sel ? " sel" : "");
-  const c = document.createElement("canvas");
-  c.width = c.height = 18;
-  const g = c.getContext("2d");
-  g.fillStyle = TILES[ch][0]; g.fillRect(0, 0, 18, 18);
-  d.appendChild(c);
-  d.appendChild(document.createTextNode(ch + " " + TILES[ch][1]));
-  d.onclick = () => { sel = ch; markMode = "";
-    document.querySelectorAll(".sw").forEach(e => e.classList.remove("sel"));
-    d.classList.add("sel"); };
-  pal.appendChild(d);
+for (const [gname, items] of TILE_GROUPS) {
+  const h = document.createElement("div");
+  h.className = "pg"; h.textContent = gname;
+  pal.appendChild(h);
+  for (const [ch, label, thumb] of items) {
+    const d = document.createElement("div");
+    d.className = "sw" + (ch === sel ? " sel" : "");
+    const c = document.createElement("canvas");
+    c.width = c.height = 18;
+    const g = c.getContext("2d");
+    if (thumb) {
+      const im = new Image();
+      im.onload = () => g.drawImage(im, 0, 0, 18, 18);
+      im.onerror = () => { g.fillStyle = TILES[ch].color; g.fillRect(0, 0, 18, 18); };
+      im.src = V4 + thumb;
+    } else { g.fillStyle = TILES[ch].color; g.fillRect(0, 0, 18, 18); }
+    d.appendChild(c);
+    d.appendChild(document.createTextNode(ch + " " + label));
+    d.onclick = () => { sel = ch; markMode = ""; artSel = null;
+      document.getElementById("artsel").textContent = "素材笔：未使用（当前为图块笔）";
+      document.querySelectorAll(".ti").forEach(e => e.classList.remove("sel"));
+      document.querySelectorAll(".sw").forEach(e => e.classList.remove("sel"));
+      d.classList.add("sel"); };
+    pal.appendChild(d);
+  }
 }
+
+// ---------------- 素材库（art 笔：把任意 V4 素材铺到格子上，存 tileArt） ----------------
+function buildLib(list) {
+  const el = document.getElementById("liblist");
+  el.innerHTML = "";
+  const groups = {};
+  for (const p of list) {
+    const g = p.split("/").slice(0, -1).join("/") || "(根)";
+    (groups[g] = groups[g] || []).push(p);
+  }
+  for (const g of Object.keys(groups).sort()) {
+    const h = document.createElement("div");
+    h.className = "pg"; h.textContent = g;
+    el.appendChild(h);
+    for (const p of groups[g]) {
+      const d = document.createElement("div");
+      d.className = "ti";
+      const c = document.createElement("canvas");
+      c.width = c.height = 40;
+      const g2 = c.getContext("2d");
+      g2.imageSmoothingEnabled = false;
+      const im = new Image();
+      im.onload = () => {
+        g2.drawImage(im, 0, 0, 40, 40);
+        if (im.naturalWidth !== 32 || im.naturalHeight !== 32) d.classList.add("big");
+      };
+      im.src = V4 + p;
+      d.appendChild(c);
+      const nm = document.createElement("span");
+      nm.textContent = p.split("/").pop().replace(".png", "");
+      d.appendChild(nm);
+      d.title = p;
+      d.onclick = () => {
+        if (d.classList.contains("big")) {
+          status("多格素材（" + p + "）请在地图 JS 里用 buildings 字段配置");
+          return;
+        }
+        artSel = (artSel === p) ? null : p;
+        markMode = "";
+        document.querySelectorAll(".ti").forEach(e => e.classList.remove("sel"));
+        if (artSel) d.classList.add("sel");
+        document.getElementById("artsel").textContent =
+          "素材笔：" + (artSel || "未使用（当前为图块笔）");
+      };
+      el.appendChild(d);
+    }
+  }
+}
+buildLib(V4_LIST);
+
+// ---------------- 画笔 ----------------
 let painting = false;
 function cellAt(e) {
   const r = cv.getBoundingClientRect();
@@ -142,6 +523,10 @@ cv.addEventListener("mousedown", e => {
     const i = marks.findIndex(m => m.x === x && m.y === y && m.type === markMode);
     if (i >= 0) marks.splice(i, 1); else marks.push({ type: markMode, x, y });
     listMarks();
+  } else if (artSel) {
+    if (e.button === 2) delete artMap[x + "," + y];
+    else artMap[x + "," + y] = artSel;
+    dirty = true;
   } else {
     grid[y][x] = e.button === 2 ? "." : sel;
     dirty = true;
@@ -152,7 +537,12 @@ cv.addEventListener("mousemove", e => {
   if (!painting || markMode) return;
   const [x, y] = cellAt(e);
   if (x < 0 || y < 0 || x >= W || y >= H) return;
-  grid[y][x] = e.buttons === 2 ? "." : sel;
+  if (artSel) {
+    if (e.buttons === 2) delete artMap[x + "," + y];
+    else artMap[x + "," + y] = artSel;
+  } else {
+    grid[y][x] = e.buttons === 2 ? "." : sel;
+  }
   dirty = true;
   draw();
 });
@@ -181,11 +571,16 @@ document.getElementById("resize").onclick = () => {
     Array.from({ length: nw }, (_, x) => (grid[y] && grid[y][x]) || "."));
   W = nw; H = nh;
   marks = marks.filter(m => m.x < W && m.y < H);
+  curSigns = curSigns.filter(s => s.x < W && s.y < H);
+  for (const k of Object.keys(artMap)) {
+    const [ax, ay] = k.split(",").map(Number);
+    if (ax >= W || ay >= H) delete artMap[k];
+  }
   dirty = true; listMarks(); draw();
 };
-document.getElementById("clear").onclick = () => { blank(); marks = []; dirty = true; listMarks(); draw(); };
+document.getElementById("clear").onclick = () => { blank(); marks = []; artMap = {}; dirty = true; listMarks(); draw(); };
 
-// ---------------- 解析：grid + 标注 ----------------
+// ---------------- 解析：grid + 标注 + 招牌 ----------------
 function parseMapText(text) {
   const gridM = text.match(/grid:\s*\[([\s\S]*?)\]/);
   if (!gridM) return null;
@@ -208,10 +603,24 @@ function parseMarks(text) {
   }
   return out;
 }
+function parseSigns(text) {
+  const out = [];
+  for (const m of text.matchAll(/\{\s*x:\s*(\d+),\s*y:\s*(\d+),\s*text:\s*"([^"]+)"(?:,\s*color:\s*"([^"]+)")?/g))
+    out.push({ x: +m[1], y: +m[2], text: m[3], color: m[4] });
+  return out;
+}
+function parseTileArt(text) {
+  const m = text.match(/tileArt:\s*\{([\s\S]*?)\}/);
+  const out = {};
+  if (m) for (const e of m[1].matchAll(/"(\d+,\d+)":\s*"([^"]+)"/g)) out[e[1]] = e[2];
+  return out;
+}
 function loadParsed(p, text) {
   H = p.rows.length; W = p.rows[0].length;
   grid = p.rows.map(r => [...r]);
   marks = parseMarks(text);
+  curSigns = parseSigns(text);
+  artMap = parseTileArt(text);
   document.getElementById("iw").value = W;
   document.getElementById("ih").value = H;
   dirty = false; listMarks(); draw();
@@ -242,6 +651,19 @@ document.getElementById("pickdir").onclick = async () => {
     sel.disabled = false;
     document.getElementById("load").disabled = false;
     status("已连接：" + root.name + "（" + files.length + " 张地图）");
+    // 顺手扫描 assets/gfx/v4 全量素材（扫描不到就用内置清单）
+    try {
+      const v4dir = await (await (await root.getDirectoryHandle("assets"))
+        .getDirectoryHandle("gfx")).getDirectoryHandle("v4");
+      const list = [];
+      await (async function walk(dir, pre) {
+        for await (const [name, h] of dir.entries()) {
+          if (h.kind === "directory") await walk(h, pre + name + "/");
+          else if (name.endsWith(".png")) list.push(pre + name);
+        }
+      })(v4dir, "");
+      if (list.length) { buildLib(list); status("已连接：" + root.name + "（" + files.length + " 张地图，" + list.length + " 个素材）"); }
+    } catch (e) { /* 保持内置清单 */ }
   } catch (e) { /* 用户取消 */ }
 };
 document.getElementById("load").onclick = async () => {
@@ -259,21 +681,73 @@ document.getElementById("load").onclick = async () => {
     status("已载入 " + fname + (p.name ? "（" + p.name + "）" : ""));
   } catch (e) { alert("读取失败：" + e.message); }
 };
-// 保存：只替换原文件的 grid 块，其他内容（NPC/触发器/台词等）原样保留
+// 保存：只替换原文件的 grid / tileArt / chests / transitions 块，其他内容（NPC/触发器/台词等）原样保留
+// chests/transitions 按坐标合并：文件里同坐标的条目原文保留（物品/gold/目标不丢），新标注补默认条目；
+// 没有对应标注时不重写该块（防止误清空）。NPC 标注仅显示用，不写回。
+function splitEntries(blockText) {   // 按花括号配对拆出顶层 {...} 条目（兼容 items/to 嵌套）
+  const out = [];
+  let depth = 0, start = -1;
+  for (let i = 0; i < blockText.length; i++) {
+    const c = blockText[i];
+    if (c === "{") { if (depth === 0) start = i; depth++; }
+    else if (c === "}") {
+      depth--;
+      if (depth === 0 && start >= 0) { out.push(blockText.slice(start, i + 1)); start = -1; }
+    }
+  }
+  return out;
+}
+function mergeBlock(text, field, marks2, makeNew) {
+  if (!marks2.length) return text;   // 无标注：保持文件原样
+  const re = new RegExp(field + ":\\s*\\[([\\s\\S]*?)\\]");
+  const m = text.match(re);
+  const old = {};
+  if (m) for (const e of splitEntries(m[1])) {
+    const cm = e.match(/x:\s*(\d+),\s*y:\s*(\d+)/);
+    if (cm && !old[cm[1] + "," + cm[2]]) old[cm[1] + "," + cm[2]] = e;
+  }
+  const entries = marks2.map(mk => old[mk.x + "," + mk.y] || makeNew(mk));
+  const block = field + ": [\n" + entries.map(e => "    " + e + ",").join("\n") + "\n  ]";
+  if (m) return text.replace(re, block);
+  return text.replace(/(grid:\s*\[[\s\S]*?\](?:\s*,\s*tileArt:\s*\{[\s\S]*?\})?)/, "$1,\n  " + block);
+}
 document.getElementById("save").onclick = async () => {
   if (!curHandle) return;
   const widths = new Set(grid.map(r => r.length));
   if (widths.size !== 1) { alert("grid 行宽不一致，不能保存"); return; }
-  if (!confirm("把 grid 写回 " + curName + "？（其他内容原样保留；标注修改不会写回）")) return;
+  const nChest = marks.filter(m => m.type === "chest").length;
+  const nTrans = marks.filter(m => m.type === "trans").length;
+  if (!confirm("写回 " + curName + "：grid + tileArt" +
+    (nChest ? " + 宝箱×" + nChest : "") + (nTrans ? " + 传送×" + nTrans : "") +
+    "\n（同坐标旧条目原文保留；NPC 标注不写回）")) return;
   try {
     const gridText = "grid: [\n" + grid.map(r => "    \"" + r.join("") + "\",").join("\n") + "\n  ]";
-    const newText = curText.replace(/grid:\s*\[[\s\S]*?\]/, gridText);
+    let newText = curText.replace(/grid:\s*\[[\s\S]*?\]/, gridText);
     if (newText === curText) { alert("替换失败：没找到 grid 块"); return; }
+    // tileArt：先删旧块，有内容再插到 grid 后面
+    newText = newText.replace(/,?\s*tileArt:\s*\{[\s\S]*?\}/, "");
+    const keys = Object.keys(artMap).sort((a, b) => {
+      const [ax, ay] = a.split(",").map(Number), [bx, by] = b.split(",").map(Number);
+      return ay - by || ax - bx;
+    });
+    if (keys.length) {
+      const taText = ",\n  tileArt: {\n" +
+        keys.map(k => "    \"" + k + "\": \"" + artMap[k] + "\",").join("\n") + "\n  }";
+      newText = newText.replace(/(grid:\s*\[[\s\S]*?\])/, "$1" + taText);
+    }
+    // 宝箱 / 传送：按坐标合并写回
+    let cid = 1;
+    const usedIds = new Set();
+    newText = mergeBlock(newText, "chests", marks.filter(m => m.type === "chest"),
+      mk => { while (usedIds.has("c" + cid)) cid++; const id = "c" + cid; usedIds.add(id);
+              return "{ x: " + mk.x + ", y: " + mk.y + ", id: \"" + id + "\", gold: 100 }"; });
+    newText = mergeBlock(newText, "transitions", marks.filter(m => m.type === "trans"),
+      mk => "{ x: " + mk.x + ", y: " + mk.y + ", to: { map: \"目标图\", x: 0, y: 0 } }");
     const w = await curHandle.createWritable();
     await w.write(newText);
     await w.close();
     curText = newText; dirty = false;
-    status("已保存 " + curName + " ✔");
+    status("已保存 " + curName + " ✔（素材覆盖 " + keys.length + " 格）");
   } catch (e) { alert("保存失败：" + e.message); }
 };
 // ---------------- 老办法：粘贴导入 / 导出 ----------------
@@ -295,6 +769,12 @@ document.getElementById("doexp").onclick = () => {
   if (npc.length) s += "\n  npcs: [\n" + npc.join("\n") + "\n  ],";
   if (ch.length) s += "\n  chests: [\n" + ch.join("\n") + "\n  ],";
   if (tr.length) s += "\n  transitions: [\n" + tr.join("\n") + "\n  ],";
+  const taKeys = Object.keys(artMap).sort((a, b) => {
+    const [ax, ay] = a.split(",").map(Number), [bx, by] = b.split(",").map(Number);
+    return ay - by || ax - bx;
+  });
+  if (taKeys.length) s += "\n  tileArt: {\n" +
+    taKeys.map(k => "    \"" + k + "\": \"" + artMap[k] + "\",").join("\n") + "\n  },";
   document.getElementById("exp").value = s;
 };
 document.getElementById("copy").onclick = async () => {

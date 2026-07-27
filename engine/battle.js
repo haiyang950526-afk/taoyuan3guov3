@@ -790,15 +790,25 @@ function drawBattle() {
     ctx.fillText(f + (S.strategist ? " 军师:" + S.strategist : ""), VW * TILE - 12, 22);
   }
   ctx.textAlign = "left";
-  // 敌人（上排，像素立绘，镜像朝左；Boss 放大一档）
+  // 敌人（上排，角色贴图优先：小兵 32x32×2，Boss 64x64×1.5 镜像朝左；未命中回退点阵）
   B.enemies.forEach((e, i) => {
     const x = 60 + i * 120, y = 50;
-    const sc = e.boss ? 4 : 3;
-    const w = 16 * sc, h = 20 * sc;
-    const sx = x + ((e.boss ? 80 : 64) - w) / 2;
-    const sy = y + (e.boss ? 4 : 20);
+    const art = charArtImg(e.key, e.phaseIdx);   // 按基础 key 取图（重名"黄巾贼 甲/乙"共用黄巾贼贴图）
     ctx.globalAlpha = e.hp > 0 ? 1 : 0.25;
-    drawBattleSprite(sx, sy, sc, enemyLook(e), true);
+    if (art) {
+      const bw = art.kind === "boss" ? 96 : 64;
+      ctx.save();
+      ctx.translate(x + (e.boss ? 80 : 64) / 2, y + 84);
+      ctx.scale(-1, 1);
+      ctx.drawImage(art.img, -bw / 2, -bw, bw, bw);
+      ctx.restore();
+    } else {
+      const sc = e.boss ? 4 : 3;
+      const w = 16 * sc, h = 20 * sc;
+      const sx = x + ((e.boss ? 80 : 64) - w) / 2;
+      const sy = y + (e.boss ? 4 : 20);
+      drawBattleSprite(sx, sy, sc, enemyLook(e), true);
+    }
     ctx.globalAlpha = 1;
     ctx.fillStyle = "#333";
     ctx.fillRect(x, y + 100, e.boss ? 80 : 64, 6);
@@ -809,11 +819,13 @@ function drawBattle() {
     ctx.textAlign = "center";
     ctx.fillText(e.name + "  " + e.hp + "/" + e.maxHp, x + (e.boss ? 40 : 32), y + 122);
   });
-  // 我方（下排，最多 5 人 + 军师标识）
+  // 我方（下排，最多 5 人 + 军师标识；角色贴图 32x32×2，未命中回退点阵）
   S.party.forEach((h, i) => {
     const x = 20 + i * 88, y = 220;
+    const art = charArtImg(h.key, 0);
     ctx.globalAlpha = h.hp > 0 ? 1 : 0.3;
-    drawBattleSprite(x + 2, y - 16, 3, heroLook(h.key), false);
+    if (art) ctx.drawImage(art.img, x - 6, y - 20, 64, 64);
+    else drawBattleSprite(x + 2, y - 16, 3, heroLook(h.key), false);
     ctx.globalAlpha = 1;
     ctx.fillStyle = "#e8ecf4";
     ctx.font = "12px sans-serif";

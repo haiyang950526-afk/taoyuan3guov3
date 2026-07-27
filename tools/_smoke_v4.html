@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><base href="../"><title>smoke</title></head>
+<body>
+<canvas id="cv"></canvas>
+<div id="hud"></div><div id="toast"></div>
+<div id="dpad"></div>
+<button id="pad-up"></button><button id="pad-down"></button>
+<button id="pad-left"></button><button id="pad-right"></button>
+<button id="pad-a"></button><button id="pad-b"></button>
+<div id="dialog"></div><div id="illust"></div>
+<div id="scr-title"></div>
+<span id="hud-gold"></span><span id="hud-map"></span><span id="hud-quest"></span>
+<img id="dialog-face" width="72" height="72"><span id="dialog-text"></span>
+<span id="illust-cap"></span><img id="illust-img">
+<span id="panel-title"></span><span id="panel-body"></span>
+<span id="battle-cmd"></span><span id="battle-log"></span>
+<button id="btn-new"></button><button id="btn-load"></button>
+<script src="data/text.js"></script>
+<script src="data/items.js"></script>
+<script src="data/skills.js"></script>
+<script src="data/heroes.js"></script>
+<script src="data/enemies.js"></script>
+<script src="data/maps/ch00_city.js"></script>
+<script src="data/maps/ch00_field.js"></script>
+<script src="data/maps/ch00_village.js"></script>
+<script src="data/maps/ch00_cave.js"></script>
+<script src="data/maps/ch01_field.js"></script>
+<script src="data/maps/ch01_village.js"></script>
+<script src="data/maps/ch01_tancheng.js"></script>
+<script src="data/maps/ch01_sishui.js"></script>
+<script src="data/maps/ch02_field_east.js"></script>
+<script src="data/maps/ch02e_village.js"></script>
+<script src="data/maps/ch02_xiaopei.js"></script>
+<script src="data/maps/ch02_field_south.js"></script>
+<script src="data/maps/ch02s_village.js"></script>
+<script src="data/maps/ch02_xiapi.js"></script>
+<script src="data/maps/ch02_huaishui.js"></script>
+<script src="data/maps/ch03_xudu.js"></script>
+<script src="data/maps/ch03_field.js"></script>
+<script src="data/maps/ch03_village.js"></script>
+<script src="data/maps/ch03_hunt.js"></script>
+<script src="data/maps/ch03_study.js"></script>
+<script src="data/maps/ch04_tushan.js"></script>
+<script src="data/maps/ch04_baima.js"></script>
+<script src="data/maps/ch04_mangdang.js"></script>
+<script src="data/maps/ch05_dongling.js"></script>
+<script src="data/maps/ch05_luoyang.js"></script>
+<script src="data/maps/ch05_sishui.js"></script>
+<script src="data/maps/ch05_xingyang.js"></script>
+<script src="data/maps/ch05_ferry.js"></script>
+<script src="data/maps/ch05_taoyuan.js"></script>
+<script src="data/maps/ch05_woniu.js"></script>
+<script src="data/maps/ch05_gucheng.js"></script>
+<script src="data/maps/ch06_xinye.js"></script>
+<script src="data/maps/ch06_field.js"></script>
+<script src="data/maps/ch06_village.js"></script>
+<script src="data/maps/ch06_xiangyang.js"></script>
+<script src="data/maps/ch06_tanxi.js"></script>
+<script src="data/maps/ch06_longzhong.js"></script>
+<script src="data/maps/ch06_school.js"></script>
+<script src="data/maps/ch07_bowang.js"></script>
+<script src="data/maps/ch07_changban.js"></script>
+<script src="data/maps/ch07_hanjin.js"></script>
+<script src="data/maps/ch08_chaisang.js"></script>
+<script src="data/maps/ch08_shuizhai.js"></script>
+<script src="data/maps/ch08_xiakou.js"></script>
+<script src="data/maps/ch08_huarong.js"></script>
+<script src="data/maps/ch08_mingjing.js"></script>
+<script src="data/maps/ch09_guiyang.js"></script>
+<script src="data/maps/ch09_wuling.js"></script>
+<script src="data/maps/ch09_changsha.js"></script>
+<script src="data/maps/ch09_lingling.js"></script>
+<script src="data/maps/ch09_field_n.js"></script>
+<script src="data/maps/ch09n_village.js"></script>
+<script src="data/maps/ch09_field_s.js"></script>
+<script src="data/maps/ch09s_village.js"></script>
+<script src="data/maps/ch10_fucheng.js"></script>
+<script src="data/maps/ch10_field.js"></script>
+<script src="data/maps/ch10_village.js"></script>
+<script src="data/maps/ch10_luocheng.js"></script>
+<script src="data/maps/ch10_luofeng.js"></script>
+<script src="data/maps/ch10_mianzhu.js"></script>
+<script src="data/maps/ch10_chengdu.js"></script>
+<script src="data/maps/ch10_dingjun.js"></script>
+<script src="data/maps/ch11_hanzhong.js"></script>
+<script src="data/maps/ch11_tianshui.js"></script>
+<script src="data/maps/ch11_jieting.js"></script>
+<script src="data/maps/ch11_qishan.js"></script>
+<script src="data/maps/ch11_wuzhang.js"></script>
+<script src="data/maps/ch11_luoyang.js"></script>
+<script src="data/maps/ch00_palace.js"></script>
+<script src="data/maps/ch00_inn_in.js"></script>
+<script src="data/maps/ch00_weapon_in.js"></script>
+<script src="data/maps/ch00_armor_in.js"></script>
+<script src="data/maps/ch00_item_in.js"></script>
+<script src="data/maps/ch00_tavern_in.js"></script>
+<script src="data/maps/ch00_dojo_in.js"></script>
+<script src="data/maps/ch01_inn_in.js"></script>
+<script src="data/maps/ch01_weapon_in.js"></script>
+<script src="data/maps/ch01_armor_in.js"></script>
+<script src="data/maps/ch01_item_in.js"></script>
+<script src="data/maps/ch02_inn_in.js"></script>
+<script src="data/maps/ch02_weapon_in.js"></script>
+<script src="data/maps/ch02_armor_in.js"></script>
+<script src="data/maps/ch02_item_in.js"></script>
+<script src="data/maps/ch02b_inn_in.js"></script>
+<script src="data/maps/ch02b_weapon_in.js"></script>
+<script src="data/maps/ch02b_armor_in.js"></script>
+<script src="data/maps/ch02b_item_in.js"></script>
+<script src="data/maps/ch03_inn_in.js"></script>
+<script src="data/maps/ch03_weapon_in.js"></script>
+<script src="data/maps/ch03_armor_in.js"></script>
+<script src="data/maps/ch03_item_in.js"></script>
+<script src="data/maps/ch05_inn_in.js"></script>
+<script src="data/maps/ch05_weapon_in.js"></script>
+<script src="data/maps/ch05_armor_in.js"></script>
+<script src="data/maps/ch05_item_in.js"></script>
+<script src="data/maps/ch06_inn_in.js"></script>
+<script src="data/maps/ch06_weapon_in.js"></script>
+<script src="data/maps/ch06_armor_in.js"></script>
+<script src="data/maps/ch06_item_in.js"></script>
+<script src="data/maps/ch06_book_in.js"></script>
+<script src="data/maps/ch08_inn_in.js"></script>
+<script src="data/maps/ch08_weapon_in.js"></script>
+<script src="data/maps/ch08_armor_in.js"></script>
+<script src="data/maps/ch08_item_in.js"></script>
+<script src="data/maps/ch09_inn_in.js"></script>
+<script src="data/maps/ch09_weapon_in.js"></script>
+<script src="data/maps/ch09_armor_in.js"></script>
+<script src="data/maps/ch09_item_in.js"></script>
+<script src="data/maps/ch10_inn_in.js"></script>
+<script src="data/maps/ch10_weapon_in.js"></script>
+<script src="data/maps/ch10_armor_in.js"></script>
+<script src="data/maps/ch10_item_in.js"></script>
+<script src="data/maps/ch11_inn_in.js"></script>
+<script src="data/maps/ch11_weapon_in.js"></script>
+<script src="data/maps/ch11_armor_in.js"></script>
+<script src="data/maps/ch11_item_in.js"></script>
+<script src="data/maps/ch00_village_inn_in.js"></script>
+<script src="data/maps/ch00_village_item_in.js"></script>
+<script src="data/maps/ch01_village_inn_in.js"></script>
+<script src="data/maps/ch01_village_item_in.js"></script>
+<script src="data/maps/ch02e_village_inn_in.js"></script>
+<script src="data/maps/ch02e_village_item_in.js"></script>
+<script src="data/maps/ch02s_village_inn_in.js"></script>
+<script src="data/maps/ch02s_village_item_in.js"></script>
+<script src="data/maps/ch03_village_inn_in.js"></script>
+<script src="data/maps/ch03_village_item_in.js"></script>
+<script src="data/maps/ch06_village_inn_in.js"></script>
+<script src="data/maps/ch06_village_item_in.js"></script>
+<script src="data/maps/ch09n_village_inn_in.js"></script>
+<script src="data/maps/ch09n_village_item_in.js"></script>
+<script src="data/maps/ch09s_village_inn_in.js"></script>
+<script src="data/maps/ch09s_village_item_in.js"></script>
+<script src="data/maps/ch10_village_inn_in.js"></script>
+<script src="data/maps/ch10_village_item_in.js"></script>
+<script src="data/maps/ch00_village_house_in.js"></script>
+<script src="data/maps/ch01_village_house_in.js"></script>
+<script src="data/maps/ch02e_village_house_in.js"></script>
+<script src="data/maps/ch02s_village_house_in.js"></script>
+<script src="data/maps/ch03_village_house_in.js"></script>
+<script src="data/maps/ch06_village_house_in.js"></script>
+<script src="data/maps/ch09n_village_house_in.js"></script>
+<script src="data/maps/ch09s_village_house_in.js"></script>
+<script src="data/maps/ch10_village_house_in.js"></script>
+<script src="data/maps/ch00_city_house_in.js"></script>
+<script src="data/maps/ch01_tancheng_house_in.js"></script>
+<script src="data/maps/ch02_xiaopei_house_in.js"></script>
+<script src="data/maps/ch02_xiapi_house_in.js"></script>
+<script src="data/maps/ch03_xudu_house_in.js"></script>
+<script src="data/maps/ch05_luoyang_house_in.js"></script>
+<script src="data/maps/ch05_gucheng_house_in.js"></script>
+<script src="data/maps/ch06_xinye_house_in.js"></script>
+<script src="data/maps/ch06_xiangyang_house_in.js"></script>
+<script src="data/maps/ch08_chaisang_house_in.js"></script>
+<script src="data/maps/ch09_guiyang_house_in.js"></script>
+<script src="data/maps/ch09_wuling_house_in.js"></script>
+<script src="data/maps/ch09_changsha_house_in.js"></script>
+<script src="data/maps/ch09_lingling_house_in.js"></script>
+<script src="data/maps/ch10_fucheng_house_in.js"></script>
+<script src="data/maps/ch10_chengdu_house_in.js"></script>
+<script src="data/maps/ch11_hanzhong_house_in.js"></script>
+<script src="data/maps/ch00_cave2.js"></script>
+<script src="data/maps/ch00_cave3.js"></script>
+<script src="data/maps/ch01_cave2.js"></script>
+<script src="data/maps/ch02_cave2.js"></script>
+<script src="data/chapters.js"></script>
+<script src="data/formations.js"></script>
+<script src="data/portraits.js"></script>
+<script src="data/charart.js"></script>
+<script src="engine/formulas.js"></script>
+<script src="engine/save.js"></script>
+<script src="engine/core.js"></script>
+<script src="engine/sprites.js"></script>
+<script src="engine/map.js"></script>
+<script src="engine/battle.js"></script>
+<script src="engine/ui.js"></script>
+<script src="engine/minigame.js"></script>
+<script>
+window.__errs = [];
+window.onerror = (m, s, l) => { window.__errs.push(m + " @" + s + ":" + l); };
+window.addEventListener("load", () => {
+  setTimeout(() => {
+    try {
+      const q = (location.hash || "#ch00_city").slice(1).split(",");
+      newGame();
+      hide("scr-title");
+      if (q[0] !== "ch00_city" || q.length > 1) warpTo(q[0], +(q[1]||5), +(q[2]||5));
+      S.warpLock = false;
+      // 预热：把渲染本图需要的全部图片实例化，确保截图前加载完
+      const c0 = cam();
+      for (let y = 0; y < mapDef().grid.length; y++) for (let x = 0; x < mapDef().grid[0].length; x++) {
+        drawTileImage(tileAt(x, y), -9999, -9999, x, y);
+      }
+      buildingStamps().forEach(st => gfxImg(V4 + st.img));
+      gfxImg(V4 + "Props/Outdoor/treasure_chest_red.png");
+    } catch (e) { window.__errs.push("boot: " + e.message); }
+    setTimeout(() => {
+      document.title = window.__errs.length ? ("ERR: " + window.__errs.join(" | ")) : "OK";
+      const d = document.createElement("pre");
+      d.id = "result"; d.textContent = document.title;
+      document.body.appendChild(d);
+    }, 3000);
+  }, 100);
+});
+</script>
+</body></html>

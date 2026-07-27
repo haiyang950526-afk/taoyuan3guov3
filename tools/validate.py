@@ -20,8 +20,8 @@ import sys
 BASE = os.path.dirname(os.path.abspath(__file__))
 RPG = os.path.dirname(BASE)
 
-PASS_TILES = set("GCEFM.,Lhc")   # TILE_META 中 pass:true 的字符
-ALL_TILES = set("#BDGTWRCEFPM.,LXvhtc")
+PASS_TILES = set("GCEFM.,Lhczsn")   # TILE_META 中 pass:true 的字符
+ALL_TILES = set("#BDGTWRCEFPM.,LXvhtcfokabwrquzsnyij")
 
 errors = []
 checks = [0]

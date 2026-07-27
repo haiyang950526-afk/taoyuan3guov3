@@ -236,6 +236,38 @@ function partyLeaderLook() {
   return S.party.length ? heroLook(S.party[0].key) : lookDefaults({ color: "#e8c84a" });
 }
 
+// ---------------- 角色贴图（assets/chars/；未命中/未加载回退程序点阵） ----------------
+const CHAR_IMGS = {};
+function charImg(path) {
+  let rec = CHAR_IMGS[path];
+  if (!rec) {
+    rec = { img: new Image(), ok: false };
+    rec.img.onload = () => { rec.ok = true; };
+    rec.img.onerror = () => { rec.dead = true; };
+    rec.img.src = "assets/chars/" + path;
+    CHAR_IMGS[path] = rec;
+  }
+  return rec.ok ? rec.img : null;
+}
+// 名字 → {kind: "map"|"boss", img}；Boss 多形态按 phaseIdx 取（见 data/charart.js）
+function charArtImg(name, phaseIdx) {
+  if (typeof CHAR_ART === "undefined") return null;
+  const a = CHAR_ART[name];
+  if (!a) return null;
+  if (a.boss) {
+    const key = Array.isArray(a.boss)
+      ? a.boss[Math.max(0, Math.min((phaseIdx || 0) + 1, a.boss.length - 1))]
+      : a.boss;
+    const img = charImg("boss/" + key + ".png");
+    return img ? { kind: "boss", img } : null;
+  }
+  if (a.map) {
+    const img = charImg("map/" + a.map + ".png");
+    return img ? { kind: "map", img } : null;
+  }
+  return null;
+}
+
 // ---------------- 渲染（浏览器专用，离屏缓存） ----------------
 const spriteCache = new Map();
 

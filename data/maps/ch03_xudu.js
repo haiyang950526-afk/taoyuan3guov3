@@ -5,20 +5,20 @@ MAPS["ch03_xudu"] = {
   name: "许都",
   grid: [
     "########################",
-    "#.......PPPPPPPP.......#",
-    "#.......PPPPPPPP...T...#",
-    "#.......PPPPPPPP.......#",
+    "#......................#",
+    "#.........PP.......T...#",
+    "#......................#",
     "#.......,,.............#",
     "#....T..,,.......T.....#",
-    "#..BBBB.,,.BBBB........#",
-    "#..BBBB.,,.BBBB....T...#",
-    "#..BDBB.,,.BDBD........#",
+    "#.......,,.............#",
+    "#..BB...,,.BB.BB...T...#",
+    "#..DB...,,.DB.DB.......#",
     "#,,,,,,,,,,,,,,,,,,,,,,#",
-    "#...T...,,......TBBBB..#",
-    "#.......,,.......BBBB..#",
-    "#..BBBB.,,.BBBB..BDBB..#",
-    "#..BBBB.,,.BBBB....T...#",
-    "#..BDBB.,,.BBDB........#",
+    "#...T...,,......T......#",
+    "#.......,,.......BB....#",
+    "#.......,,.......DB....#",
+    "#..BB...,,.BBBB....T...#",
+    "#..DB...,,.DBDB........#",
     "#,,,,,,,,,,,,,,,,,,,,,,#",
     "#...BBBBBB,,...........#",
     "#...BBBBBB,,.......T...#",
@@ -28,14 +28,14 @@ MAPS["ch03_xudu"] = {
   encounterTiles: [],
   // 建筑招牌（画在顶部居中的 B 格上；皇宫挂在 P 墙正中）
   signs: [
-    { x: 11, y: 1,  text: "府", color: "#ffd166" },
-    { x: 4,  y: 6,  text: "客", color: "#ffd166" },
-    { x: 12, y: 6,  text: "武", color: "#ffd166" },
-    { x: 14, y: 6,  text: "装", color: "#ffd166" },
-    { x: 4,  y: 12, text: "药", color: "#ffd166" },
-    { x: 12, y: 12, text: "酒", color: "#ffd166" },
-    { x: 14, y: 12, text: "训", color: "#ffd166" },
-    { x: 6,  y: 16, text: "府", color: "#ffd166" },
+    { x: 3, y: 7, text: "客", color: "#ffd166" },
+    { x: 11, y: 7, text: "武", color: "#ffd166" },
+    { x: 14, y: 7, text: "装", color: "#ffd166" },
+    { x: 3, y: 13, text: "药", color: "#ffd166" },
+    { x: 14, y: 13, text: "训", color: "#ffd166" },
+    { x: 11, y: 13, text: "酒", color: "#ffd166" },
+    { x: 11, y: 1, text: "府", color: "#ffd166" },
+    { x: 6, y: 16, text: "酒", color: "#ffd166" },
   ],
   npcs: [
     // 城门口告示牌
@@ -96,23 +96,23 @@ MAPS["ch03_xudu"] = {
   chests: [
     { x: 20, y: 5, id: "c1", gold: 300 },
   ],
-  transitions: [
+    transitions: [
     { x: 10, y: 19, to: { map: "ch03_field", x: 11, y: 1 } },
     { x: 11, y: 19, to: { map: "ch03_field", x: 11, y: 1 } },
-    // 店铺室内下钻（朝门才进，路过不触发）
-    { x: 4,  y: 9,  face: [0, -1], to: { map: "ch03_inn_in", x: 7, y: 8 } },
-    { x: 12, y: 9,  face: [0, -1], to: { map: "ch03_weapon_in", x: 7, y: 8 } },
-    { x: 14, y: 9,  face: [0, -1], to: { map: "ch03_armor_in", x: 7, y: 8 } },
-    { x: 4,  y: 15, face: [0, -1], to: { map: "ch03_item_in", x: 7, y: 8 } },
-    // 民房下钻（朝门才进，路过不触发）
-    { x: 18, y: 13, face: [0, -1], to: { map: "ch03_xudu_house_in", x: 7, y: 8 } },
-    // 渡魂记 · 第三章：相府荀彧书房（煮酒之后可入；南向推门）
     { x: 5, y: 15, face: [0, 1], if: { flag: "q3", in: ["wine", "zhao", "leave"] },
       to: { map: "ch03_study", x: 4, y: 4 } },
-  ],
-  // 渡魂记：煮酒之后，相府墙上门扉显现（仅视觉，通行仍靠上方传送）
-  tileOverrides: [
     { x: 5, y: 16, ch: "D", if: { flag: "q3", in: ["wine", "zhao", "leave"] } },
+    // 室内下钻（朝门才进，路过不触发）
+    { x: 3, y: 9, face: [0, -1], to: { map: "ch03_inn_in", x: 7, y: 8 } },
+    { x: 4, y: 9, face: [0, -1], to: { map: "ch03_inn_in", x: 7, y: 8 } },
+    { x: 11, y: 9, face: [0, -1], to: { map: "ch03_weapon_in", x: 7, y: 8 } },
+    { x: 12, y: 9, face: [0, -1], to: { map: "ch03_weapon_in", x: 7, y: 8 } },
+    { x: 14, y: 9, face: [0, -1], to: { map: "ch03_armor_in", x: 7, y: 8 } },
+    { x: 15, y: 9, face: [0, -1], to: { map: "ch03_armor_in", x: 7, y: 8 } },
+    { x: 3, y: 15, face: [0, -1], to: { map: "ch03_item_in", x: 7, y: 8 } },
+    { x: 4, y: 15, face: [0, -1], to: { map: "ch03_item_in", x: 7, y: 8 } },
+    { x: 17, y: 13, face: [0, -1], to: { map: "ch03_xudu_house_in", x: 7, y: 8 } },
+    { x: 18, y: 13, face: [0, -1], to: { map: "ch03_xudu_house_in", x: 7, y: 8 } },
   ],
 };
 

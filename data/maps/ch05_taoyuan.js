@@ -8,8 +8,8 @@ MAPS["ch05_taoyuan"] = {
     "RTTTTTTTTTTR",
     "RT........TR",
     "RT.,,,,,,.TR",
-    "RT.,BBBB,.TR",
-    "RT.,BDBB,.TR",
+    "RT.,.BB.,.TR",
+    "RT.,.DB.,.TR",
     "RT.,,,,,,.TR",
     "RE........ER",
     "RRRRRRRRRRRR",
@@ -26,8 +26,7 @@ MAPS["ch05_taoyuan"] = {
       ] },
   ],
   chests: [],
-  transitions: [
-    // 两侧出口：回黄河渡南岸路上（落点不在渡口任何传送/触发格上）
+    transitions: [
     { x: 1,  y: 7, to: { map: "ch05_ferry", x: 15, y: 8 } },
     { x: 10, y: 7, to: { map: "ch05_ferry", x: 15, y: 8 } },
   ],
