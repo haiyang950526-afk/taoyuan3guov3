@@ -659,7 +659,7 @@ function chainBreak() {
     if (!used) {
       for (const id in S.inv) {
         const it = ITEMS[id];
-        if (!it || it.type !== "item" || S.inv[id] <= 0 || it.mat) continue;
+        if (!it || it.type !== "item" || S.inv[id] <= 0 || it.mat || (!it.heal && !it.revive)) continue;
         cmd.appendChild(btn(id + " ×" + S.inv[id], () => {
           const pick = it.revive ? pickDeadAlly : pickAlly;
           pick(t => {

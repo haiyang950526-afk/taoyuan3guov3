@@ -237,6 +237,30 @@ function bindPad(id, x, y) {
   el.addEventListener("mouseleave", end);
 }
 
+// ---------------- 资源预载 ----------------
+// 标题页展示后后台预载全部贴图（角色 + V4 地块），避免进新场景时逐张"跳变"
+function preloadAssets() {
+  const paths = [];
+  if (typeof CHAR_ART !== "undefined") {
+    for (const k in CHAR_ART) {
+      const a = CHAR_ART[k];
+      if (a.map) paths.push("assets/chars/map/" + a.map + ".png");
+      if (a.face) paths.push("assets/chars/face/" + a.face + ".png");
+      const bs = Array.isArray(a.boss) ? a.boss : (a.boss ? [a.boss] : []);
+      for (const b of bs) paths.push("assets/chars/boss/" + b + ".png");
+    }
+  }
+  if (typeof V4_ASSETS !== "undefined") for (const p of V4_ASSETS) paths.push("assets/gfx/v4/" + p);
+  // 去重后小批量错峰加载，不阻塞标题页
+  const seen = {}, list = [];
+  for (const p of paths) if (!seen[p]) { seen[p] = 1; list.push(p); }
+  let i = 0;
+  (function step() {
+    for (let n = 0; n < 12 && i < list.length; n++, i++) { const im = new Image(); im.src = list[i]; }
+    if (i < list.length) setTimeout(step, 40);
+  })();
+}
+
 // ---------------- 启动 ----------------
 window.addEventListener("DOMContentLoaded", () => {
   cv = $("cv");
@@ -278,5 +302,6 @@ window.addEventListener("DOMContentLoaded", () => {
   if ("ontouchstart" in window) show("dpad");
   resize();  // 按键区显示后重新计算画布尺寸
   show("scr-title");
+  preloadAssets();
   loop();
 });

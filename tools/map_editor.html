@@ -699,7 +699,7 @@ function splitEntries(blockText) {   // 按花括号配对拆出顶层 {...} 条
 }
 function mergeBlock(text, field, marks2, makeNew) {
   if (!marks2.length) return text;   // 无标注：保持文件原样
-  const re = new RegExp(field + ":\\s*\\[([\\s\\S]*?)\\]");
+  const re = new RegExp(field + ":\\s*\\[([\\s\\S]*?)\\n  \\]");   // 块结束锚定到 "\n  ]"（防止 face: [0,-1] 的 ] 截断）
   const m = text.match(re);
   const old = {};
   if (m) for (const e of splitEntries(m[1])) {

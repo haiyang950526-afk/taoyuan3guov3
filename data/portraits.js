@@ -72,7 +72,6 @@ const PORTRAIT_NAMES = {
   "匪徒": "assets/portraits/匪徒.png",
   "守军": "assets/portraits/士兵.png",
   "追兵": "assets/portraits/士兵.png",
-  "探马来报": "assets/portraits/士兵.png",
   "魏将": "assets/portraits/魏兵.png",
   "匪首": "assets/portraits/匪徒.png"
 };

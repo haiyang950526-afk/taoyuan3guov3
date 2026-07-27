@@ -97,6 +97,8 @@ MAPS["ch00_field"] = {
     { x: 20, y: 0,  to: { map: "ch00_cave2", x: 9, y: 11 } },
     { x: 2,  y: 17, if: { flag: "tavern_clue", exists: true }, to: { map: "ch00_cave3", x: 6, y: 6 } },
     { x: 3,  y: 17, if: { flag: "tavern_clue", exists: true }, to: { map: "ch00_cave3", x: 6, y: 6 } },
+    // 芒砀山回程（土山支线卡死修复：东缘草地 → 芒砀山西口）
+    { x: 21, y: 8,  to: { map: "ch04_mangdang", x: 1, y: 2 } },
     { x: 23, y: 8,  if: { flag: "q1", exists: true }, to: { map: "ch01_field", x: 1, y: 8 } },
     { x: 23, y: 9,  if: { flag: "q1", exists: true }, to: { map: "ch01_field", x: 1, y: 8 } },
     { x: 23, y: 2,  if: { flag: "q2", exists: true }, to: { map: "ch02_field_east", x: 1, y: 2 } },

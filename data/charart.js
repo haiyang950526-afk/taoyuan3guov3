@@ -43,10 +43,10 @@ const CHAR_ART = {
   // ---------------- 敌方名将（Boss/头目） ----------------
   "黄巾头目":   { boss: "yellow_turban_leader" },
   "于禁":       { boss: "yu_jin" },
-  "纪灵":       { boss: "ji_ling" },
+  "纪灵":       { boss: "ji_ling", face: "cai_mao" },   // 立绘暂借蔡瑁
   "张辽":       { boss: "zhang_liao_unwinnable" },
   "车胄先锋":   { boss: "che_zhou_vanguard" },
-  "车胄":       { boss: "che_zhou" },
+  "车胄":       { boss: "che_zhou", face: "cai_mao" },  // 立绘暂借蔡瑁
   "颜良":       { boss: "yan_liang" },
   "文丑":       { boss: "wen_chou" },
   "孔秀":       { boss: "kong_xiu" },

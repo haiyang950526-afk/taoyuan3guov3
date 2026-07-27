@@ -20,11 +20,14 @@ MAPS["ch03_xudu"] = {
     "#..BB...,,.BBBB....T...#",
     "#..DB...,,.DBDB........#",
     "#,,,,,,,,,,,,,,,,,,,,,,#",
-    "#...BBBBBB,,...........#",
-    "#...BBBBBB,,.......T...#",
-    "#...BBBBBB,,...........#",
+    "#.........,,...........#",
+    "#.........,,.......T...#",
+    "#........B,,...........#",
     "##########GG############",
   ],
+  tileArt: {
+    "6,16": "Terrain/Base/flower_grass_center.png",
+  },
   encounterTiles: [],
   // 建筑招牌（画在顶部居中的 B 格上；皇宫挂在 P 墙正中）
   signs: [
@@ -35,7 +38,6 @@ MAPS["ch03_xudu"] = {
     { x: 14, y: 13, text: "训", color: "#ffd166" },
     { x: 11, y: 13, text: "酒", color: "#ffd166" },
     { x: 11, y: 1, text: "府", color: "#ffd166" },
-    { x: 6, y: 16, text: "酒", color: "#ffd166" },
   ],
   npcs: [
     // 城门口告示牌
@@ -99,9 +101,9 @@ MAPS["ch03_xudu"] = {
     transitions: [
     { x: 10, y: 19, to: { map: "ch03_field", x: 11, y: 1 } },
     { x: 11, y: 19, to: { map: "ch03_field", x: 11, y: 1 } },
-    { x: 5, y: 15, face: [0, 1], if: { flag: "q3", in: ["wine", "zhao", "leave"] },
-      to: { map: "ch03_study", x: 4, y: 4 } },
-    { x: 5, y: 16, ch: "D", if: { flag: "q3", in: ["wine", "zhao", "leave"] } },
+    // 皇宫内殿（朝北向门口多走一步才进；献帝在内）
+    { x: 10, y: 3, face: [0, -1], to: { map: "ch03_palace", x: 5, y: 7 } },
+    { x: 11, y: 3, face: [0, -1], to: { map: "ch03_palace", x: 5, y: 7 } },
     // 室内下钻（朝门才进，路过不触发）
     { x: 3, y: 9, face: [0, -1], to: { map: "ch03_inn_in", x: 7, y: 8 } },
     { x: 4, y: 9, face: [0, -1], to: { map: "ch03_inn_in", x: 7, y: 8 } },
@@ -113,6 +115,13 @@ MAPS["ch03_xudu"] = {
     { x: 4, y: 15, face: [0, -1], to: { map: "ch03_item_in", x: 7, y: 8 } },
     { x: 17, y: 13, face: [0, -1], to: { map: "ch03_xudu_house_in", x: 7, y: 8 } },
     { x: 18, y: 13, face: [0, -1], to: { map: "ch03_xudu_house_in", x: 7, y: 8 } },
+    // 渡魂记 · 第三章：相府荀彧书房（煮酒之后可入；南向推门）
+    { x: 5, y: 15, face: [0, 1], if: { flag: "q3", in: ["wine", "zhao", "leave"] },
+      to: { map: "ch03_study", x: 4, y: 4 } },
+  ],
+  // 渡魂记：煮酒之后，相府墙上门扉显现（仅视觉，通行仍靠上方传送）
+  tileOverrides: [
+    { x: 5, y: 16, ch: "D", if: { flag: "q3", in: ["wine", "zhao", "leave"] } },
   ],
 };
 
