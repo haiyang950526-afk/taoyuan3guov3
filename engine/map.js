@@ -341,11 +341,12 @@ const SHOP_BY_SIGN = {
   "训": "Buildings/Shops/training_hall_banner_2x2.png",
   "编": "Buildings/Shops/formation_office_flag_roster_2x2.png",
 };
-let _stampKey = null, _stamps = [];
+let _stampKey = null, _stamps = [], _anchors = {};
 function buildingStamps() {
   if (_stampKey === S.map) return _stamps;
   _stampKey = S.map;
   _stamps = [];
+  _anchors = {};
   if (mapKind() !== "outdoor") return _stamps;
   const m = mapDef(), g = m.grid;
   const covered = {};
@@ -392,10 +393,45 @@ function buildingStamps() {
     if (free(x - 1, y - 1, 2, 2)) push(SHOP_BY_SIGN[sg.text], x - 1, y - 1, 2, 2);
     else if (free(x, y - 1, 2, 2)) push(SHOP_BY_SIGN[sg.text], x, y - 1, 2, 2);
   }
+  // 建筑足印锚点：未被图章覆盖的连通 B/D 块，每栋只画 1 个 1x1 民居
+  // （锚点 = 门格 D，含 tileOverrides 条件门；无门取最下排最左格）——避免 2x2 房子挤成 4 栋小房
+  const ovD = {};
+  for (const o of (m.tileOverrides || [])) if (o.ch === "D") ovD[o.x + "," + o.y] = true;
+  const isDoor = (x, y) => g[y][x] === "D" || !!ovD[x + "," + y];
+  const seen = {};
+  for (let y = 0; y < g.length; y++) for (let x = 0; x < g[y].length; x++) {
+    if ((g[y][x] !== "B" && g[y][x] !== "D") || covered[x + "," + y] || seen[x + "," + y]) continue;
+    // 洪泛收集一个足印
+    const cells = [];
+    const stack = [[x, y]];
+    seen[x + "," + y] = true;
+    while (stack.length) {
+      const [cx2, cy2] = stack.pop();
+      cells.push([cx2, cy2]);
+      for (const [dx, dy] of [[0, -1], [0, 1], [-1, 0], [1, 0]]) {
+        const nx = cx2 + dx, ny = cy2 + dy, k = nx + "," + ny;
+        if (ny < 0 || ny >= g.length || nx < 0 || nx >= g[ny].length) continue;
+        if ((g[ny][nx] !== "B" && g[ny][nx] !== "D") || covered[k] || seen[k]) continue;
+        seen[k] = true;
+        stack.push([nx, ny]);
+      }
+    }
+    let door = null, bl = null;
+    for (const [cx2, cy2] of cells) {
+      if (isDoor(cx2, cy2) && (!door || cy2 > door[1] || (cy2 === door[1] && cx2 < door[0]))) door = [cx2, cy2];
+      if (!bl || cy2 > bl[1] || (cy2 === bl[1] && cx2 < bl[0])) bl = [cx2, cy2];
+    }
+    const a = door || bl;
+    _anchors[a[0] + "," + a[1]] = true;
+  }
   return _stamps;
 }
 function stampCovered(x, y) {
   return buildingStamps().some(s => x >= s.x && x < s.x + s.w && y >= s.y && y < s.y + s.h);
+}
+function residenceAnchor(x, y) {   // 本格是否为所在建筑足印的民居锚点
+  buildingStamps();
+  return !!_anchors[x + "," + y];
 }
 function signSuppressed(sg) {   // 招牌文字落在图章范围内的不再画（图章自带门面）
   return buildingStamps().some(s =>
@@ -597,13 +633,12 @@ function drawTileImage(ch, px, py, gx, gy) {
   if (ch === "B" || ch === "D" || ch === "P") {
     if (stampCovered(gx, gy)) return grass();   // 图章覆盖区：只画草地底
     if (!grass()) return false;
-    // 未覆盖散块：民居填充（村庄地图用乡村民居）
+    // 每栋建筑足印只画 1 个 1x1 民居（锚点格），其余格只铺草地（村庄地图用乡村民居）
+    if (!residenceAnchor(gx, gy)) return true;
     const rural = S.map.indexOf("village") >= 0;
     const img = gfxImg(V4 + (rural
-      ? (th(gx, gy, 2) ? "Buildings/Residence/Rural/rural_residence_thatched_roof_a.png"
-                       : "Buildings/Residence/Rural/rural_residence_clay_wall_b.png")
-      : (th(gx, gy, 2) ? "Buildings/Residence/Town/town_residence_blue_roof_a.png"
-                       : "Buildings/Residence/Town/town_residence_gray_roof_b.png")));
+      ? "Buildings/Residence/Rural/rural_residence_thatched_roof_a.png"
+      : "Buildings/Residence/Town/town_residence_blue_roof_a.png"));
     if (!img) return false;
     ctx.drawImage(img, px, py);
     if (ch === "D") { ctx.fillStyle = "#2a1f12"; ctx.fillRect(px + 12, py + 20, 8, 12); }

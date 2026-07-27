@@ -312,10 +312,34 @@ function buildingStamps() {
     if (free(x-1, y-1, 2, 2)) push(SHOP_BY_SIGN[sg.text], x-1, y-1, 2, 2);
     else if (free(x, y-1, 2, 2)) push(SHOP_BY_SIGN[sg.text], x, y-1, 2, 2);
   }
-  return { stamps, covered };
+  // 足印锚点：连通 B/D 块每栋 1 个民居（门格优先，否则最下最左）
+  const anchors = {}, seen = {};
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    if ((grid[y][x] !== "B" && grid[y][x] !== "D") || covered[x+","+y] || seen[x+","+y]) continue;
+    const cells = [], stack = [[x, y]];
+    seen[x+","+y] = true;
+    while (stack.length) {
+      const [cx, cy] = stack.pop();
+      cells.push([cx, cy]);
+      for (const [dx, dy] of [[0,-1],[0,1],[-1,0],[1,0]]) {
+        const nx = cx+dx, ny = cy+dy, k = nx+","+ny;
+        if (ny < 0 || ny >= H || nx < 0 || nx >= W) continue;
+        if ((grid[ny][nx] !== "B" && grid[ny][nx] !== "D") || covered[k] || seen[k]) continue;
+        seen[k] = true; stack.push([nx, ny]);
+      }
+    }
+    let door = null, bl = null;
+    for (const [cx, cy] of cells) {
+      if (grid[cy][cx] === "D" && (!door || cy > door[1] || (cy === door[1] && cx < door[0]))) door = [cx, cy];
+      if (!bl || cy > bl[1] || (cy === bl[1] && cx < bl[0])) bl = [cx, cy];
+    }
+    const a = door || bl;
+    anchors[a[0]+","+a[1]] = true;
+  }
+  return { stamps, covered, anchors };
 }
 
-function drawCell(x, y, covered) {
+function drawCell(x, y, covered, anchors) {
   const ch = grid[y][x], kind = mapKind();
   const px = x * Z, py = y * Z;
   // 美术覆盖（tileArt）：整格换成指定素材，字符只管通行
@@ -379,13 +403,10 @@ function drawCell(x, y, covered) {
     else if (PROP_IMG[ch] || ch === "z") ok = grass() && prop();
     else if (ch === "B" || ch === "D" || ch === "P") {
       ok = grass();
-      if (ok && !covered[x+","+y]) {
+      if (ok && !covered[x+","+y] && anchors && anchors[x+","+y]) {
         const rural = curName.indexOf("village") >= 0;
-        const rs = rural
-          ? (th(x, y, 2) ? "Buildings/Residence/Rural/rural_residence_thatched_roof_a.png"
-                         : "Buildings/Residence/Rural/rural_residence_clay_wall_b.png")
-          : (th(x, y, 2) ? "Buildings/Residence/Town/town_residence_blue_roof_a.png"
-                         : "Buildings/Residence/Town/town_residence_gray_roof_b.png");
+        const rs = rural ? "Buildings/Residence/Rural/rural_residence_thatched_roof_a.png"
+                         : "Buildings/Residence/Town/town_residence_blue_roof_a.png";
         ok = put(gi(rs));
         if (ok && ch === "D") { ctx.fillStyle = "#2a1f12"; ctx.fillRect(px+10, py+16, 7, 10); }
       }
@@ -410,8 +431,8 @@ function drawMarks() {
 }
 function draw() {
   cv.width = W * Z; cv.height = H * Z;
-  const { stamps, covered } = buildingStamps();
-  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) drawCell(x, y, covered);
+  const { stamps, covered, anchors } = buildingStamps();
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) drawCell(x, y, covered, anchors);
   // 建筑图章（盖在地形之上）
   for (const st of stamps) {
     const img = gi(st.img);

@@ -120,6 +120,10 @@ MAPS["ch03_xudu"] = {
       to: { map: "ch03_study", x: 4, y: 4 } },
   ],
   // 渡魂记：煮酒之后，相府墙上门扉显现（仅视觉，通行仍靠上方传送）
+  // 相府（荀彧书房所在）：大殿图章压下半部，门格 (5,16) 由足印锚点画单栋民居
+  buildings: [
+    { img: "Buildings/Large/palace_main_hall_4x2.png", x: 4, y: 17, w: 4, h: 2 },
+  ],
   tileOverrides: [
     { x: 5, y: 16, ch: "D", if: { flag: "q3", in: ["wine", "zhao", "leave"] } },
   ],

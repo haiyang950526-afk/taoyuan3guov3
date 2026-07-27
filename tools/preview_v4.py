@@ -32,16 +32,20 @@ def load_map(key):
     grid = re.findall(r'"([^"]*)"', g)
     signs = [{"x": int(x), "y": int(y), "text": t}
              for x, y, t in re.findall(r'\{\s*x:\s*(\d+),\s*y:\s*(\d+),\s*text:\s*"([^"]+)"', src)]
+    bld = [{"img": i, "x": int(x), "y": int(y), "w": int(w), "h": int(h)}
+           for i, x, y, w, h in re.findall(
+               r'\{\s*img:\s*"([^"]+)",\s*x:\s*(\d+),\s*y:\s*(\d+),\s*w:\s*(\d+),\s*h:\s*(\d+)\s*\}', src)]
     ta = {}
     mta = re.search(r'tileArt:\s*\{([\s\S]*?)\}', src)
     if mta:
         for k, v in re.findall(r'"(\d+,\d+)":\s*"([^"]+)"', mta.group(1)):
             ta[k] = v
-    return {"grid": grid, "signs": signs, "tileArt": ta}
+    return {"grid": grid, "signs": signs, "tileArt": ta, "buildings": bld}
 
 class R:
     def __init__(self, m):
         self.g = m["grid"]; self.signs = m["signs"]; self.tileArt = m.get("tileArt", {})
+        self.explicit_bld = m.get("buildings", [])
         js = "".join(self.g)
         self.kind = "cave" if "F" in js else ("interior" if "L" in js else "outdoor")
         self.stamps = []
@@ -67,6 +71,11 @@ class R:
             self.stamps.append((im, x, y, w, h))
             for yy in range(y, y + h):
                 for xx in range(x, x + w): covered.add((xx, yy))
+        def free_any(x, y, w, h):
+            return all(0 <= yy < len(g) and 0 <= xx < len(g[yy]) and (xx, yy) not in covered
+                       for yy in range(y, y + h) for xx in range(x, x + w))
+        for b in self.explicit_bld:
+            if free_any(b["x"], b["y"], b["w"], b["h"]): push(b["img"], b["x"], b["y"], b["w"], b["h"])
         SHOP = {"武": "Buildings/Shops/weapon_shop_sword_sign_2x2.png",
                 "装": "Buildings/Shops/equipment_shop_armor_sign_2x2.png",
                 "客": "Buildings/Shops/inn_lantern_sign_2x2.png",
@@ -98,6 +107,26 @@ class R:
                 if free(x - 1, y - 1, 2, 2): push(SHOP[sg["text"]], x - 1, y - 1, 2, 2)
                 elif free(x, y - 1, 2, 2): push(SHOP[sg["text"]], x, y - 1, 2, 2)
         self.covered = covered
+        # 足印锚点：连通 B/D 块每栋 1 个民居（门格/条件门优先，否则最下最左）
+        ov_d = set()
+        for o in getattr(self, "overrides", []): ov_d.add(o)
+        seen = set(); self.anchors = set()
+        for y in range(len(g)):
+            for x in range(len(g[y])):
+                if g[y][x] not in "BD" or (x, y) in covered or (x, y) in seen: continue
+                cells, stack = [], [(x, y)]
+                seen.add((x, y))
+                while stack:
+                    cx2, cy2 = stack.pop()
+                    cells.append((cx2, cy2))
+                    for dx, dy in ((0,-1),(0,1),(-1,0),(1,0)):
+                        nx, ny = cx2+dx, cy2+dy
+                        if ny < 0 or ny >= len(g) or nx < 0 or nx >= len(g[ny]): continue
+                        if g[ny][nx] not in "BD" or (nx, ny) in covered or (nx, ny) in seen: continue
+                        seen.add((nx, ny)); stack.append((nx, ny))
+                door = next(((cx2, cy2) for cx2, cy2 in sorted(cells, key=lambda c: (-c[1], c[0]))
+                             if g[cy2][cx2] == "D" or (cx2, cy2) in ov_d), None)
+                self.anchors.add(door or sorted(cells, key=lambda c: (-c[1], c[0]))[0])
 
     def stamp_covered(self, x, y):
         return any(x >= s[1] and x < s[1] + s[3] and y >= s[2] and y < s[2] + s[4]
@@ -244,12 +273,10 @@ class R:
                     elif ch == "G": layers = [("I", self.road(x, y))]
                     elif ch in "BDP":
                         layers = [("I", self.grass())]
-                        if not self.stamp_covered(x, y):
+                        if not self.stamp_covered(x, y) and (x, y) in self.anchors:
                             rural = "village" in self.key
-                            rs = ("Buildings/Residence/Rural/rural_residence_thatched_roof_a.png" if th(x, y, 2)
-                                  else "Buildings/Residence/Rural/rural_residence_clay_wall_b.png") if rural else \
-                                 ("Buildings/Residence/Town/town_residence_blue_roof_a.png" if th(x, y, 2)
-                                  else "Buildings/Residence/Town/town_residence_gray_roof_b.png")
+                            rs = ("Buildings/Residence/Rural/rural_residence_thatched_roof_a.png" if rural
+                                  else "Buildings/Residence/Town/town_residence_blue_roof_a.png")
                             layers.append(("I", img(V4 + rs)))
                     else: layers = [("C", FB.get(ch, (79, 138, 69)))]
                     if ch == "." or ch == "v" or ch in PROP_IMG or ch == "z":
