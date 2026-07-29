@@ -86,6 +86,10 @@ function startBattle(groupKey, opts) {
   B.actions = [];
   B.seedUsed = false;   // 白莲之种：每场战斗限触发一次
   S.party.forEach(h => { h.defending = false; h.atkBuff = 1; h.defBuffHero = 1; });
+  // Boss 基础防御倍率（编组 bossDefMult，如博望坡夏侯惇×3）
+  if (grp && grp.bossDefMult) {
+    for (const e of B.enemies) if (e.boss) e.def = Math.round(e.def * grp.bossDefMult);
+  }
   // 图鉴：见过即录
   for (const k of names) {
     if (!S.dex[k]) S.dex[k] = { seen: 0, killed: 0 };
@@ -558,12 +562,13 @@ function roundEnd() {
     for (const e of aliveEnemies()) { e.atk *= 3; e.def *= 3; }
     blog("（敌军真正的实力展露无遗——此战不可胜……）");
   }
-  // 火攻演出：到回合自动放火烧敌（博望坡/赤壁教学战）
+  // 火攻演出：到回合自动放火烧敌（博望坡/赤壁教学战；bossMult 对 Boss 加乘，如夏侯惇×6）
   if (B.fire && B.round === B.fire.round) {
     if (B.fire.say) resolveText(B.fire.say).forEach(l => blog(l));
     for (const e of aliveEnemies()) {
-      e.hp = Math.max(0, e.hp - B.fire.dmg);
-      blog(e.name + " 被烈焰吞没，受到 " + B.fire.dmg + " 点伤害" +
+      const fdmg = Math.round(B.fire.dmg * (e.boss && B.fire.bossMult ? B.fire.bossMult : 1));
+      e.hp = Math.max(0, e.hp - fdmg);
+      blog(e.name + " 被烈焰吞没，受到 " + fdmg + " 点伤害" +
         (e.hp <= 0 ? "，倒下了！" : "。"));
       afterEnemyDamaged(e);
     }

@@ -32,6 +32,9 @@ MAPS["ch06_longzhong"] = {
                { warp: { map: "ch06_xinye", x: 10, y: 16 } },
                { toast: "第七章 · 火烧博望（军师/图鉴就绪）" }] },
       ] },
+    // 童子：草庐门前应门的小童（三顾问答都由他传话）
+    { id: "tongzi", x: 13, y: 2, color: "#9ac8e8", name: "童子",
+      lines: ["童子：先生说过，刘皇叔仁义布于四海，若来，必以礼相待。"] },
     // 桥段 mt3 · 黄承彦授阵图：三顾完成后现身草庐旁，一次性（B案赠《石阵书》）
     { id: "huangcy", x: 13, y: 1, color: "#b8a05a", name: "黄承彦",
       appearIf: { flag: "q6", is: "done" },

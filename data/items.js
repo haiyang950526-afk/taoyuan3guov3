@@ -19,19 +19,20 @@ const ITEMS = {
   "铁刀":   { type: "weapon", arm: "blade", atk: 22, price: 4800, desc: "镔铁长刀，攻击+22（刀系）" },
   "铁矛":   { type: "weapon", arm: "spear", atk: 22, price: 4800, desc: "精铁蛇矛，攻击+22（矛系）" },
   "铁枪":   { type: "weapon", arm: "pike",  atk: 22, price: 4800, desc: "白蜡铁枪，攻击+22（枪系）" },
+  "童渊铁枪": { type: "weapon", arm: "pike", atk: 26, grow: 1, price: 0, nosell: true, relic: true, desc: "童渊佩枪：攻击+26 且随持有者等级成长（每级+1），赠子龙单骑救主（枪系，唯一）" },
   "铁脊弓": { type: "weapon", arm: "bow",   atk: 26, price: 5000, desc: "铁脊强弓，攻击+26（弓系）" },
   "羽扇":   { type: "weapon", arm: "fan",   atk: 6, int: 10, price: 3000, desc: "白羽纶扇，攻+6 智+10（扇系）" },
   // 名品（情怀毕业装，不可售；获取：剧情赠送 / 隐藏宝箱 / 汉中军需限量）
   "雌雄双股剑": { type: "weapon", atk: 60, price: 60000, nosell: true, desc: "名品：刘备佩剑，攻击+60" },
-  "青龙偃月刀": { type: "weapon", arm: "blade", atk: 65, price: 60000, nosell: true, desc: "名品：冷艳锯，攻击+65（刀系）" },
+  "青龙偃月刀": { type: "weapon", arm: "blade", atk: 65, grow: 0.8, price: 60000, nosell: true, desc: "名品：冷艳锯，攻击+65 且随持有者等级成长（每级+0.8），关羽之本命（刀系，唯一）" },
   "丈八蛇矛":   { type: "weapon", arm: "spear", atk: 62, price: 60000, nosell: true, desc: "名品：燕人神兵，攻击+62（矛系）" },
   "龙胆枪":     { type: "weapon", arm: "pike",  atk: 63, price: 60000, nosell: true, desc: "名品：常山龙胆，攻击+63（枪系）" },
   "落日弓":     { type: "weapon", arm: "bow",   atk: 58, price: 60000, nosell: true, desc: "名品：落日九射，攻击+58（弓系）" },
   "七星杖":     { type: "weapon", arm: "fan",   atk: 20, int: 50, price: 60000, nosell: true, desc: "名品：七星续命，攻+20 智+50（扇系）" },
   "七星剑":     { type: "weapon", atk: 55, price: 50000, nosell: true, desc: "名品彩蛋：七星宝剑，攻击+55" },
-  // 成长性武器（樗蒲首次全黑奖励）：攻击 = 6 + 0.8×持有者等级（formulas.js equipBonus 的 grow 判定）
+  // 成长性武器（樗蒲首次全黑奖励）：攻击 = 6 + 1×持有者等级（formulas.js equipBonus 的 grow 判定）
   // 强度定位：Lv55≈50，介于龙泉(48)与名品(62+)之间——情怀毕业装，不碾压商店与名品
-  "时运":   { type: "weapon", atk: 6, grow: 0.8, price: 0, nosell: true, desc: "樗蒲首奖：攻+6 且随等级成长（每级+0.8），攻击时偶发眩晕/起火/追加/回血" },
+  "时运":   { type: "weapon", atk: 6, grow: 1, price: 0, nosell: true, desc: "樗蒲首奖：攻+6 且随等级成长（每级+1），攻击时偶发眩晕/起火/追加/回血" },
   // 防具（def）
   "布衣":   { type: "armor", def: 2,  price: 150,  desc: "粗布衣裳，防御+2" },
   "皮甲":   { type: "armor", def: 4,  price: 500,  desc: "鞣制皮甲，防御+4" },

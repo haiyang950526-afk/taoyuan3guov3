@@ -47,12 +47,12 @@ const CHAR_ART = {
   "张辽":       { boss: "zhang_liao_unwinnable" },
   "车胄先锋":   { boss: "che_zhou_vanguard" },
   "车胄":       { boss: "che_zhou", face: "cai_mao" },  // 立绘暂借蔡瑁
-  "颜良":       { boss: "yan_liang" },
-  "文丑":       { boss: "wen_chou" },
-  "孔秀":       { boss: "kong_xiu" },
+  "颜良":       { boss: "yan_liang", face: "cai_mao" },  // 立绘暂借蔡瑁
+  "文丑":       { boss: "wen_chou", face: "cai_mao" },  // 立绘暂借蔡瑁
+  "孔秀":       { boss: "kong_xiu", face: "cai_mao" },  // 立绘暂借蔡瑁
   "韩福":       { boss: "han_fu" },
   "卞喜":       { boss: "bian_xi" },
-  "王植":       { boss: "wang_zhi" },
+  "王植":       { boss: "wang_zhi", face: "cai_mao" },  // 立绘暂借蔡瑁
   "秦琪":       { boss: "qin_qi" },
   "裴元绍":     { boss: "pei_yuanshao" },
   "张飞(误会)": { boss: "zhang_fei_misunderstanding" },

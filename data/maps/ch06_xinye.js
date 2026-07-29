@@ -43,7 +43,7 @@ MAPS["ch06_xinye"] = {
     // 北门口告示牌
     { id: "board", x: 12, y: 1, color: "#8a7a5a", name: "告示牌",
       lines: ["告示：此处是新野城。",
-              "北门出去是新野野外；南门通往博望坡（时机未到暂不能通行）。",
+              "南门出去是新野野外；北门通往博望坡（时机未到暂不能通行）。",
               "西街：旅店·杂货店　东街：武器店·防具店",
               "东南：编成所（老兵）"] },
     // 商店：第六章价（q7 出现后隐藏）/ 第七章战时价（priceMult 1.2）
@@ -72,15 +72,15 @@ MAPS["ch06_xinye"] = {
         { if: { flag: "q6", is: "start" }, say: "ch06.liubiao",
           do: [{ set: { q6: "bandits" } }, { toast: "出城平定三处匪首" }] },
         { if: { flag: "q6", is: "bandits" },
-          say: ["匪患未平，城外三处匪首，还须玄德公辛劳。"] },
-        { if: { flag: "q6", is: "feast" }, say: ["襄阳的宴席，玄德公小心为上。"] },
+          say: ["匪患未平，城外三处匪首，还须贤弟辛劳。"] },
+        { if: { flag: "q6", is: "feast" }, say: ["襄阳的宴席，贤弟小心为上。"] },
       ] },
     // 平匪完成后的复命触发（用报信兵代收）
     { id: "xy_soldier", x: 8, y: 5, color: "#9aa4b8", name: "报信兵",
       appearIf: { flag: "q6", is: "bandits" },
       branches: [
         { if: { flag: "bandits", is: 3 }, say: "ch06.banditsDone",
-          do: [{ set: { q6: "feast" } }, { toast: "去襄阳赴宴（野外北门）" }] },
+          do: [{ set: { q6: "feast" } }, { toast: "去襄阳赴宴（野外南门）" }] },
         { say: ["三处匪首尚未平定，报信兵指着城外的地图。"] },
       ] },
     // 第七章：夏侯惇来攻
@@ -107,10 +107,10 @@ MAPS["ch06_xinye"] = {
   ],
   chests: [],
     transitions: [
-    { x: 10, y: 0,  to: { map: "ch06_field", x: 10, y: 16 } },
-    { x: 11, y: 0,  to: { map: "ch06_field", x: 10, y: 16 } },
-    { x: 10, y: 17, if: { flag: "q7", exists: true }, to: { map: "ch07_bowang", x: 10, y: 12 } },
-    { x: 11, y: 17, if: { flag: "q7", exists: true }, to: { map: "ch07_bowang", x: 10, y: 12 } },
+    { x: 10, y: 0,  if: { flag: "q7", exists: true }, to: { map: "ch07_bowang", x: 10, y: 12 } },
+    { x: 11, y: 0,  if: { flag: "q7", exists: true }, to: { map: "ch07_bowang", x: 10, y: 12 } },
+    { x: 10, y: 17, to: { map: "ch06_field", x: 10, y: 1 } },
+    { x: 11, y: 17, to: { map: "ch06_field", x: 10, y: 1 } },
     // 室内下钻（朝门才进，路过不触发）
     { x: 3, y: 5, face: [0, -1], to: { map: "ch06_inn_in", x: 7, y: 8 } },
     { x: 4, y: 5, face: [0, -1], to: { map: "ch06_inn_in", x: 7, y: 8 } },

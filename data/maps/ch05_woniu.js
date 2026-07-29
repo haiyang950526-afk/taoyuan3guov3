@@ -32,7 +32,7 @@ MAPS["ch05_woniu"] = {
       branches: [
         { if: { flag: "mt4", is: "done" }, say: "ch05.mt4After" },
         { say: "ch05.mt4Meet",
-          do: [{ say: "ch05.mt4Talk" }, { giveEquip: "铁枪" },
+          do: [{ say: "ch05.mt4Talk" }, { giveEquip: "童渊铁枪" },
                { set: { mt4: "done" } }] },
       ] },
   ],

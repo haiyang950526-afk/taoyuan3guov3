@@ -6,7 +6,7 @@ MAPS["ch06_xiangyang"] = {
   grid: [
     "##########GG##########",
     "#.......,,...........#",
-    "#....................#",
+    "#.........PP.........#",
     "#..BB......BB.....T..#",
     "#..DB......DB........#",
     "#,,,,,,,,,,,,,,,,,,,,#",
@@ -33,9 +33,8 @@ MAPS["ch06_xiangyang"] = {
     // 城门口告示牌（南门内侧路旁）
     { id: "board", x: 12, y: 16, color: "#8a7a5a", name: "告示牌",
       lines: ["告示：此处是襄阳。",
-              "南门出去是新野野外。",
+              "北门出去是新野野外。",
               "西北：旅店　东北：文房铺（计策书）　东南：编成所（老兵）"] },
-    { id: "inn",  x: 4,  y: 5,  color: "#c98a4b", name: "旅店老板", shop: "ch06b_inn" },
     // 文房铺老板已迁入店内（门口 D 格朝门下钻）
     { id: "camp", x: 16, y: 11, color: "#7a8a9a", name: "老兵", facility: "camp" },
     { id: "v1",   x: 7,  y: 7,  color: "#4f8cff", name: "市民",
@@ -48,17 +47,21 @@ MAPS["ch06_xiangyang"] = {
       branches: [
         { say: "ch06.feast",
           do: [{ set: { q6: "tanxi" } },
-               { warp: { map: "ch06_tanxi", x: 1, y: 6 } },
-               { toast: "的卢跃檀溪——快往渡口去！" }] },
+               { warp: { map: "ch06_tunnel", x: 1, y: 9 } },
+               { toast: "蔡瑁伏兵四起——从地道突围，往檀溪渡口去！" }] },
       ] },
   ],
   chests: [],
     transitions: [
-    { x: 10, y: 17, to: { map: "ch06_field", x: 10, y: 1 } },
-    { x: 11, y: 17, to: { map: "ch06_field", x: 10, y: 1 } },
+    { x: 10, y: 0,  to: { map: "ch06_field", x: 10, y: 16 } },
+    { x: 11, y: 0,  to: { map: "ch06_field", x: 10, y: 16 } },
     // 室内下钻（朝门才进，路过不触发）
+    { x: 3, y: 5, face: [0, -1], to: { map: "ch06b_inn_in", x: 7, y: 8 } },
+    { x: 4, y: 5, face: [0, -1], to: { map: "ch06b_inn_in", x: 7, y: 8 } },
     { x: 11, y: 5, face: [0, -1], to: { map: "ch06_book_in", x: 7, y: 8 } },
     { x: 12, y: 5, face: [0, -1], to: { map: "ch06_book_in", x: 7, y: 8 } },
+    { x: 3, y: 11, face: [0, -1], to: { map: "ch06_xiangyang_house_in", x: 7, y: 8 } },
+    { x: 4, y: 11, face: [0, -1], to: { map: "ch06_xiangyang_house_in", x: 7, y: 8 } },
     { x: 11, y: 11, face: [0, -1], to: { map: "ch06_xiangyang_house_in", x: 7, y: 8 } },
     { x: 12, y: 11, face: [0, -1], to: { map: "ch06_xiangyang_house_in", x: 7, y: 8 } },
   ],

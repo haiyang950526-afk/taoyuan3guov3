@@ -78,13 +78,14 @@ MAPS["ch06_field"] = {
     { x: 2, y: 12, id: "f1", items: { "还魂丹": 1 } },
   ],
   transitions: [
-    { x: 10, y: 17, to: { map: "ch06_xinye", x: 10, y: 1 } },
-    { x: 11, y: 17, to: { map: "ch06_xinye", x: 10, y: 1 } },
-    // 北门：襄阳（蔡瑁设宴后开放）
-    { x: 10, y: 0,  if: { flag: "q6", in: ["feast", "tanxi", "shuijing", "gu1", "gu2", "gu3", "done"] },
-      to: { map: "ch06_xiangyang", x: 10, y: 16 } },
-    { x: 11, y: 0,  if: { flag: "q6", in: ["feast", "tanxi", "shuijing", "gu1", "gu2", "gu3", "done"] },
-      to: { map: "ch06_xiangyang", x: 10, y: 16 } },
+    // 北门：新野
+    { x: 10, y: 0,  to: { map: "ch06_xinye", x: 10, y: 16 } },
+    { x: 11, y: 0,  to: { map: "ch06_xinye", x: 10, y: 16 } },
+    // 南门：襄阳（蔡瑁设宴后开放）
+    { x: 10, y: 17, if: { flag: "q6", in: ["feast", "tanxi", "shuijing", "gu1", "gu2", "gu3", "done"] },
+      to: { map: "ch06_xiangyang", x: 10, y: 1 } },
+    { x: 11, y: 17, if: { flag: "q6", in: ["feast", "tanxi", "shuijing", "gu1", "gu2", "gu3", "done"] },
+      to: { map: "ch06_xiangyang", x: 10, y: 1 } },
     // 东门：隆中（水镜指点后开放）
     { x: 23, y: 8,  if: { flag: "q6", in: ["gu1", "gu2", "gu3"] }, to: { map: "ch06_longzhong", x: 1, y: 2 } },
     { x: 23, y: 9,  if: { flag: "q6", in: ["gu1", "gu2", "gu3"] }, to: { map: "ch06_longzhong", x: 1, y: 2 } },
