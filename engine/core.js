@@ -238,27 +238,94 @@ function bindPad(id, x, y) {
 }
 
 // ---------------- 资源预载 ----------------
-// 标题页展示后后台预载全部贴图（角色 + V4 地块），避免进新场景时逐张"跳变"
+// 两级预载：
+//   T1 第一屏必需（ch00 城/野外/村庄地形 + 室内家具 + 序章角色）——脚本加载完立即拉取并预解码，
+//      保证点"新游戏"时首屏不跳变；
+//   T2 其余全部素材（后续章节）——T1 完成后后台错峰慢慢加载。
+// T1 地块清单（相对 assets/gfx/v4/）：序章三种图层的全部打底件
+const PRELOAD_T1_TILES = [
+  "Derived/grass_center_flat.png", "Derived/grass_alt_center_flat.png",
+  "Derived/flower_grass_center_flat.png", "Derived/deep_grass_center_flat.png",
+  "Derived/road_horizontal.png", "Derived/road_cross.png",
+  "Derived/road_junction_down.png", "Derived/road_junction_up.png",
+  "Derived/road_junction_left.png", "Derived/road_junction_right.png",
+  "Derived/road_corner_bottom_left.png", "Derived/road_corner_bottom_right.png",
+  "Derived/wall_flat.png", "Derived/cave_floor.png",
+  "Derived/water_shore_n.png", "Derived/water_shore_s.png",
+  "Derived/water_shore_w.png", "Derived/water_shore_e.png",
+  "Terrain/Transitions/Grass_Road/grass_road_vertical.png",
+  "Terrain/Transitions/Grass_Road/grass_road_corner_top_left.png",
+  "Terrain/Transitions/Grass_Road/grass_road_corner_top_right.png",
+  "Terrain/Transitions/Grass_Road/grass_road_center_blob.png",
+  "Terrain/Water/water_center.png",
+  "Terrain/River/river_horizontal.png", "Terrain/River/river_vertical.png",
+  "Terrain/River/river_bend_top_left.png", "Terrain/River/river_bend_top_right.png",
+  "Terrain/River/river_bend_bottom_left.png", "Terrain/River/river_bend_bottom_right.png",
+  "Terrain/Mountain/mountain_brown.png", "Terrain/Mountain/cave_entrance.png",
+  "Terrain/Forest/forest_center.png",
+  "Terrain/Interior/indoor_floor_center.png",
+  "Buildings/Residence/Town/town_residence_blue_roof_a.png",
+  "Buildings/Residence/Town/town_residence_gray_roof_b.png",
+  "Buildings/Residence/Rural/rural_residence_thatched_roof_a.png",
+  "Buildings/Residence/Rural/rural_residence_clay_wall_b.png",
+  "Buildings/Large/palace_main_hall_4x2.png", "Buildings/Large/city_gate_4x2.png",
+  "Buildings/Shops/weapon_shop_sword_sign_2x2.png",
+  "Buildings/Shops/equipment_shop_armor_sign_2x2.png",
+  "Buildings/Shops/inn_lantern_sign_2x2.png",
+  "Buildings/Shops/medicine_shop_gourd_sign_2x2.png",
+  "Buildings/Shops/tavern_wine_jar_sign_2x2.png",
+  "Buildings/Shops/training_hall_banner_2x2.png",
+  "Props/Outdoor/stone_well.png", "Props/Outdoor/treasure_chest_red.png",
+  "Props/Interior/round_wooden_table.png", "Props/Interior/wooden_stool.png",
+  "Props/Interior/palace_pillar_red_gold.png", "Props/Interior/palace_pillar_white_jade.png",
+  "Props/Interior/imperial_dragon_throne.png",
+];
+// T1 角色（序章入队/城内常见）：我方全员 + 村民/店主/黄巾
+const PRELOAD_T1_CHARS = [
+  "liu_bei", "guan_yu", "zhang_fei", "tao_qian", "cao_cao_messenger",
+  "villager", "citizen", "village_woman", "elder", "old_man", "house_owner",
+  "inn_owner", "weapon_shop_owner", "armor_shop_owner", "general_store_owner",
+  "tavern_owner", "medicine_shopkeeper", "trainer", "veteran_formation", "waiter",
+  "yellow_turban_bandit", "yellow_turban_archer", "yellow_turban_remnant",
+];
+const PRELOAD_T1_FACES = ["liu_bei", "guan_yu", "zhang_fei", "tao_qian"];
+const PRELOAD_T1_BOSS = ["yellow_turban_leader"];
+
 function preloadAssets() {
-  const paths = [];
-  if (typeof CHAR_ART !== "undefined") {
-    for (const k in CHAR_ART) {
-      const a = CHAR_ART[k];
-      if (a.map) paths.push("assets/chars/map/" + a.map + ".png");
-      if (a.face) paths.push("assets/chars/face/" + a.face + ".png");
-      const bs = Array.isArray(a.boss) ? a.boss : (a.boss ? [a.boss] : []);
-      for (const b of bs) paths.push("assets/chars/boss/" + b + ".png");
+  const t1 = PRELOAD_T1_TILES.map(p => "assets/gfx/v4/" + p)
+    .concat(PRELOAD_T1_CHARS.map(k => "assets/chars/map/" + k + ".png"))
+    .concat(PRELOAD_T1_FACES.map(k => "assets/chars/face/" + k + ".png"))
+    .concat(PRELOAD_T1_BOSS.map(k => "assets/chars/boss/" + k + ".png"));
+  // T1：立即全量发出（浏览器自管理并发），能 decode 就顺手预解码
+  let t1Done = 0;
+  const kickT2 = () => {
+    const paths = [];
+    if (typeof CHAR_ART !== "undefined") {
+      for (const k in CHAR_ART) {
+        const a = CHAR_ART[k];
+        if (a.map) paths.push("assets/chars/map/" + a.map + ".png");
+        if (a.face) paths.push("assets/chars/face/" + a.face + ".png");
+        const bs = Array.isArray(a.boss) ? a.boss : (a.boss ? [a.boss] : []);
+        for (const b of bs) paths.push("assets/chars/boss/" + b + ".png");
+      }
     }
+    if (typeof V4_ASSETS !== "undefined") for (const p of V4_ASSETS) paths.push("assets/gfx/v4/" + p);
+    const seen = {};
+    for (const p of t1) seen[p] = 1;
+    const list = paths.filter(p => !seen[p]);   // 已载过的跳过
+    let i = 0;
+    (function step() {
+      for (let n = 0; n < 12 && i < list.length; n++, i++) { const im = new Image(); im.src = list[i]; }
+      if (i < list.length) setTimeout(step, 60);
+    })();
+  };
+  for (const p of t1) {
+    const im = new Image();
+    im.onload = () => { if (++t1Done >= t1.length) kickT2(); };
+    im.onerror = () => { if (++t1Done >= t1.length) kickT2(); };
+    im.src = p;
+    if (im.decode) im.decode().catch(() => {});
   }
-  if (typeof V4_ASSETS !== "undefined") for (const p of V4_ASSETS) paths.push("assets/gfx/v4/" + p);
-  // 去重后小批量错峰加载，不阻塞标题页
-  const seen = {}, list = [];
-  for (const p of paths) if (!seen[p]) { seen[p] = 1; list.push(p); }
-  let i = 0;
-  (function step() {
-    for (let n = 0; n < 12 && i < list.length; n++, i++) { const im = new Image(); im.src = list[i]; }
-    if (i < list.length) setTimeout(step, 40);
-  })();
 }
 
 // ---------------- 启动 ----------------
@@ -302,6 +369,8 @@ window.addEventListener("DOMContentLoaded", () => {
   if ("ontouchstart" in window) show("dpad");
   resize();  // 按键区显示后重新计算画布尺寸
   show("scr-title");
-  preloadAssets();
   loop();
 });
+
+// T1 立即启动预载（charart/manifest 在本脚本之前已加载，不等 DOMContentLoaded）
+preloadAssets();
