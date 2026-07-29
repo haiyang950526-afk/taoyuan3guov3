@@ -6,7 +6,12 @@
 > 样板（用户原案）：火烧博望坡——夏侯惇基础防御 ×3（平 A 打不动），遇火计伤害 ×6
 > （逼玩家用计）。本文档把这一思路推广到全部 Boss。
 >
-> **本文档仅为设计稿，尚未接入游戏。**
+> **实施状态（2026-07-27，commit 0738fe5）**：P0/P1/P2 已落地。已实现字段：`weakMagic` /
+> `magicResist` / `physResist` / `heroLink`（倍率+固伤）/ `script`（条件+可逆效果）/ `summon` /
+> `counter` / `atkGrow` / `stanceCycle` / `doubleAction(Every)` / `selfDot` / `flee` / `dodgePhys` /
+> `allyAura` / `allyDeathGrow` / `chainFleet`（含火伤延烧溅射）。未实现（P3，可后续补）：
+> `enemySureHit`（韩福冷箭/黄忠箭囊）、`enemyMagic(All)`（王植夜火/张任落石）、
+> 赵范部将读玩家行为版诈降（现简化为固定演出）、空城计彩蛋。
 
 ## 设计原则
 
