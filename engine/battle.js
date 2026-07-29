@@ -44,8 +44,33 @@ function spawnEnemies(names) {
       phases: e.phases || null, phaseIdx: -1,
       defBuff: 1, atkMult: 1, halfSaid: false,
       stun: 0, burn: 0,       // 时运武器特效：眩晕（下回合无法行动）/ 起火（3 回合灼烧）
+      // ---- BOSS 机制（07 文档 schema；全部缺省即现状） ----
+      weakMagic: e.weakMagic || null,      // 指定计策伤害倍率 {huoji: 6}
+      magicResist: e.magicResist || 0,     // 敌侧计策减伤 0~0.6
+      physResist: e.physResist || 0,       // 敌侧物理减伤 0~0.6
+      heroLink: e.heroLink || null,        // 指定角色伤害倍率/固伤 [{hero, mult, say, fixed}]
+      summon: e.summon || null,            // 召唤 {enemy, everyRounds|hpBelow, count, maxOnField}
+      counter: e.counter || 0,             // 物理反伤比例
+      atkGrow: e.atkGrow || 0,             // 每回合攻击叠乘成长（怒气）
+      stanceCycle: !!e.stanceCycle,        // 守/攻姿态切换
+      doubleAction: e.doubleAction || 0,   // 概率二次行动
+      doubleActionEvery: e.doubleActionEvery || 0,  // 每 N 回合连击
+      selfDot: e.selfDot || 0,             // 每回合自损最大 HP 比例
+      flee: e.flee || null,                // 低血逃跑 {hpBelow, rounds}
+      dodgePhys: e.dodgePhys || 0,         // 物理闪避率
+      allyAura: e.allyAura || null,        // 友军存活光环 {stat, mult}
+      allyDeathGrow: e.allyDeathGrow || 0, // 友军死亡增攻
+      _base: { atk: e.atk, def: e.def, spd: e.spd, int: e.int },   // 光环/姿态还原快照
     };
   });
+}
+// 召唤援军专用：单只生成并入队（图鉴同步）
+function spawnOne(key) {
+  const e = spawnEnemies([key])[0];
+  B.enemies.push(e);
+  if (!S.dex[key]) S.dex[key] = { seen: 0, killed: 0 };
+  S.dex[key].seen++;
+  return e;
 }
 
 // groupKey：BATTLE_GROUPS 的键；随机遇敌时传 null + opts.enemies
@@ -78,6 +103,9 @@ function startBattle(groupKey, opts) {
   B.forceEndRound = grp ? (grp.forceEndRound || 0) : 0;
   B.onForceEnd = opts.onForceEnd || null;
   B.fire = grp ? (grp.fire || null) : null;
+  // BOSS 机制（07 文档）：回合脚本（克隆防污染编组）/ 铁索连环
+  B.grpScript = grp && grp.script ? grp.script.map(o => Object.assign({}, o)) : null;
+  B.chainFleet = grp ? !!grp.chainFleet : false;
   // 军师被动快照
   B.strat = S.strategist && HERO_TPL[S.strategist] ? HERO_TPL[S.strategist].strategistPassive : null;
   B.round = 1;
@@ -262,11 +290,23 @@ function enemyAction(e) {
 
 function battleExec() {
   for (const e of aliveEnemies()) {
-    if (aliveHeroes().length) B.actions.push(enemyAction(e));
+    if (aliveHeroes().length) {
+      B.actions.push(enemyAction(e));
+      // BOSS 机制：概率二次行动（虎豹骑"奔袭"）/ 每 N 回合连击（姜维"幼麟"）
+      if (e.doubleAction && Math.random() < e.doubleAction)
+        B.actions.push(Object.assign(enemyAction(e), { label: "追击" }));
+      if (e.doubleActionEvery && B.round % e.doubleActionEvery === 0)
+        B.actions.push(Object.assign(enemyAction(e), { label: "连击" }));
+    }
   }
   B.actions.sort((a, b) => {
-    const sa = a.actor.stats ? bStat(a.actor, "spd") : a.actor.spd;
-    const sb = b.actor.stats ? bStat(b.actor, "spd") : b.actor.spd;
+    let sa = a.actor.stats ? bStat(a.actor, "spd") : a.actor.spd;
+    let sb = b.actor.stats ? bStat(b.actor, "spd") : b.actor.spd;
+    // BOSS 机制：回合脚本的 partySpdMult（张任"中伏"减速）
+    if (B.partySpdMult && B.round <= B.partySpdMult.until) {
+      if (!isEnemy(a.actor)) sa *= B.partySpdMult.v;
+      if (!isEnemy(b.actor)) sb *= B.partySpdMult.v;
+    }
     return sb - sa || Math.random() - 0.5;
   });
   const queue = B.actions;
@@ -279,6 +319,34 @@ function battleExec() {
 function actorName(a) { return a.key || a.name; }
 function isEnemy(a) { return !!a.gold; }
 
+// ---- BOSS 机制：我方对敌伤害的统一修正（闪避/物理减伤/铁索连环/历史克制） ----
+function adjustOutgoing(attacker, target, dmg) {
+  if (!isEnemy(target)) return { dmg: dmg, dodged: false };
+  if (target.dodgePhys && Math.random() < target.dodgePhys) return { dmg: 0, dodged: true };
+  if (target.physResist) dmg = Math.max(1, Math.round(dmg * (1 - target.physResist)));
+  if (B.chainFleet) dmg = Math.max(1, Math.round(dmg * 0.7));   // 船船相护：单体伤害打折
+  if (!isEnemy(attacker) && target.heroLink) {
+    for (const lk of target.heroLink) {
+      if (lk.hero !== attacker.key) continue;
+      if (lk.mult) dmg = Math.round(dmg * lk.mult);
+      if (lk.say && !target["_said_" + lk.hero]) {
+        target["_said_" + lk.hero] = true;
+        resolveText(lk.say).forEach(l => blog(l));
+      }
+    }
+  }
+  return { dmg: dmg, dodged: false };
+}
+// 物理反伤（司马懿二形态 counter）
+function counterBack(attacker, target, dmg) {
+  if (!isEnemy(target) || !target.counter || dmg <= 0 || target.hp <= 0) return;
+  const cd = Math.max(1, Math.round(dmg * target.counter));
+  attacker.hp = Math.max(0, attacker.hp - cd);
+  blog(target.name + " 的反击！" + actorName(attacker) + " 受到 " + cd + " 点反伤" +
+    (attacker.hp <= 0 ? "，倒下了！" : "。"));
+  checkProtectDown();
+}
+
 function physAtk(attacker, target, mult, label) {
   const atk = isEnemy(attacker)
     ? attacker.atk * attacker.atkMult
@@ -290,6 +358,13 @@ function physAtk(attacker, target, mult, label) {
   const r = physDmg(atk, mult, def, luck, undefined,
     isEnemy(attacker) ? 0 : critBonusOf(attacker));
   let dmg = r.dmg;
+  const adj = adjustOutgoing(attacker, target, dmg);
+  if (adj.dodged) {
+    blog(actorName(attacker) + " 的" + (label || "攻击") + "！" + actorName(target) +
+      " 身形一闪，闪开了！");
+    return;
+  }
+  dmg = adj.dmg;
   if (target.defending) dmg = Math.max(1, Math.floor(dmg / 2));
   target.hp = Math.max(0, target.hp - dmg);
   blog(actorName(attacker) + " 的" + (label || "攻击") + "！" + actorName(target) +
@@ -317,15 +392,25 @@ function physAtk(attacker, target, mult, label) {
     }
   }
   afterEnemyDamaged(target);
+  counterBack(attacker, target, dmg);
   checkProtectDown();
 }
 
-// 敌受伤害后的统一检查：50%血台词 / 多形态切换 / 收服判定
+// 敌受伤害后的统一检查：50%血台词 / 多形态切换 / 收服判定 / 友军死亡增攻
 function afterEnemyDamaged(target) {
   if (!isEnemy(target)) return;
   checkHalf(target);
   checkPhase(target);
   checkRecruitWin(target);
+  // BOSS 机制：友军阵亡增攻（曹真"督战"）
+  if (target.hp <= 0) {
+    for (const e of aliveEnemies()) {
+      if (e.allyDeathGrow) {
+        e.atk = Math.round(e.atk * (1 + e.allyDeathGrow));
+        blog(e.name + " 见部下战死，攻势更烈！（攻击上升）");
+      }
+    }
+  }
 }
 
 function checkHalf(target) {
@@ -345,6 +430,10 @@ function checkPhase(e) {
     if (ph.say) resolveText(ph.say).forEach(l => blog(l));
     if (ph.statsMult) for (const k in ph.statsMult) e[k] = Math.round(e[k] * ph.statsMult[k]);
     if (ph.skills) e.skills = ph.skills.slice();
+    // BOSS 机制：形态挂接自损/魔抗/反伤（金旋/孙礼/司马懿）
+    if (ph.selfDot) e.selfDot = ph.selfDot;
+    if (ph.magicResist !== undefined) e.magicResist = ph.magicResist;
+    if (ph.counter !== undefined) e.counter = ph.counter;
     blog("（" + e.name + " 的气势变了！）");
   }
 }
@@ -394,6 +483,13 @@ function runQueue(queue) {
       let dmg = magicDmg(bStat(a, "int"), coef, tInt, linked);
       // 名品 · 六韬残页被动：军师计策伤害+10%（全游戏唯一百分比被动，relic_liutao flag）
       if (S.flags.relic_liutao) dmg = Math.round(dmg * 1.1);
+      // BOSS 机制：计策弱点/敌侧魔抗/铁索连环
+      if (isEnemy(act.target)) {
+        const wk = act.target.weakMagic && act.target.weakMagic[act.skill];
+        if (wk) dmg = Math.round(dmg * wk);
+        if (act.target.magicResist) dmg = Math.max(1, Math.round(dmg * (1 - act.target.magicResist)));
+        if (B.chainFleet) dmg = Math.max(1, Math.round(dmg * 0.7));
+      }
       // 八卦阵等计策抗性（敌方施放时对我方生效，预留）
       if (!isEnemy(act.target) && S.formation && FORMATIONS[S.formation] &&
           FORMATIONS[S.formation].magicResist) {
@@ -404,6 +500,17 @@ function runQueue(queue) {
         " 受到 " + dmg + " 点伤害" + (linked ? "（地形联动！）" : "") +
         (act.target.hp <= 0 ? "，倒下了！" : "。"));
       afterEnemyDamaged(act.target);
+      // 铁索连环 · 延烧：火系计策命中时其余敌人受 30% 溅射
+      if (B.chainFleet && (act.skill === "huoji" || act.skill === "dongfeng")) {
+        for (const e2 of aliveEnemies()) {
+          if (e2 === act.target) continue;
+          const sd = Math.max(1, Math.round(dmg * 0.3));
+          e2.hp = Math.max(0, e2.hp - sd);
+          blog("连环延烧！" + e2.name + " 受到 " + sd + " 点溅射伤害" +
+            (e2.hp <= 0 ? "，倒下了！" : "。"));
+          afterEnemyDamaged(e2);
+        }
+      }
     } else if (sk.type === "dmgAll") {
       blog(actorName(a) + " 使出" + sk.name + "，横扫敌阵！");
       for (const e of aliveEnemies()) physAtkSkill(a, e, sk, true);
@@ -417,6 +524,10 @@ function runQueue(queue) {
         let dmg = magicDmg(bStat(a, "int"), coef, e.int, linked);
         // 名品 · 六韬残页被动：军师计策伤害+10%（同上，全体计策也生效）
         if (S.flags.relic_liutao) dmg = Math.round(dmg * 1.1);
+        // BOSS 机制：计策弱点/敌侧魔抗（全体计策不吃连环单体折扣、不重复延烧）
+        const wk = e.weakMagic && e.weakMagic[act.skill];
+        if (wk) dmg = Math.round(dmg * wk);
+        if (e.magicResist) dmg = Math.max(1, Math.round(dmg * (1 - e.magicResist)));
         e.hp = Math.max(0, e.hp - dmg);
         blog(e.name + " 受到 " + dmg + " 点伤害" + (linked ? "（地形联动！）" : "") +
           (e.hp <= 0 ? "，倒下了！" : "。"));
@@ -513,11 +624,17 @@ function physAtkSkill(attacker, target, sk, quiet) {
   // 武技倍率 × 等级缩放
   const r = physDmg(atk, sk.mult * skillScale(attacker.lv), def, bStat(attacker, "luck"),
     undefined, critBonusOf(attacker));
-  target.hp = Math.max(0, target.hp - r.dmg);
+  const adj = adjustOutgoing(attacker, target, r.dmg);
+  if (adj.dodged) {
+    blog(actorName(attacker) + " 的" + sk.name + "！" + actorName(target) + " 闪开了！");
+    return;
+  }
+  target.hp = Math.max(0, target.hp - adj.dmg);
   if (!quiet) blog(actorName(attacker) + " 的" + sk.name + "！");
-  blog(actorName(target) + " 受到 " + r.dmg + " 点伤害" + (r.crit ? "（暴击！）" : "") +
+  blog(actorName(target) + " 受到 " + adj.dmg + " 点伤害" + (r.crit ? "（暴击！）" : "") +
     (target.hp <= 0 ? "，倒下了！" : "。"));
   afterEnemyDamaged(target);
+  counterBack(attacker, target, adj.dmg);
 }
 
 // 敌全灭时的分流：还有波次 → 直接续战；否则胜利结算/连战
@@ -538,6 +655,136 @@ function onEnemiesCleared(queue) {
   battleWin(false);
 }
 
+// ---------------- BOSS 机制：回合开始钩子（07 文档 schema） ----------------
+function bossRoundHooks() {
+  const r = B.round;
+  // 1) 编组回合脚本（克隆于 startBattle；effect: atkMult/defMult/spdMult/healPct/noAct/partySpdMult，dur 持续回合，缺省永久）
+  if (B.grpScript) {
+    for (const sc of B.grpScript) {
+      const due = sc.repeat ? (r % sc.round === 0) : (r === sc.round);
+      if (!due || sc._done) continue;
+      const boss = B.enemies.find(x => x.boss && x.hp > 0);
+      if (sc.ifFlag && S.flags[sc.ifFlag.flag] !== sc.ifFlag.is) continue;
+      if (sc.ifHero && !S.party.some(h => h.key === sc.ifHero && h.hp > 0)) continue;
+      if (sc.ifHpAbove !== undefined && !(boss && boss.hp / boss.maxHp > sc.ifHpAbove)) continue;
+      if (sc.ifHpBelow !== undefined && !(boss && boss.hp / boss.maxHp < sc.ifHpBelow)) continue;
+      if (!sc.repeat) sc._done = true;
+      if (sc.say) resolveText(sc.say).forEach(l => blog(l));
+      const ef = sc.effect || {};
+      if (ef.partySpdMult) B.partySpdMult = { v: ef.partySpdMult, until: r + (ef.dur || 99) - 1 };
+      for (const t of aliveEnemies()) {
+        if (ef.bossOnly && !t.boss) continue;
+        if (ef.atkMult) t.atkMult *= ef.atkMult;
+        if (ef.defMult) t.defBuff *= ef.defMult;
+        if (ef.spdMult) t.spd = Math.max(1, Math.round(t.spd * ef.spdMult));
+        if (ef.healPct) t.hp = Math.min(t.maxHp, t.hp + Math.round(t.maxHp * ef.healPct));
+        if (ef.noAct) t.stun = ef.dur || 1;
+        // dur>0 的属性修改登记还原（atkMult/defBuff/spd 三类）
+        if (ef.dur && (ef.atkMult || ef.defMult || ef.spdMult)) {
+          (B._reverts = B._reverts || []).push({
+            t, until: r + ef.dur - 1,
+            atkMult: ef.atkMult, defMult: ef.defMult, spdMult: ef.spdMult,
+            oldSpd: ef.spdMult ? t._base.spd : 0,
+          });
+        }
+      }
+    }
+    // 到期的脚本效果还原
+    if (B._reverts) {
+      B._reverts = B._reverts.filter(rv => {
+        if (r <= rv.until || rv.t.hp <= 0) return true;
+        if (rv.atkMult) rv.t.atkMult /= rv.atkMult;
+        if (rv.defMult) rv.t.defBuff /= rv.defMult;
+        if (rv.spdMult) rv.t.spd = rv.oldSpd;
+        return false;
+      });
+    }
+  }
+  for (const e of aliveEnemies()) {
+    // 2) 怒气成长（马超）
+    if (e.atkGrow && (e._growN || 0) < 10) {
+      e.atk = Math.round(e.atk * (1 + e.atkGrow));
+      e._growN = (e._growN || 0) + 1;
+      if (e._growN === 1 || e._growN === 5 || e._growN === 10)
+        blog(e.name + " 的怒气在积蓄！（攻击上升）");
+    }
+    // 3) 姿态切换（张郃"巧变"：守 ↔ 攻）
+    if (e.stanceCycle) {
+      e._stance = !e._stance;
+      if (e._stance) { e.defBuff = 1.5; e.atkMult = 0.7; blog(e.name + " 转为守势。（防御上升）"); }
+      else { e.defBuff = 0.8; e.atkMult = 1.3; blog(e.name + " 转为攻势。（攻击上升）"); }
+    }
+    // 4) 召唤（黄巾头目/赵慈）
+    if (e.summon) {
+      const sm = e.summon;
+      const mobs = () => B.enemies.filter(x => x.hp > 0 && !x.boss).length;
+      const due = sm.everyRounds ? (r % sm.everyRounds === 0)
+        : (sm.hpBelow && !e._summoned && e.hp <= e.maxHp * sm.hpBelow);
+      if (due && mobs() < (sm.maxOnField || 2)) {
+        if (sm.hpBelow) e._summoned = true;
+        for (let i = 0; i < (sm.count || 1) && mobs() < (sm.maxOnField || 2); i++)
+          blog(e.name + " 招呼援军——" + spawnOne(sm.enemy).name + " 杀到！");
+      }
+    }
+    // 5) 友军存活光环（于禁"军阵"）
+    if (e.allyAura) {
+      const st = e.allyAura.stat || "def";
+      const hasAlly = B.enemies.some(x => x !== e && x.hp > 0);
+      if (hasAlly && !e._auraOn) {
+        e._auraOn = true;
+        e[st] = Math.round(e._base[st] * e.allyAura.mult);
+        blog(e.name + " 军阵严整，守备森严！");
+      } else if (!hasAlly && e._auraOn) {
+        e._auraOn = false;
+        e[st] = e._base[st];
+        blog(e.name + " 的军阵被破了！");
+      }
+    }
+    // 6) 历史克制固伤（夏侯渊"定军一箭"：heroLink.fixed）
+    if (e.heroLink) {
+      for (const lk of e.heroLink) {
+        if (!lk.fixed || e._fixedDone) continue;
+        if (r >= lk.fixed.round && S.party.some(h => h.key === lk.hero && h.hp > 0)) {
+          e._fixedDone = true;
+          if (lk.fixed.say) resolveText(lk.fixed.say).forEach(l => blog(l));
+          e.hp = Math.max(0, e.hp - lk.fixed.dmg);
+          blog(lk.hero + " 的" + (lk.fixed.label || "奇袭") + "！" + e.name +
+            " 受到 " + lk.fixed.dmg + " 点伤害" + (e.hp <= 0 ? "，倒下了！" : "。"));
+          afterEnemyDamaged(e);
+          if (B.over || !aliveEnemies().length) return true;
+        }
+      }
+    }
+    // 7) 低血逃跑（秦琪"夺船欲逃"：限时未杀则脱战，无该敌掉落与金钱）
+    if (e.flee && !e.fled) {
+      if (e._fleeIn === undefined && e.hp > 0 && e.hp <= e.maxHp * e.flee.hpBelow) {
+        e._fleeIn = e.flee.rounds;
+        blog(e.name + " 且战且退，想要夺路而逃！（" + e.flee.rounds +
+          " 回合内将其击杀，否则会被逃掉）");
+      }
+      if (e._fleeIn !== undefined && e.hp > 0) {
+        e._fleeIn--;
+        if (e._fleeIn < 0) {
+          e.fled = true;
+          e.hp = 0;
+          blog(e.name + " 夺路而逃，踪影全无！");
+          if (!aliveEnemies().length) { onEnemiesCleared(null); return true; }
+        }
+      }
+    }
+    // 8) 每回合自损（孙礼"死战"/金旋"众叛亲离"）
+    if (e.selfDot && e.hp > 0) {
+      const dd = Math.max(1, Math.round(e.maxHp * e.selfDot));
+      e.hp = Math.max(0, e.hp - dd);
+      blog(e.name + " 气血翻涌，自损 " + dd + " 点HP" + (e.hp <= 0 ? "，倒下了！" : "。"));
+      afterEnemyDamaged(e);
+      if (B.over) return true;
+    }
+  }
+  if (!aliveEnemies().length) { onEnemiesCleared(null); return true; }
+  return false;
+}
+
 function roundEnd() {
   S.party.forEach(h => { h.defending = false; });
   // 军师 mpRegen 被动
@@ -556,6 +803,8 @@ function roundEnd() {
   if (B.over) return;
   if (!aliveEnemies().length) { onEnemiesCleared(null); return; }
   B.round++;
+  // BOSS 机制：回合开始钩子（脚本/召唤/光环/姿态/怒气/逃跑/自损/固伤）
+  if (bossRoundHooks()) return;
   // 固定败战：第 2 回合起敌方属性×3（确保必败）
   if (B.scriptedLoss && B.round >= 2 && !B.buffed3x) {
     B.buffed3x = true;
@@ -607,7 +856,7 @@ function battleWin(survived) {
   } else {
     exp = all.reduce((s, e) => s + enemyExp(e), 0);
     gold = all.reduce((s, e) =>
-      s + e.gold[0] + Math.floor(Math.random() * (e.gold[1] - e.gold[0] + 1)), 0);
+      s + (e.fled ? 0 : e.gold[0] + Math.floor(Math.random() * (e.gold[1] - e.gold[0] + 1))), 0);
   }
   S.gold += gold;
   blog(survived ? "撑住了！敌军攻势已竭。" : "战斗胜利！");
@@ -615,12 +864,13 @@ function battleWin(survived) {
   // 图鉴击败数
   for (const e of all) {
     if (!S.dex[e.key]) S.dex[e.key] = { seen: 0, killed: 0 };
-    S.dex[e.key].killed++;
+    if (!e.fled) S.dex[e.key].killed++;
   }
-  // 掉落：逐怪掷点（演出战固定结算不掉落）；装备实例入仓库，消耗品进背包
+  // 掉落：逐怪掷点（演出战固定结算不掉落；逃跑的敌人不掉落）；装备实例入仓库，消耗品进背包
   if (!B.fixedReward) {
     const loot = {};
     for (const e of all) {
+      if (e.fled) continue;
       const tpl = ENEMIES[e.key];
       for (const d of (tpl.drops || [])) {
         if (Math.random() < d.rate) loot[d.item] = (loot[d.item] || 0) + 1;
@@ -690,6 +940,9 @@ function nextChainBattle() {
   const names = grp.waves ? grp.waves[0] : grp.enemies;
   B.enemies = spawnEnemies(names);
   B.waves = grp.waves ? grp.waves.slice(1) : [];
+  // BOSS 机制：连战换组时刷新脚本/连环（如 颜良→文丑）
+  B.grpScript = grp.script ? grp.script.map(o => Object.assign({}, o)) : null;
+  B.chainFleet = !!grp.chainFleet;
   for (const k of names) {
     if (!S.dex[k]) S.dex[k] = { seen: 0, killed: 0 };
     S.dex[k].seen++;
