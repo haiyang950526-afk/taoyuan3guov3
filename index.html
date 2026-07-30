@@ -8,7 +8,9 @@
 <title>桃园三国 · 徐州篇</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent;
-    touch-action: manipulation; }
+    touch-action: manipulation;
+    /* 全局禁文本选择/长按呼出（手机长按十字键、连点按钮不再选中文字） */
+    user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
   html, body { height: 100%; background: #0d1120; color: #e8ecf4;
     font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; overflow: hidden; }
   /* 纵向条带布局（互不重叠）：HUD条(固定两行) → 主屏幕(canvas) → 通知条(对话/战斗日志,固定占位)
