@@ -45,9 +45,10 @@
     opacity: 0; transition: opacity .25s; pointer-events: none; }
   #toast.show { opacity: 1; }
 
-  /* 通知条槽位：主屏幕下方独立条，固定高度（无对话时保留占位，露出页面底色）；
-     地图模式放 #dialog，战斗模式放 #battle-log */
-  #slot { flex: 0 0 auto; width: 100%; max-width: 520px; height: 120px; }
+  /* 通知条槽位：主屏幕下方独立条，固定高度（约两行文本+少量 padding；
+     无对话时保留占位，露出页面底色）；宽度由 core.js resize() 设为与画布同宽。
+     地图模式放 #dialog，战斗模式放 #battle-ui（日志+指令同槽） */
+  #slot { flex: 0 0 auto; width: 100%; max-width: 520px; height: 88px; }
 
   /* 对话框：占满通知条槽位；dialog_wood_gold_clean_9slice.png（48×48，实测边 7px，slice 取 8） */
   #dialog { width: 100%; height: 100%;
@@ -56,7 +57,7 @@
     padding: 8px 12px; font-size: 16px; line-height: 1.7; color: #3a2a16;
     display: none; cursor: pointer; user-select: none; align-items: center; gap: 12px; }
   #dialog.show { display: flex; }
-  #dialog-face { width: 72px; height: 84px; flex: 0 0 auto; display: none;
+  #dialog-face { width: 48px; height: 56px; flex: 0 0 auto; display: none;
     image-rendering: pixelated; background: rgba(120, 90, 40, .18);
     border: 2px solid #b48a2c; }
   #dialog-text { flex: 1 1 auto; }
@@ -129,19 +130,21 @@
   /* 对话框内继续指示需要定位父级 */
   #dialog { position: relative; }
 
-  /* 战斗 UI：#battle-log 占满通知条槽位（约两行、可滚动）；
-     #battle-cmd 是其下方独立条（仅战斗时显示，1~2 行自适应、超出滚动），均不压画面 */
-  #battle-ui { width: 100%; height: 100%; display: none; }
-  #battle-ui.show { display: block; }
-  #battle-log { width: 100%; height: 100%; overflow-y: auto;
-    background: rgba(26,20,12,.82); border: 2px solid #b48a2c;
-    padding: 8px 12px; font-size: 13px; line-height: 1.6; color: #f0e6cc; }
-  #battle-cmd { flex: 0 0 auto; width: 100%; max-width: 520px; display: none;
-    flex-wrap: wrap; gap: 4px; align-content: flex-start;
-    max-height: 74px; overflow-y: auto;
-    background: rgba(26,20,12,.82); border-top: 2px solid #b48a2c; padding: 5px 8px; }
-  #battle-cmd.show { display: flex; }
-  #battle-cmd .pline { width: 100%; padding: 1px 2px; font-size: 12px; color: #e8d9a8; }
+  /* 战斗 UI：日志与指令同在通知条槽位内（槽位固定高，进出战斗不变）——
+     上部 #battle-log 压缩为 1 行可滚动，下部 #battle-cmd 一行五按钮，
+     子菜单按钮多时按钮区内部滚动、槽位总高不变 */
+  #battle-ui { width: 100%; height: 100%; display: none;
+    flex-direction: column;
+    background: rgba(26,20,12,.82); border: 2px solid #b48a2c; }
+  #battle-ui.show { display: flex; }
+  #battle-log { flex: 0 0 25px; width: 100%; overflow-y: auto;
+    border-bottom: 1px solid rgba(180,138,44,.5);
+    padding: 1px 10px; font-size: 12px; line-height: 1.7; color: #f0e6cc; }
+  #battle-cmd { flex: 1 1 auto; min-height: 0; width: 100%; overflow-y: auto;
+    display: flex; flex-wrap: wrap; gap: 4px; align-content: flex-start;
+    padding: 4px 6px; }
+  #battle-cmd .pline { width: 100%; padding: 0 2px; font-size: 11px;
+    line-height: 1.3; color: #e8d9a8; }
   #battle-cmd button { display: inline-block; width: auto; margin-top: 0;
     padding: 5px 8px; font-size: 13px; border-width: 5px; }
 
@@ -199,9 +202,11 @@
   </div>
   <div id="slot">
     <div id="dialog"><img id="dialog-face" alt=""><span id="dialog-text"></span></div>
-    <div id="battle-ui"><div id="battle-log"></div></div>
+    <div id="battle-ui">
+      <div id="battle-log"></div>
+      <div id="battle-cmd"></div>
+    </div>
   </div>
-  <div id="battle-cmd"></div>
   <div id="dpad">
     <div class="pad-cluster">
       <button class="pad-btn" id="pad-up">▲</button>

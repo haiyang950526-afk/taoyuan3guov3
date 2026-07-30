@@ -150,21 +150,21 @@ function toast(msg) {
 }
 
 // ---------------- 画布 / 相机 ----------------
-// 纵向条带布局：可用高度 = 屏高 − HUD(固定两行) − 通知条占位(固定) − 战斗指令区(仅战斗) − 按键区；
-// 画布按 15:14 同时受宽度与可用高度约束，再整体缩 8%
+// 纵向条带布局：可用高度 = 屏高 − HUD(固定两行) − 通知条占位(固定) − 按键区。
+// 画布尽量放宽（上限 520、保持 15:14、受可用高度约束）；
+// HUD 与通知槽宽度同步为画布宽，整列居中，四条左右边缘对齐
 function resize() {
   const hudH = $("hud") ? $("hud").offsetHeight : 48;
-  const slotH = $("slot") ? $("slot").offsetHeight : 120;
-  const cmdShown = $("battle-cmd") && $("battle-cmd").classList.contains("show");
-  const cmdH = cmdShown ? $("battle-cmd").offsetHeight : 0;
+  const slotH = $("slot") ? $("slot").offsetHeight : 88;
   const dpadShown = $("dpad") && $("dpad").classList.contains("show");
   const dpadH = dpadShown ? $("dpad").offsetHeight : 0;
-  const availH = window.innerHeight - hudH - slotH - cmdH - dpadH;
+  const availH = window.innerHeight - hudH - slotH - dpadH;
   let maxW = Math.min(window.innerWidth, 520);
   if (availH > 120) maxW = Math.min(maxW, Math.floor(availH * VW / VH));
-  maxW = Math.floor(maxW * 0.92);
   cv.style.width = maxW + "px";
   cv.style.height = (maxW * VH / VW) + "px";
+  $("hud").style.width = maxW + "px";
+  $("slot").style.width = maxW + "px";
   const dpr = window.devicePixelRatio || 1;
   cv.width = VW * TILE * dpr;
   cv.height = VH * TILE * dpr;
@@ -380,18 +380,8 @@ window.addEventListener("DOMContentLoaded", () => {
   }, { passive: false });
 
   // 游戏画面区：拦截双击缩放（iOS Safari 不认 touch-action:none 时兜底；
-  // #screen 内只有 canvas/toast，无按钮，不影响交互）
+  // #screen 内只有 canvas，无按钮，不影响交互）
   $("screen").addEventListener("touchend", e => e.preventDefault(), { passive: false });
-
-  // 战斗指令区是独立条：随 battle-ui 显隐同步显隐并重算画布（不压画面、整页不溢出）；
-  // 指令内容变化（子菜单行数变化）也会触发重算
-  new MutationObserver(() => {
-    const on = $("battle-ui").classList.contains("show");
-    $("battle-cmd").classList.toggle("show", on);
-    resize();
-  }).observe($("battle-ui"), { attributes: true, attributeFilter: ["class"] });
-  new MutationObserver(() => resize())
-    .observe($("battle-cmd"), { childList: true });
 
   $("btn-new").addEventListener("click", () => {
     newGame();
