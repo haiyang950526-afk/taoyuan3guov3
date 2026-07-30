@@ -184,7 +184,7 @@ const TILE_COLORS = {
   "D": ["#3a2a1a", "#2a1f12"], "G": ["#6a7288", "#4a5060"],
   "T": ["#3d7a3d", "#2a5a2a"], "W": ["#3a6ac0", "#2a4f96"],
   "R": ["#6a5a4a", "#4f4336"], "C": ["#1a1410", "#6a5a4a"],
-  "F": ["#3a332c", "#332c26"], "E": ["#c9b89a", "#3a332c"],
+  "F": ["#3a332c", "#332c26"], "E": ["#3a332c", "#332c26"],
   "P": ["#7a5a8a", "#5a4068"], "M": ["#a8845a", "#8a6a45"],
   ".": ["#4f8a45", "#467a3d"], ",": ["#a89468", "#9a885e"],
   "L": ["#9a7a52", "#8a6a45"], "X": ["#7a4a3a", "#5a3428"],
@@ -502,10 +502,6 @@ function drawTileImage(ch, px, py, gx, gy) {
       const img = gfxImg(V4 + "Derived/cave_floor.png");
       if (!img) return false;
       ctx.drawImage(img, px, py);
-      if (ch === "E") {   // 出口亮光
-        ctx.fillStyle = "#c9b89a";
-        ctx.fillRect(px + 8, py + 8, 16, 4); ctx.fillRect(px + 8, py + 16, 16, 4);
-      }
       return true;
     }
     if (PROP_IMG[ch] || ch === "z") {   // 洞内道具：泥地底
@@ -652,10 +648,18 @@ function draw() {
   if (S.mode === "battle") { drawBattle(); return; }
   if (S.mode === "minigame") { drawMinigame(); return; }
   const c = cam();
+  const grid = mapDef().grid;
   ctx.clearRect(0, 0, VW * TILE, VH * TILE);
   for (let ty = 0; ty < VH; ty++) {
     for (let tx = 0; tx < VW; tx++) {
-      const ch = tileAt(c.x + tx, c.y + ty);
+      const gx = c.x + tx, gy = c.y + ty;
+      // 地图以外的越界区域：统一填页面底色深蓝（小地图/室内图不露浅蓝灰兜底墙色）
+      if (gy < 0 || gy >= grid.length || gx < 0 || gx >= grid[gy].length) {
+        ctx.fillStyle = "#0d1120";
+        ctx.fillRect(tx * TILE, ty * TILE, TILE, TILE);
+        continue;
+      }
+      const ch = tileAt(gx, gy);
       if (drawTileImage(ch, tx * TILE, ty * TILE, c.x + tx, c.y + ty)) continue;
       const col = TILE_COLORS[ch] || TILE_COLORS["."];
       ctx.fillStyle = col[0];
@@ -763,7 +767,7 @@ function draw() {
       else if (ch === "C") { ctx.beginPath(); ctx.arc(tx*TILE+16, ty*TILE+18, 10, Math.PI, 0); ctx.fill(); }
       else if (ch === "D") ctx.fillRect(tx*TILE+10, ty*TILE+4, 12, 26);
       else if (ch === "G") { ctx.fillRect(tx*TILE+4, ty*TILE+2, 24, 6); }
-      else if (ch === "E") { ctx.fillRect(tx*TILE+8, ty*TILE+8, 16, 4); ctx.fillRect(tx*TILE+8, ty*TILE+16, 16, 4); }
+      else if (ch === "E") { /* 出口格不再画"等号"标记，底色与洞底一致 */ }
       else if (ch === ",") { ctx.fillRect(tx*TILE+2, ty*TILE+6, 12, 9); ctx.fillRect(tx*TILE+18, ty*TILE+17, 12, 9); }
       else if (ch === "L") ctx.fillRect(tx*TILE, ty*TILE+15, TILE, 2);
       else if (ch === "X") { ctx.beginPath(); ctx.arc(tx*TILE+16, ty*TILE+16, 10, 0, Math.PI*2); ctx.fill(); }

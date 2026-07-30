@@ -141,6 +141,8 @@ let toastTimer = null;
 function toast(msg) {
   const t = $("toast");
   t.textContent = msg;
+  // 定位在主屏幕内部上部（随画布位置动态计算；fixed 层级保证面板打开时也可见）
+  if (cv) t.style.top = ($("cv").getBoundingClientRect().top + 8) + "px";
   t.classList.add("show");
   // 连续触发时重置计时，避免上一条的定时器提前把新提示清掉
   if (toastTimer) clearTimeout(toastTimer);
@@ -148,15 +150,18 @@ function toast(msg) {
 }
 
 // ---------------- 画布 / 相机 ----------------
-// 一体化布局：对话框/战斗UI 浮在画面上，不再预留中部区。
-// 画布按 15:14 同时受宽度与可用高度约束（可用高度 = 屏高 − HUD − 按键区），再整体缩 8%
+// 纵向条带布局：可用高度 = 屏高 − HUD(固定两行) − 通知条占位(固定) − 战斗指令区(仅战斗) − 按键区；
+// 画布按 15:14 同时受宽度与可用高度约束，再整体缩 8%
 function resize() {
-  const hudH = $("hud") ? $("hud").offsetHeight : 32;
+  const hudH = $("hud") ? $("hud").offsetHeight : 48;
+  const slotH = $("slot") ? $("slot").offsetHeight : 120;
+  const cmdShown = $("battle-cmd") && $("battle-cmd").classList.contains("show");
+  const cmdH = cmdShown ? $("battle-cmd").offsetHeight : 0;
   const dpadShown = $("dpad") && $("dpad").classList.contains("show");
   const dpadH = dpadShown ? $("dpad").offsetHeight : 0;
-  const availH = window.innerHeight - hudH - dpadH;
+  const availH = window.innerHeight - hudH - slotH - cmdH - dpadH;
   let maxW = Math.min(window.innerWidth, 520);
-  if (availH > 160) maxW = Math.min(maxW, Math.floor(availH * VW / VH));
+  if (availH > 120) maxW = Math.min(maxW, Math.floor(availH * VW / VH));
   maxW = Math.floor(maxW * 0.92);
   cv.style.width = maxW + "px";
   cv.style.height = (maxW * VH / VW) + "px";
@@ -170,11 +175,9 @@ function resize() {
 function cam() {
   const g = mapDef().grid;
   const mw = g[0].length, mh = g.length;
-  // 对话框/战斗UI 浮在画面底部时，视野向下偏约 3 格，人物保持在浮层上方不被遮挡
-  const biasY = (S.mode === "dialog" || S.mode === "battle") ? 3 : 0;
   return {
     x: Math.max(0, Math.min(S.px - (VW >> 1), mw - VW)),
-    y: Math.max(0, Math.min(S.py - (VH >> 1) + biasY, mh - VH)),
+    y: Math.max(0, Math.min(S.py - (VH >> 1), mh - VH)),
   };
 }
 
@@ -375,6 +378,20 @@ window.addEventListener("DOMContentLoaded", () => {
     e.preventDefault();
     dismissSplash();
   }, { passive: false });
+
+  // 游戏画面区：拦截双击缩放（iOS Safari 不认 touch-action:none 时兜底；
+  // #screen 内只有 canvas/toast，无按钮，不影响交互）
+  $("screen").addEventListener("touchend", e => e.preventDefault(), { passive: false });
+
+  // 战斗指令区是独立条：随 battle-ui 显隐同步显隐并重算画布（不压画面、整页不溢出）；
+  // 指令内容变化（子菜单行数变化）也会触发重算
+  new MutationObserver(() => {
+    const on = $("battle-ui").classList.contains("show");
+    $("battle-cmd").classList.toggle("show", on);
+    resize();
+  }).observe($("battle-ui"), { attributes: true, attributeFilter: ["class"] });
+  new MutationObserver(() => resize())
+    .observe($("battle-cmd"), { childList: true });
 
   $("btn-new").addEventListener("click", () => {
     newGame();

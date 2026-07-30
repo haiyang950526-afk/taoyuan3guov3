@@ -9,40 +9,51 @@
     touch-action: manipulation; }
   html, body { height: 100%; background: #0d1120; color: #e8ecf4;
     font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; overflow: hidden; }
-  /* 一体化布局：整个游戏屏幕是一整块画面（#screen），HUD/对话框/战斗UI 全部浮在画面上，
-     只有底部按键区独立。画布尺寸由 core.js resize() 按 15:14 计算。 */
+  /* 纵向条带布局（互不重叠）：HUD条(固定两行) → 主屏幕(canvas) → 通知条(对话/战斗日志,固定占位)
+     → 战斗指令区(仅战斗时出现) → 底部按键区。画布尺寸由 core.js resize() 按 15:14 计算。 */
   #app { height: 100%; height: 100dvh; display: flex; flex-direction: column;
-    align-items: center; justify-content: space-between; }
-  #screen { position: relative; flex: 0 0 auto; margin: auto 0; }
-  canvas { display: block; background: #000; }
+    align-items: center; overflow: hidden; }
+  #screen { position: relative; flex: 0 0 auto; }
+  canvas { display: block; background: #0d1120; }
+  /* 游戏画面区禁止双击缩放/滚动手势（按钮区保持全局 manipulation；日志/指令可纵向滚动） */
+  #screen, canvas, #dialog, #battle-ui { touch-action: none; }
+  #battle-log, #battle-cmd { touch-action: pan-y; }
 
   /* 像素 UI 素材统一不缩放模糊（9-slice 切边实测值见各处注释） */
   #hud, #dialog, #toast, #panel-box, #panel-title, #confirm-box, #confirm-title,
   #panel-box button, #battle-cmd button, #scr-title-box button, #confirm-box button,
   .pad-cluster, #pad-a, #pad-b, #scr-title, #scr-splash { image-rendering: pixelated; }
 
-  /* HUD：浮在画面顶部；顶条 top_hint_bar_9slice.png（96×24，实测边 4px，slice 取 5） */
-  #hud { position: absolute; top: 0; left: 0; right: 0; z-index: 3;
-    display: flex; justify-content: space-between;
-    padding: 4px 12px 6px; font-size: 13px; color: #f0e6cc;
+  /* HUD：主屏幕上方独立的条，固定两行高、内容垂直居中；
+     顶条 top_hint_bar_9slice.png（96×24，实测边 4px，slice 取 5） */
+  #hud { flex: 0 0 auto; width: 100%; max-width: 520px; height: 48px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 4px 12px; font-size: 13px; color: #f0e6cc;
     border: 5px solid transparent;
     border-image: url("assets/ui/top_hint_bar_9slice.png") 5 fill; }
-  #hud-quest { color: #ffd166; font-size: 12px; max-width: 55%; text-align: right; }
+  #hud-quest { color: #ffd166; font-size: 12px; max-width: 55%; text-align: right;
+    line-height: 1.25; max-height: 2.5em; overflow: hidden; }
 
-  /* 提示条 toast_9slice.png（96×32，实测边 5px，slice 取 6） */
-  #toast { position: fixed; top: 14%; left: 50%; transform: translateX(-50%);
+  /* 提示条 toast_9slice.png（96×32，实测边 5px，slice 取 6）：
+     定位在主屏幕内部上部（top 由 core.js toast() 按画布位置动态计算），
+     fixed + 高 z-index 保证面板/商店打开时提示仍可见 */
+  #toast { position: fixed; top: 56px; left: 50%; transform: translateX(-50%);
+    z-index: 99; max-width: 92%;
     border: 6px solid transparent;
     border-image: url("assets/ui/toast_9slice.png") 6 fill;
     padding: 6px 16px; font-size: 14px; color: #f5e9c8;
-    opacity: 0; transition: opacity .25s; pointer-events: none; z-index: 99; }
+    opacity: 0; transition: opacity .25s; pointer-events: none; }
   #toast.show { opacity: 1; }
 
-  /* 对话框：浮在画面底部居中；dialog_wood_gold_clean_9slice.png（48×48，实测边 7px，slice 取 8） */
-  #dialog { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
-    width: min(92%, 480px); z-index: 4;
+  /* 通知条槽位：主屏幕下方独立条，固定高度（无对话时保留占位，露出页面底色）；
+     地图模式放 #dialog，战斗模式放 #battle-log */
+  #slot { flex: 0 0 auto; width: 100%; max-width: 520px; height: 120px; }
+
+  /* 对话框：占满通知条槽位；dialog_wood_gold_clean_9slice.png（48×48，实测边 7px，slice 取 8） */
+  #dialog { width: 100%; height: 100%;
     border: 8px solid transparent;
     border-image: url("assets/ui/dialog_wood_gold_clean_9slice.png") 8 fill;
-    padding: 10px 12px; font-size: 16px; line-height: 1.7; color: #3a2a16;
+    padding: 8px 12px; font-size: 16px; line-height: 1.7; color: #3a2a16;
     display: none; cursor: pointer; user-select: none; align-items: center; gap: 12px; }
   #dialog.show { display: flex; }
   #dialog-face { width: 72px; height: 84px; flex: 0 0 auto; display: none;
@@ -115,23 +126,27 @@
     border: 8px solid transparent;
     border-image: url("assets/ui/title_plaque_9slice.png") 8 fill; }
 
-  /* 战斗 UI：整屏浮层——战报浮画面上部、指令浮画面下部，半透明底不遮死战斗立绘 */
-  #battle-ui { position: absolute; inset: 0; z-index: 4; display: none;
-    flex-direction: column; justify-content: space-between;
-    padding: 34px 8px 8px; pointer-events: none; }
-  #battle-ui.show { display: flex; }
-  #battle-log { pointer-events: auto; width: 100%; max-height: 30%; overflow-y: auto;
+  /* 对话框内继续指示需要定位父级 */
+  #dialog { position: relative; }
+
+  /* 战斗 UI：#battle-log 占满通知条槽位（约两行、可滚动）；
+     #battle-cmd 是其下方独立条（仅战斗时显示，1~2 行自适应、超出滚动），均不压画面 */
+  #battle-ui { width: 100%; height: 100%; display: none; }
+  #battle-ui.show { display: block; }
+  #battle-log { width: 100%; height: 100%; overflow-y: auto;
     background: rgba(26,20,12,.82); border: 2px solid #b48a2c;
     padding: 8px 12px; font-size: 13px; line-height: 1.6; color: #f0e6cc; }
-  #battle-cmd { pointer-events: auto; width: 100%; max-height: 44%; overflow-y: auto;
-    background: rgba(26,20,12,.82); border: 2px solid #b48a2c; padding: 8px;
-    display: flex; flex-wrap: wrap; gap: 6px; align-content: flex-start; }
-  #battle-cmd .pline { width: 100%; padding: 2px; color: #e8d9a8; }
+  #battle-cmd { flex: 0 0 auto; width: 100%; max-width: 520px; display: none;
+    flex-wrap: wrap; gap: 4px; align-content: flex-start;
+    max-height: 74px; overflow-y: auto;
+    background: rgba(26,20,12,.82); border-top: 2px solid #b48a2c; padding: 5px 8px; }
+  #battle-cmd.show { display: flex; }
+  #battle-cmd .pline { width: 100%; padding: 1px 2px; font-size: 12px; color: #e8d9a8; }
   #battle-cmd button { display: inline-block; width: auto; margin-top: 0;
-    padding: 7px 12px; font-size: 14px; }
+    padding: 5px 8px; font-size: 13px; border-width: 5px; }
 
   /* 十字键/AB：dpad_ab.png 切出的贴图（dpad 52×52 / btn_a·btn_b 58×58），字母仍由 DOM 文字叠加 */
-  #dpad { flex: 0 0 auto; width: 100%; max-width: 520px; display: none;
+  #dpad { flex: 0 0 auto; margin-top: auto; width: 100%; max-width: 520px; display: none;
     justify-content: space-between; align-items: flex-end;
     padding: 4px 14px calc(6px + env(safe-area-inset-bottom)); }
   #dpad.show { display: flex; }
@@ -174,19 +189,19 @@
 </head>
 <body>
 <div id="app">
+  <div id="hud">
+    <span id="hud-map">徐州城</span>
+    <span id="hud-gold">300 金</span>
+    <span id="hud-quest"></span>
+  </div>
   <div id="screen">
     <canvas id="cv"></canvas>
-    <div id="hud">
-      <span id="hud-map">徐州城</span>
-      <span id="hud-gold">300 金</span>
-      <span id="hud-quest"></span>
-    </div>
-    <div id="dialog"><img id="dialog-face" alt=""><span id="dialog-text"></span></div>
-    <div id="battle-ui">
-      <div id="battle-log"></div>
-      <div id="battle-cmd"></div>
-    </div>
   </div>
+  <div id="slot">
+    <div id="dialog"><img id="dialog-face" alt=""><span id="dialog-text"></span></div>
+    <div id="battle-ui"><div id="battle-log"></div></div>
+  </div>
+  <div id="battle-cmd"></div>
   <div id="dpad">
     <div class="pad-cluster">
       <button class="pad-btn" id="pad-up">▲</button>
