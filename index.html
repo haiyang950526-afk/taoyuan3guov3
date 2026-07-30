@@ -3,6 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<!-- 开屏图双保险：HTML 解析阶段就拉取 splash（JS 四级预载的 T0 见 engine/core.js） -->
+<link rel="preload" as="image" href="assets/ui/splash.png" fetchpriority="high">
 <title>桃园三国 · 徐州篇</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent;

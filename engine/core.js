@@ -256,10 +256,25 @@ function bindPad(id, x, y) {
 }
 
 // ---------------- 资源预载 ----------------
-// 两级预载：
-//   T1 第一屏必需（ch00 城/野外/村庄地形 + 室内家具 + 序章角色）——脚本加载完立即拉取并预解码，
-//      保证点"新游戏"时首屏不跳变；
-//   T2 其余全部素材（后续章节）——T1 完成后后台错峰慢慢加载。
+// 四级预载（后一阶段在前一阶段完成后启动）：
+//   T0  开屏图 splash（第一眼；index.html <head> 另有 <link rel="preload"> 双保险）——
+//       960×540 大图，等它 decode 完再启动后续阶段，避免解码抢占 splash 显示；
+//   T1u UI 皮肤 kit（标题页与首屏交互要用的 9-slice/贴图，文件都很小，一次性并发拉完）；
+//   T1  第一屏必需（ch00 城/野外/村庄地形 + 室内家具 + 序章角色）——脚本加载完立即拉取并预解码，
+//       保证点"新游戏"时首屏不跳变；
+//   T2  其余全部素材（后续章节）——T1 完成后后台错峰慢慢加载。
+const PRELOAD_T0 = ["assets/ui/splash.png"];
+const PRELOAD_T1U = [
+  "assets/ui/title_bg.png",
+  "assets/ui/menu_panel_9slice.png", "assets/ui/popup_panel_9slice.png",
+  "assets/ui/confirm_panel_9slice.png", "assets/ui/dialog_wood_gold_clean_9slice.png",
+  "assets/ui/title_plaque_9slice.png", "assets/ui/toast_9slice.png",
+  "assets/ui/top_hint_bar_9slice.png",
+  "assets/ui/option_btn_normal.png", "assets/ui/option_btn_active.png",
+  "assets/ui/option_btn_pressed.png", "assets/ui/option_btn_disabled_9slice.png",
+  "assets/ui/sel_arrow.png",
+  "assets/ui/dpad.png", "assets/ui/btn_a.png", "assets/ui/btn_b.png",
+];
 // T1 地块清单（相对 assets/gfx/v4/）：序章三种图层的全部打底件
 const PRELOAD_T1_TILES = [
   "Derived/grass_center_flat.png", "Derived/grass_alt_center_flat.png",
@@ -309,13 +324,29 @@ const PRELOAD_T1_CHARS = [
 const PRELOAD_T1_FACES = ["liu_bei", "guan_yu", "zhang_fei", "tao_qian"];
 const PRELOAD_T1_BOSS = ["yellow_turban_leader"];
 
+// 一组图片并发拉取，全部完成（含失败）后回调；awaitDecode=true 时等 decode 完才算完成
+function preloadGroup(paths, done, awaitDecode) {
+  let n = 0;
+  for (const p of paths) {
+    let settled = false;
+    const step = () => { if (!settled && (settled = true, ++n >= paths.length)) done(); };
+    const im = new Image();
+    im.src = p;   // 先设 src 再 decode（无 src 时 decode 行为不定）
+    im.onerror = step;
+    if (awaitDecode && im.decode) {
+      im.decode().then(step, step);
+    } else {
+      im.onload = step;
+      if (im.decode) im.decode().catch(() => {});
+    }
+  }
+}
+
 function preloadAssets() {
   const t1 = PRELOAD_T1_TILES.map(p => "assets/gfx/v4/" + p)
     .concat(PRELOAD_T1_CHARS.map(k => "assets/chars/map/" + k + ".png"))
     .concat(PRELOAD_T1_FACES.map(k => "assets/chars/face/" + k + ".png"))
     .concat(PRELOAD_T1_BOSS.map(k => "assets/chars/boss/" + k + ".png"));
-  // T1：立即全量发出（浏览器自管理并发），能 decode 就顺手预解码
-  let t1Done = 0;
   const kickT2 = () => {
     const paths = [];
     if (typeof CHAR_ART !== "undefined") {
@@ -337,13 +368,10 @@ function preloadAssets() {
       if (i < list.length) setTimeout(step, 60);
     })();
   };
-  for (const p of t1) {
-    const im = new Image();
-    im.onload = () => { if (++t1Done >= t1.length) kickT2(); };
-    im.onerror = () => { if (++t1Done >= t1.length) kickT2(); };
-    im.src = p;
-    if (im.decode) im.decode().catch(() => {});
-  }
+  // 四级串行：T0(下载完即放行，decode 异步预解不挡后续) → T1u → T1 → T2(后台错峰)
+  preloadGroup(PRELOAD_T0, () =>
+    preloadGroup(PRELOAD_T1U, () =>
+      preloadGroup(t1, kickT2, false), false), false);
 }
 
 // ---------------- 启动 ----------------
@@ -402,5 +430,5 @@ window.addEventListener("DOMContentLoaded", () => {
   loop();
 });
 
-// T1 立即启动预载（charart/manifest 在本脚本之前已加载，不等 DOMContentLoaded）
+// T0 立即启动预载（charart/manifest 在本脚本之前已加载，不等 DOMContentLoaded）
 preloadAssets();
