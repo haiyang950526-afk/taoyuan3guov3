@@ -128,6 +128,22 @@ const HERO_TPL = {
     growth: { hp: "B", mp: "A", atk: "A", int: "A", def: "B", spd: "A", luck: "B" },
     learn: { 1: ["qilin", "youlin"] },
   },
+  // 小丫：第四章路旁遗孤（彩蛋队友，自动行动；纪念意义大于战力）
+  "小丫": {
+    color: "#d8a8b8", auto: true,
+    look: {},
+    base: { hp: 30, mp: 10, atk: 3, int: 6, def: 3, spd: 6, luck: 12 },
+    growth: { hp: "B", mp: "C", atk: "C", int: "B", def: "C", spd: "B", luck: "A" },
+    learn: {},
+  },
+  // 小豆子：第一章洞中小孩（彩蛋队友，自动行动；纪念意义大于战力）
+  "小豆子": {
+    color: "#b8a888", auto: true,
+    look: {},
+    base: { hp: 28, mp: 6, atk: 5, int: 3, def: 3, spd: 8, luck: 8 },
+    growth: { hp: "B", mp: "D", atk: "B", int: "D", def: "C", spd: "A", luck: "B" },
+    learn: {},
+  },
 };
 
 if (typeof module !== "undefined") module.exports = HERO_TPL;

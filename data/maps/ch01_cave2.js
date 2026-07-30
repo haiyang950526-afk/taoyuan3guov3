@@ -31,6 +31,19 @@ MAPS["ch01_cave2"] = {
     { x: 7, y: 12, to: { map: "ch01_field", x: 5, y: 16 } },
     { x: 8, y: 12, to: { map: "ch01_field", x: 6, y: 16 } },
   ],
+  triggers: [
+    // 彩蛋 · 洞中小孩（一次性：带走则小豆子入后备）
+    { x: 7, y: 1, if: { flag: "cave_boy", not: "done" },
+      do: [{ say: "ch01.caveChild" },
+           { ask: { title: "带上这孩子？", options: [
+             { label: "带上他，吃馒头去",
+               do: [{ say: "ch01.caveTake" }, { joinBench: "小豆子" },
+                    { set: { cave_boy: "done" } },
+                    { toast: "小豆子加入了队伍（后备）" }] },
+             { label: "自身难保，转身离开",
+               do: [{ say: "ch01.caveLeave" }, { set: { cave_boy: "done" } }] },
+           ] } }] },
+  ],
 };
 
 if (typeof module !== "undefined") module.exports = MAPS;

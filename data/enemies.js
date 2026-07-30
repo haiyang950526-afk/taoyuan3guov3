@@ -264,6 +264,10 @@ const BATTLE_GROUPS = {
   ch04_yexi:      { enemies: ["曹军虎卫", "曹军虎卫", "曹军先锋"], boss: true,
                     unbeatable: true, surviveRounds: 4, fixedReward: { exp: 0, gold: 0 },
                     pre: "ch04.yexiPre", half: "ch04.yexiHalf" },
+  // 土山突围（彩蛋"杀出去"选项）：固定败战，第 2 回合起敌方×3，战败走 onLoss 剧情
+  ch04_tuwei:     { enemies: ["曹军虎卫", "曹军先锋", "曹军虎卫"], boss: true,
+                    scriptedLoss: true,
+                    pre: "ch04.tuWeiPre", half: "ch04.tuWeiHalf" },
   ch04_yanliang:  { enemies: ["颜良"], boss: true,
                     script: [{ round: 1, dur: 2,
                       say: ["颜良：河北颜良在此，谁敢决死一战！"], effect: { atkMult: 1.4 } }], // 河北骁勇,

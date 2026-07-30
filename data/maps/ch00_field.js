@@ -79,6 +79,18 @@ MAPS["ch00_field"] = {
              onWin: [{ say: "ch04.xuzhouTaken" }, { set: { q4: "xuzhou" } },
                      { warp: { map: "ch00_city", x: 10, y: 16 } },
                      { toast: "徐州光复！入城戒备" }] }] },
+    // 第四章彩蛋 · 路旁遗孤（徐州光复后、夜袭前；两条同格触发器：已触发过的吞掉重复触发）
+    { x: 15, y: 13, if: { flag: "refugee_girl", exists: true }, do: [] },
+    { x: 15, y: 13, if: { flag: "q4", is: "xuzhou" },
+      do: [{ say: "ch04.refugeeChild" },
+           { ask: { title: "带她走吗？", options: [
+             { label: "带上她，跟紧队伍",
+               do: [{ say: "ch04.refugeeTake" }, { joinBench: "小丫" },
+                    { set: { refugee_girl: "taken" } },
+                    { toast: "小丫加入了队伍（后备）" }] },
+             { label: "留下干粮，狠心离开",
+               do: [{ say: "ch04.refugeeLeave" }, { set: { refugee_girl: "left" } }] },
+           ] } }] },
     // 第四章：夜袭曹营（演出战，失败剧情）
     { x: 21, y: 7, if: { flag: "q4", is: "ye" },
       do: [{ battle: "ch04_yexi",
