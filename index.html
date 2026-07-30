@@ -9,36 +9,50 @@
     touch-action: manipulation; }
   html, body { height: 100%; background: #0d1120; color: #e8ecf4;
     font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; overflow: hidden; }
-  /* 纵向三段布局：HUD / 画布 / 中部(对话·战斗UI) / 底部按键，互不重叠 */
-  #app { height: 100%; height: 100dvh; display: flex; flex-direction: column; align-items: center; }
-  #hud { flex: 0 0 auto; width: 100%; max-width: 520px; display: flex; justify-content: space-between;
-    padding: 8px 12px; font-size: 13px; color: #aab2c5; }
+  /* 一体化布局：整个游戏屏幕是一整块画面（#screen），HUD/对话框/战斗UI 全部浮在画面上，
+     只有底部按键区独立。画布尺寸由 core.js resize() 按 15:14 计算。 */
+  #app { height: 100%; height: 100dvh; display: flex; flex-direction: column;
+    align-items: center; justify-content: space-between; }
+  #screen { position: relative; flex: 0 0 auto; margin: auto 0; }
+  canvas { display: block; background: #000; }
+
+  /* 像素 UI 素材统一不缩放模糊（9-slice 切边实测值见各处注释） */
+  #hud, #dialog, #toast, #panel-box, #panel-title, #confirm-box, #confirm-title,
+  #panel-box button, #battle-cmd button, #scr-title-box button, #confirm-box button,
+  .pad-cluster, #pad-a, #pad-b, #scr-title, #scr-splash { image-rendering: pixelated; }
+
+  /* HUD：浮在画面顶部；顶条 top_hint_bar_9slice.png（96×24，实测边 4px，slice 取 5） */
+  #hud { position: absolute; top: 0; left: 0; right: 0; z-index: 3;
+    display: flex; justify-content: space-between;
+    padding: 4px 12px 6px; font-size: 13px; color: #f0e6cc;
+    border: 5px solid transparent;
+    border-image: url("assets/ui/top_hint_bar_9slice.png") 5 fill; }
   #hud-quest { color: #ffd166; font-size: 12px; max-width: 55%; text-align: right; }
-  #stage { flex: 0 0 auto; }
-  canvas { display: block; border-radius: 10px; background: #000; }
-  /* 中部弹性区：对话框与战斗 UI 放在画布和按键之间 */
-  #mid { flex: 1 1 auto; width: 100%; min-height: 150px; display: flex;
-    flex-direction: column; justify-content: flex-end; align-items: center;
-    overflow: hidden; padding: 6px 0; }
+
+  /* 提示条 toast_9slice.png（96×32，实测边 5px，slice 取 6） */
   #toast { position: fixed; top: 14%; left: 50%; transform: translateX(-50%);
-    background: rgba(20,28,48,.95); border: 1px solid #4f8cff; padding: 10px 22px;
-    border-radius: 10px; font-size: 14px; opacity: 0; transition: opacity .25s;
-    pointer-events: none; z-index: 99; }
+    border: 6px solid transparent;
+    border-image: url("assets/ui/toast_9slice.png") 6 fill;
+    padding: 6px 16px; font-size: 14px; color: #f5e9c8;
+    opacity: 0; transition: opacity .25s; pointer-events: none; z-index: 99; }
   #toast.show { opacity: 1; }
 
-  /* 对话框（中部区内，贴按键上方；有头像时左侧显示） */
-  #dialog { flex: 0 0 auto; width: min(92vw, 480px); margin-bottom: 4px;
-    background: rgba(16,22,40,.96); border: 2px solid #4a5a88;
-    border-radius: 12px; padding: 12px 14px; font-size: 16px; line-height: 1.7;
-    display: none; cursor: pointer; user-select: none; position: relative;
-    align-items: center; gap: 12px; }
+  /* 对话框：浮在画面底部居中；dialog_wood_gold_clean_9slice.png（48×48，实测边 7px，slice 取 8） */
+  #dialog { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
+    width: min(92%, 480px); z-index: 4;
+    border: 8px solid transparent;
+    border-image: url("assets/ui/dialog_wood_gold_clean_9slice.png") 8 fill;
+    padding: 10px 12px; font-size: 16px; line-height: 1.7; color: #3a2a16;
+    display: none; cursor: pointer; user-select: none; align-items: center; gap: 12px; }
   #dialog.show { display: flex; }
   #dialog-face { width: 72px; height: 84px; flex: 0 0 auto; display: none;
-    image-rendering: pixelated; background: rgba(36,48,79,.5);
-    border: 1px solid #3a4a78; border-radius: 8px; }
+    image-rendering: pixelated; background: rgba(120, 90, 40, .18);
+    border: 2px solid #b48a2c; }
   #dialog-text { flex: 1 1 auto; }
-  #dialog::after { content: "▼"; position: absolute; right: 12px; bottom: 6px;
-    font-size: 10px; color: #4f8cff; }
+  /* 继续指示：sel_arrow.png（32×16，左 ▶ 右 ▼，各 16×16），取右半枚 ▼ */
+  #dialog::after { content: ""; position: absolute; right: 10px; bottom: 4px;
+    width: 16px; height: 16px; image-rendering: pixelated;
+    background: url("assets/ui/sel_arrow.png") -16px 0 no-repeat; }
 
   /* 章节通关插画（全屏遮罩，点击继续） */
   #illust { position: fixed; inset: 0; background: rgba(6,8,16,.94);
@@ -46,80 +60,127 @@
     justify-content: center; z-index: 20; cursor: pointer; user-select: none; }
   #illust.show { display: flex; }
   #illust-img { width: min(92vw, 480px); image-rendering: pixelated;
-    border: 2px solid #4a5a88; border-radius: 10px; }
+    border: 2px solid #b48a2c; }
   #illust-cap { margin-top: 14px; font-size: 17px; color: #ffd166; letter-spacing: 2px; }
-  #illust-hint { margin-top: 10px; font-size: 12px; color: #5f6a85; }
+  #illust-hint { margin-top: 10px; font-size: 12px; color: #8a7a55; }
 
-  /* 通用面板 */
+  /* 通用面板 menu_panel_9slice.png（64×64，实测边 6px，slice 取 8）；
+     面板标题底 title_plaque_9slice.png（128×48，实测边 6px，slice 取 8） */
   #panel { position: fixed; inset: 0; background: rgba(8,11,22,.8); display: none;
-    align-items: center; justify-content: center; }
+    align-items: center; justify-content: center; z-index: 30; }
   #panel.show { display: flex; }
   #panel-box { width: min(92vw, 420px); max-height: 76vh; overflow-y: auto;
-    background: #141c30; border: 2px solid #4a5a88; border-radius: 14px; padding: 18px; }
-  #panel-title { font-size: 18px; text-align: center; margin-bottom: 12px; color: #ffd166; }
-  .pline { font-size: 14px; color: #c6cde0; padding: 6px 2px; line-height: 1.5; }
-  #panel-box button, #battle-cmd button, #scr-title-box button {
-    display: block; width: 100%; margin-top: 8px; padding: 12px; font-size: 15px;
-    border: 1px solid #3a4a78; border-radius: 10px; background: #24304f; color: #e8ecf4; }
+    border: 12px solid transparent;
+    border-image: url("assets/ui/menu_panel_9slice.png") 8 fill;
+    padding: 10px 12px; color: #3a2a16; }
+  #panel-title { font-size: 18px; text-align: center; margin-bottom: 12px;
+    padding: 6px 14px; color: #ffd166; letter-spacing: 3px;
+    border: 8px solid transparent;
+    border-image: url("assets/ui/title_plaque_9slice.png") 8 fill; }
+  .pline { font-size: 14px; color: #5a4a30; padding: 6px 2px; line-height: 1.5; }
+
+  /* 全部按钮：option_btn 三态切片（96×32，实测边 4~5px，slice 取 5；
+     normal 常态 / active 悬停·聚焦 / pressed 按下；ghost 与禁用态用 option_btn_disabled） */
+  #panel-box button, #battle-cmd button, #scr-title-box button, #confirm-box button {
+    display: block; width: 100%; margin-top: 8px; padding: 9px 12px; font-size: 15px;
+    color: #4a3416; background: none; cursor: pointer;
+    border: 6px solid transparent;
+    border-image: url("assets/ui/option_btn_normal.png") 5 fill; }
+  #panel-box button:hover, #battle-cmd button:hover,
+  #scr-title-box button:hover, #confirm-box button:hover,
+  #panel-box button:focus, #battle-cmd button:focus,
+  #scr-title-box button:focus, #confirm-box button:focus {
+    border-image-source: url("assets/ui/option_btn_active.png"); }
+  #panel-box button:active, #battle-cmd button:active,
+  #scr-title-box button:active, #confirm-box button:active {
+    border-image-source: url("assets/ui/option_btn_pressed.png"); }
+  button.ghost, button:disabled {
+    border-image-source: url("assets/ui/option_btn_disabled_9slice.png") !important;
+    color: #6a6050 !important; }
+  button:disabled { cursor: default; }
   /* 主菜单双列网格：一屏看全 */
   #panel-body.menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-  #panel-body.menu-grid button { margin-top: 0; padding: 12px 8px; }
-  #panel-box button:active, #battle-cmd button:active { background: #31427a; }
-  button.ghost { background: #1a2238 !important; color: #8a93a8 !important; }
+  #panel-body.menu-grid button { margin-top: 0; padding: 9px 8px; }
 
-  /* 战斗 UI（中部区内，高度受限、指令列表内部滚动） */
-  #battle-ui { flex: 0 1 auto; width: min(92vw, 480px); max-height: 100%;
-    display: none; flex-direction: column; }
+  /* 通用确认弹窗 confirm_panel_9slice.png（64×64，实测边 6px，slice 取 8），浮在面板之上 */
+  #confirm { position: fixed; inset: 0; background: rgba(8,11,22,.55); display: none;
+    align-items: center; justify-content: center; z-index: 40; }
+  #confirm.show { display: flex; }
+  #confirm-box { width: min(88vw, 360px);
+    border: 12px solid transparent;
+    border-image: url("assets/ui/confirm_panel_9slice.png") 8 fill;
+    padding: 10px 12px; color: #3a2a16; }
+  #confirm-title { font-size: 17px; text-align: center; margin-bottom: 10px;
+    padding: 5px 12px; color: #ffd166; letter-spacing: 3px;
+    border: 8px solid transparent;
+    border-image: url("assets/ui/title_plaque_9slice.png") 8 fill; }
+
+  /* 战斗 UI：整屏浮层——战报浮画面上部、指令浮画面下部，半透明底不遮死战斗立绘 */
+  #battle-ui { position: absolute; inset: 0; z-index: 4; display: none;
+    flex-direction: column; justify-content: space-between;
+    padding: 34px 8px 8px; pointer-events: none; }
   #battle-ui.show { display: flex; }
-  #battle-log { flex: 0 0 auto; background: rgba(16,22,40,.96); border: 2px solid #6a3a3a;
-    border-radius: 10px; padding: 10px 14px; font-size: 13px; line-height: 1.6;
-    height: 84px; overflow-y: auto; margin-bottom: 8px; }
-  #battle-cmd { flex: 0 1 auto; min-height: 0; overflow-y: auto;
-    background: rgba(16,22,40,.96); border: 2px solid #4a5a88;
-    border-radius: 10px; padding: 10px; }
-  /* 战斗指令一行化：按钮横排自动换行，标题行占满一行 */
-  #battle-cmd { display: flex; flex-wrap: wrap; gap: 6px; align-content: flex-start; }
-  #battle-cmd .pline { width: 100%; padding: 2px; }
+  #battle-log { pointer-events: auto; width: 100%; max-height: 30%; overflow-y: auto;
+    background: rgba(26,20,12,.82); border: 2px solid #b48a2c;
+    padding: 8px 12px; font-size: 13px; line-height: 1.6; color: #f0e6cc; }
+  #battle-cmd { pointer-events: auto; width: 100%; max-height: 44%; overflow-y: auto;
+    background: rgba(26,20,12,.82); border: 2px solid #b48a2c; padding: 8px;
+    display: flex; flex-wrap: wrap; gap: 6px; align-content: flex-start; }
+  #battle-cmd .pline { width: 100%; padding: 2px; color: #e8d9a8; }
   #battle-cmd button { display: inline-block; width: auto; margin-top: 0;
-    padding: 9px 13px; font-size: 14px; border-radius: 8px; }
+    padding: 7px 12px; font-size: 14px; }
 
-  /* 十字键（贴屏幕底部，含安全区） */
+  /* 十字键/AB：dpad_ab.png 切出的贴图（dpad 52×52 / btn_a·btn_b 58×58），字母仍由 DOM 文字叠加 */
   #dpad { flex: 0 0 auto; width: 100%; max-width: 520px; display: none;
     justify-content: space-between; align-items: flex-end;
     padding: 4px 14px calc(6px + env(safe-area-inset-bottom)); }
   #dpad.show { display: flex; }
-  .pad-cluster { display: grid; grid-template-areas: ". u ." "l . r" ". d .";
-    gap: 5px; }
-  .pad-btn { width: 52px; height: 52px; border-radius: 12px; border: 1px solid #3a4a78;
-    background: rgba(36,48,79,.85); color: #e8ecf4; font-size: 20px; user-select: none; }
-  .pad-btn:active { background: #31427a; }
-  #pad-up { grid-area: u; } #pad-down { grid-area: d; }
-  #pad-left { grid-area: l; } #pad-right { grid-area: r; }
+  .pad-cluster { position: relative; width: 104px; height: 104px;
+    background: url("assets/ui/dpad.png") center / contain no-repeat; }
+  .pad-btn { position: absolute; width: 34%; height: 34%; padding: 0;
+    background: none; border: none; color: transparent; font-size: 0; user-select: none; }
+  #pad-up { top: 0; left: 33%; } #pad-down { bottom: 0; left: 33%; }
+  #pad-left { top: 33%; left: 0; } #pad-right { top: 33%; right: 0; }
   .ab-cluster { display: flex; gap: 12px; align-items: center; }
-  #pad-a, #pad-b { width: 58px; height: 58px; border-radius: 50%; font-size: 18px;
-    border: 1px solid #3a4a78; background: rgba(36,48,79,.85); color: #e8ecf4; }
-  #pad-a { background: rgba(58,110,60,.85); }
-  #pad-b { background: rgba(110,58,58,.85); }
+  #pad-a, #pad-b { width: 58px; height: 58px; border: none; background: none;
+    font-size: 18px; color: #fff; text-shadow: 1px 1px 0 rgba(0,0,0,.55); }
+  #pad-a { background: url("assets/ui/btn_a.png") center / contain no-repeat; }
+  #pad-b { background: url("assets/ui/btn_b.png") center / contain no-repeat; }
+  #pad-a:active, #pad-b:active, .pad-btn:active { transform: scale(.94); }
 
-  /* 标题页 */
-  #scr-title { position: fixed; inset: 0; background: #0d1120; display: none;
-    align-items: center; justify-content: center; z-index: 10; }
+  /* 标题页：title_bg.png 全屏，标题字保持描金 */
+  #scr-title { position: fixed; inset: 0; display: none;
+    align-items: center; justify-content: center; z-index: 10;
+    background: #0d1120 url("assets/ui/title_bg.png") center / cover no-repeat; }
   #scr-title.show { display: flex; }
   #scr-title-box { width: min(88vw, 380px); text-align: center; }
-  #scr-title-box h1 { font-size: 34px; letter-spacing: 8px; margin-bottom: 6px; color: #ffd166; }
-  #scr-title-box .sub { color: #8a93a8; font-size: 13px; margin-bottom: 34px; }
-  #scr-title-box .hint { margin-top: 26px; font-size: 12px; color: #5f6a85; line-height: 1.9; }
+  #scr-title-box h1 { font-size: 34px; letter-spacing: 8px; margin-bottom: 6px;
+    color: #ffd166; text-shadow: 0 0 8px #7a5410, 2px 2px 0 #4a2c08; }
+  #scr-title-box .sub { color: #d8c9a0; font-size: 13px; margin-bottom: 34px;
+    text-shadow: 1px 1px 0 rgba(0,0,0,.7); }
+  #scr-title-box .hint { margin-top: 26px; font-size: 12px; color: #b8a97f;
+    line-height: 1.9; text-shadow: 1px 1px 0 rgba(0,0,0,.7); }
+
+  /* 开屏页：splash.png 满屏，z-index 最高，点击/任意键进入标题页 */
+  #scr-splash { position: fixed; inset: 0; z-index: 100; display: none;
+    align-items: flex-end; justify-content: center; cursor: pointer; user-select: none;
+    background: #000 url("assets/ui/splash.png") center / cover no-repeat; }
+  #scr-splash.show { display: flex; }
+  #scr-splash .hint { margin-bottom: 7vh; font-size: 15px; letter-spacing: 3px;
+    color: #ffd166; text-shadow: 1px 1px 0 #000, 0 0 8px rgba(0,0,0,.8);
+    animation: splashBlink 1.2s infinite; }
+  @keyframes splashBlink { 50% { opacity: .3; } }
 </style>
 </head>
 <body>
 <div id="app">
-  <div id="hud">
-    <span id="hud-map">徐州城</span>
-    <span id="hud-gold">300 金</span>
-    <span id="hud-quest"></span>
-  </div>
-  <div id="stage"><canvas id="cv"></canvas></div>
-  <div id="mid">
+  <div id="screen">
+    <canvas id="cv"></canvas>
+    <div id="hud">
+      <span id="hud-map">徐州城</span>
+      <span id="hud-gold">300 金</span>
+      <span id="hud-quest"></span>
+    </div>
     <div id="dialog"><img id="dialog-face" alt=""><span id="dialog-text"></span></div>
     <div id="battle-ui">
       <div id="battle-log"></div>
@@ -145,6 +206,11 @@
   <div id="panel-body"></div>
 </div></div>
 
+<div id="confirm"><div id="confirm-box">
+  <div id="confirm-title"></div>
+  <div id="confirm-body"></div>
+</div></div>
+
 <div id="toast"></div>
 
 <div id="illust">
@@ -153,9 +219,11 @@
   <div id="illust-hint">点击继续</div>
 </div>
 
+<div id="scr-splash"><div class="hint">点击任意处进入</div></div>
+
 <div id="scr-title"><div id="scr-title-box">
   <h1>桃园三国</h1>
-  <div class="sub">全十一章 · 桃园三国（数据存电脑服务端）</div>
+  <div class="sub">全十一章 · 桃园三国（三档存档 · 存本机浏览器）</div>
   <button id="btn-new">新的征途</button>
   <button id="btn-load" class="ghost">继续征途（读档）</button>
   <div class="hint">触屏：十字键移动 · A 对话/确认 · B 菜单<br>

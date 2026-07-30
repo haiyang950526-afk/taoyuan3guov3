@@ -17,7 +17,7 @@ if (typeof CanvasRenderingContext2D !== "undefined" &&
 }
 
 // ---------------- 全局状态 ----------------
-const TILE = 32, VW = 15, VH = 11;
+const TILE = 32, VW = 15, VH = 14;
 let cv, ctx;
 
 const S = {
@@ -148,14 +148,13 @@ function toast(msg) {
 }
 
 // ---------------- 画布 / 相机 ----------------
-// 画布宽度按"窗口宽、HUD+按键+中部对话区剩余高度"双约束，再整体缩 8%
-// （手机竖屏留给对话/战斗UI的空间不足时自动收窄画布）
-const MID_MIN = 150;  // 中部区最小高度（与 index.html #mid 的 min-height 一致）
+// 一体化布局：对话框/战斗UI 浮在画面上，不再预留中部区。
+// 画布按 15:14 同时受宽度与可用高度约束（可用高度 = 屏高 − HUD − 按键区），再整体缩 8%
 function resize() {
   const hudH = $("hud") ? $("hud").offsetHeight : 32;
   const dpadShown = $("dpad") && $("dpad").classList.contains("show");
   const dpadH = dpadShown ? $("dpad").offsetHeight : 0;
-  const availH = window.innerHeight - hudH - dpadH - MID_MIN;
+  const availH = window.innerHeight - hudH - dpadH;
   let maxW = Math.min(window.innerWidth, 520);
   if (availH > 160) maxW = Math.min(maxW, Math.floor(availH * VW / VH));
   maxW = Math.floor(maxW * 0.92);
@@ -171,9 +170,11 @@ function resize() {
 function cam() {
   const g = mapDef().grid;
   const mw = g[0].length, mh = g.length;
+  // 对话框/战斗UI 浮在画面底部时，视野向下偏约 3 格，人物保持在浮层上方不被遮挡
+  const biasY = (S.mode === "dialog" || S.mode === "battle") ? 3 : 0;
   return {
     x: Math.max(0, Math.min(S.px - (VW >> 1), mw - VW)),
-    y: Math.max(0, Math.min(S.py - (VH >> 1), mh - VH)),
+    y: Math.max(0, Math.min(S.py - (VH >> 1) + biasY, mh - VH)),
   };
 }
 
@@ -209,11 +210,25 @@ function pressA() {
   else if (S.mode === "minigame") mgFire();
 }
 function pressB() {
+  // 确认弹窗开着时，Esc/ B 只关弹窗本身（逐层退回）
+  if ($("confirm") && $("confirm").classList.contains("show")) { hide("confirm"); return; }
   if (S.mode === "map") openMenu();
   else if (S.mode === "menu" || S.mode === "shop") closePanel();
 }
 
+// 开屏页：任意点击/按键跳过，进入标题页
+function dismissSplash() {
+  if (!$("scr-splash").classList.contains("show")) return;
+  hide("scr-splash");
+  show("scr-title");
+}
+
 document.addEventListener("keydown", e => {
+  if ($("scr-splash") && $("scr-splash").classList.contains("show")) {
+    dismissSplash();
+    e.preventDefault();
+    return;
+  }
   if (S.mode === "battle") return;
   if (KEYMAP[e.key]) { heldKeys.add(e.key); updateHeld(); e.preventDefault(); }
   else if (e.key === "Enter" || e.key === "z") pressA();
@@ -354,21 +369,29 @@ window.addEventListener("DOMContentLoaded", () => {
     advanceIllust();
   }, { passive: false });
 
+  // 开屏页：点击/触摸进入标题页（拦截默认行为防双击缩放）
+  $("scr-splash").addEventListener("click", dismissSplash);
+  $("scr-splash").addEventListener("touchend", e => {
+    e.preventDefault();
+    dismissSplash();
+  }, { passive: false });
+
   $("btn-new").addEventListener("click", () => {
     newGame();
     hide("scr-title");
     say(TEXT.ch00.intro);
   });
-  $("btn-load").addEventListener("click", async () => {
-    const r = await loadGame();
-    if (r === "ok") { hide("scr-title"); toast("读档成功"); }
-    else if (r === "incompatible") toast("旧版本存档不兼容，请开始新游戏");
-    else toast("没有找到存档");
+  // 继续征途：弹出三档位选择（ui.js openSlotPicker）；返回时只需关掉面板
+  $("btn-load").addEventListener("click", () => {
+    openSlotPicker("load", {
+      onBack: () => hide("panel"),
+      onLoaded: () => hide("scr-title"),
+    });
   });
 
   if ("ontouchstart" in window) show("dpad");
   resize();  // 按键区显示后重新计算画布尺寸
-  show("scr-title");
+  show("scr-splash");
   loop();
 });
 

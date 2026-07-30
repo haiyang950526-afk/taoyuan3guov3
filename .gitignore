@@ -4,3 +4,9 @@ __pycache__/
 .venv/
 three_kingdoms_tileset_v4_strict_tile_units/
 three_kingdoms_characteristics/
+three_kingdoms_otherUI/
+tools/_zoom/
+tools/_smoke_*.png
+tools/_ui_*.py
+commit_out.txt
+push_out.txt

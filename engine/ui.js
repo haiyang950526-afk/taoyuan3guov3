@@ -79,6 +79,98 @@ function line(text) {
   return d;
 }
 
+// ---------------- 通用确认弹窗 ----------------
+// confirmBox({title, lines, okText, cancelText, onOk, onCancel})
+// 独立 #confirm 层（z-index 高于 #panel），可叠在面板之上；取消只关闭自身，逐层退回
+function confirmBox(opt) {
+  $("confirm-title").textContent = opt.title || "确认";
+  const body = $("confirm-body");
+  body.innerHTML = "";
+  (opt.lines || []).forEach(t => body.appendChild(line(t)));
+  body.appendChild(btn(opt.okText || "确认", () => {
+    hide("confirm");
+    if (opt.onOk) opt.onOk();
+  }));
+  body.appendChild(btn(opt.cancelText || "取消", () => {
+    hide("confirm");
+    if (opt.onCancel) opt.onCancel();
+  }, "ghost"));
+  show("confirm");
+}
+
+// ---------------- 存档档位 ----------------
+function fmtSaveTs(ts) {
+  if (!ts) return "时间未知";
+  const d = new Date(ts * 1000);
+  const p = n => (n < 10 ? "0" : "") + n;
+  return (d.getMonth() + 1) + "-" + p(d.getDate()) + " " +
+    p(d.getHours()) + ":" + p(d.getMinutes());
+}
+// 档位卡片文案：第X章 · 地图名 · 队长名 LvN · 存档时间
+function slotDesc(meta) {
+  return meta.chapter + " · " + meta.mapName + " · " +
+    meta.leaderName + " Lv" + meta.leaderLv + " · " + fmtSaveTs(meta.ts);
+}
+
+async function doSaveSlot(meta, mode, opt) {
+  const ok = await saveGame(meta.slot);
+  toast(ok ? "✔ 已保存到 档位 " + meta.slot : "✖ 存档失败：浏览器存储不可用");
+  if (ok) openSlotPicker(mode, opt);   // 刷新档位信息
+}
+
+// 档位选择层。mode: "load" | "save"
+// opt.onBack：返回回调（逐层退回，默认 closePanel）；opt.onLoaded：读档成功后的额外回调
+function openSlotPicker(mode, opt) {
+  opt = opt || {};
+  openPanel(mode === "load" ? "读取存档" : "保存存档", body => {
+    body.appendChild(line(mode === "load" ? "选择要读取的档位：" : "选择要保存到的档位："));
+    for (const meta of listSlots()) {
+      if (meta.empty) {
+        if (mode === "load") {
+          const b = btn("档位 " + meta.slot + "：—— 空档位 ——", () => {});
+          b.disabled = true;   // 空档位置灰不可点
+          body.appendChild(b);
+        } else {
+          // 空槽直接写入
+          body.appendChild(btn("档位 " + meta.slot + "：—— 空档位 ——",
+            () => doSaveSlot(meta, mode, opt)));
+        }
+        continue;
+      }
+      body.appendChild(btn("档位 " + meta.slot + "：" + slotDesc(meta), () => {
+        if (mode === "load") {
+          confirmBox({
+            title: "读取存档",
+            lines: ["读取此档？将回到：", slotDesc(meta), "当前未保存的进度将丢失。"],
+            okText: "确认读取",
+            onOk: async () => {
+              const r = await loadGame(meta.slot);
+              if (r === "ok") {
+                hide("panel");
+                if (opt.onLoaded) opt.onLoaded();
+                toast("读档成功");
+              } else if (r === "incompatible") toast("旧版本存档不兼容，请开始新游戏");
+              else toast("没有找到存档");
+            },
+          });
+        } else {
+          // 已占用槽：覆盖前确认
+          confirmBox({
+            title: "覆盖存档",
+            lines: ["该档位已有记录：", slotDesc(meta), "覆盖后旧档无法恢复。"],
+            okText: "确认覆盖",
+            onOk: () => doSaveSlot(meta, mode, opt),
+          });
+        }
+      }));
+    }
+    body.appendChild(btn("返回", () => {
+      if (opt.onBack) opt.onBack();
+      else closePanel();
+    }, "ghost"));
+  });
+}
+
 // ---------------- 商店 / 旅店 ----------------
 function openShop(shopId) {
   S.mode = "shop";
@@ -543,17 +635,8 @@ function openMenu() {
       if (!S.flags.sys_dex) { toast("图鉴尚未开放（第七章起）"); return; }
       showDex();
     }));
-    body.appendChild(btn("存档", async () => {
-      toast("存档中……");
-      const ok = await saveGame();
-      toast(ok ? "✔ 存档成功（已存到本机浏览器）" : "✖ 存档失败：浏览器存储不可用");
-    }));
-    body.appendChild(btn("读档", async () => {
-      const r = await loadGame();
-      if (r === "ok") { toast("读档成功"); closePanel(); }
-      else if (r === "incompatible") toast("旧版本存档不兼容，请开始新游戏");
-      else toast("没有找到存档");
-    }));
+    body.appendChild(btn("存档", () => openSlotPicker("save", { onBack: openMenu })));
+    body.appendChild(btn("读档", () => openSlotPicker("load", { onBack: openMenu })));
     body.appendChild(btn("关闭", closePanel, "ghost"));
   });
 }
