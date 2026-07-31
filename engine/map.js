@@ -643,6 +643,34 @@ function drawTileImage(ch, px, py, gx, gy) {
   return false;
 }
 
+// ---------------- 主线任务感叹号 ----------------
+// NPC 有"推进主线旗标"的可触发分支、且该任务处于早期（未接取/开篇）时，左上角显示黄色"!"
+function npcQuestMark(n) {
+  if (!n.branches) return false;
+  const EARLY = { notStarted: 1, start: 1, accepted: 1 };
+  for (const b of n.branches) {
+    if (!b.if || !b.do) continue;
+    for (const a of b.do) {
+      const bag = a.set || a.inc;
+      if (!bag) continue;
+      for (const k in bag) {
+        if (!/^q\d+$/.test(k)) continue;
+        const v = S.flags[k] === undefined ? "notStarted" : S.flags[k];
+        if (EARLY[v] && evalCond(b.if)) return true;
+      }
+    }
+  }
+  return false;
+}
+// 黄色"!"徽标（5×8，不压 NPC，画风与 UI 金色一致）
+function drawQuestMark(x, y) {
+  ctx.fillStyle = "#2a1f12";              // 描边
+  ctx.fillRect(x, y, 5, 8);
+  ctx.fillStyle = "#ffd166";              // UI 金
+  ctx.fillRect(x + 1, y + 1, 3, 4);       // 竖杠
+  ctx.fillRect(x + 1, y + 6, 3, 2);       // 点
+}
+
 function draw() {
   if (S.mode === "title") return;
   if (S.mode === "battle") { drawBattle(); return; }
@@ -829,14 +857,16 @@ function draw() {
   // NPC（角色贴图优先：普通 32x32 一格；Boss 64x64 原大、底部居中于本格；未命中回退点阵）
   for (const n of mapDef().npcs) {
     if (!npcVisible(n)) continue;
+    const nx = (n.x - c.x) * TILE, ny = (n.y - c.y) * TILE;
     const art = charArtImg(n.name, 0);
     if (art) {
-      const nx = (n.x - c.x) * TILE, ny = (n.y - c.y) * TILE;
       if (art.kind === "boss") ctx.drawImage(art.img, nx - 16, ny - 32, 64, 64);
       else ctx.drawImage(art.img, nx, ny, TILE, TILE);
-      continue;
+    } else {
+      drawMapSprite(nx, ny, npcLook(n), { x: 0, y: 1 });
     }
-    drawMapSprite((n.x - c.x) * TILE, (n.y - c.y) * TILE, npcLook(n), { x: 0, y: 1 });
+    // 主线任务未接取：左上角黄色"!"（悬于格子上沿，不遮 NPC）
+    if (npcQuestMark(n)) drawQuestMark(nx - 1, ny - 7);
   }
   // 玩家（补间）
   let rx = S.px, ry = S.py;

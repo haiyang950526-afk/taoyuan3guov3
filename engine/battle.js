@@ -876,6 +876,12 @@ function battleWin(survived) {
         if (Math.random() < d.rate) loot[d.item] = (loot[d.item] || 0) + 1;
       }
     }
+    // 渡魂记：泗水首战曹军，若木牌在身，必掉残破黄纸符（一次性）
+    if (!S.flags.dh_sishui_paper && S.map === "ch01_sishui" && S.inv["焦黑的木牌"] > 0) {
+      loot["黄纸符"] = (loot["黄纸符"] || 0) + 1;
+      S.flags.dh_sishui_paper = true;
+      blog("（怀中木牌微微发烫——从敌军身上搜出一张残破的黄纸符。）");
+    }
     const ids = Object.keys(loot);
     if (ids.length) {
       for (const id of ids) {
