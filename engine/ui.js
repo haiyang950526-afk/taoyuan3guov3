@@ -579,6 +579,7 @@ function askChoice(ask, done) {
   openPanel(ask.title || "如何应答？", body => {
     if (ask.say) body.appendChild(line(resolveText(ask.say).join("　")));
     for (const op of ask.options) {
+      if (op.if && !evalCond(op.if)) continue;   // 选项条件显隐（假降/共情等）
       body.appendChild(btn(op.label, () => {
         hide("panel");
         S.mode = "map";

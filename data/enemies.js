@@ -345,6 +345,8 @@ const BATTLE_GROUPS = {
                     fire: { round: 2, say: "ch08.fireSay", dmg: 1000 } },
   ch08_wulin:     { enemies: ["乌林残军", "乌林残军", "水军校尉"], boss: false,
                     pre: "ch08.wulinPre" },
+  ch08_huarong1:  { waves: [["华容曹兵", "华容曹兵"], ["华容曹兵", "华容曹兵", "华容曹兵"]],
+                    boss: false, pre: "ch08.interceptPre" },   // 截击残军（12-A）
   ch08_huarong:   { enemies: ["曹操亲卫队", "华容曹兵", "华容曹兵"], boss: true,
                     script: [{ round: 1, say: ["（败军死战，且行且退……）"],
                       effect: { atkMult: 0.7 } },

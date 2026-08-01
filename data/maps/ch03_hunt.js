@@ -23,6 +23,17 @@ MAPS["ch03_hunt"] = {
   npcs: [],
   chests: [],
   triggers: [
+    // 华容道伏笔 · 许田围猎（12-A 可选）：拦 / 不拦，都记下这口刀
+    { x: 10, y: 6, if: { all: [{ flag: "q3", is: "audience" }, { flag: "hr_xutian", not: 1 }] },
+      do: [{ say: "ch03.xutianAsk" },
+           { ask: { title: "关羽按刀欲起——", options: [
+             { label: "（刘备死死按住）二弟不可！",
+               say: "ch03.xutianStop",
+               do: [{ set: { hr_xutian: 1 } }] },
+             { label: "（不拦）看他能怎样！",
+               say: "ch03.xutianGo",
+               do: [{ set: { hr_xutian: 1 } }] },
+           ] } }] },
     // 围猎小游戏（20 秒射鹿，分数换赏金）
     { x: 11, y: 6, if: { flag: "q3", is: "audience" },
       do: [{ minigame: { type: "hunt" } },

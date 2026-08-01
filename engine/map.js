@@ -85,6 +85,8 @@ function runActions(list, done, i) {
     } else next();
   }
   else if (a.gold) { S.gold += a.gold; hud(); next(); }
+  // 条件动作：{if: cond, do: [...]} —— 分支演出/差分台词（许田闪回、糜芳两版等）
+  else if (a.if) { if (evalCond(a.if)) runActions(a.do, next); else next(); }
   else if (a.give) { addItem(a.give[0], a.give[1] || 1); next(); }
   // 扣道具（借马/筹药等）：{take: [物品名, 数量]}
   else if (a.take) {

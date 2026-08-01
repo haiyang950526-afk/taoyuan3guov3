@@ -56,6 +56,7 @@ const ITEMS = {
   "青囊书":   { type: "acc", int: 6, price: 8000, relic: true, desc: "名品：华佗毕生医术。智+6（唯一）" },
   "白羽扇":   { type: "weapon", arm: "fan", atk: 10, int: 25, price: 30000, nosell: true, relic: true, desc: "名品：孔明出山前旧扇。攻+10 智+25（扇系，唯一）" },
   "铜雀":     { type: "acc", luck: 6, price: 9000, relic: true, desc: "名品：邺城新铸铜雀。运+6（唯一）" },
+  "孟德手书": { type: "acc", int: 4, price: 9000, relic: true, desc: "名品：华容道曹操掷谢的手书。智+4（与铜雀二选一，唯一）" },
   "的卢马":   { type: "acc", spd: 5, price: 5000, relic: true, desc: "名品：的卢马。速+5，檀溪一跃三丈的传说之驹（唯一）" },
   "凤雏手卷": { type: "acc", int: 2, price: 8000, relic: true, desc: "名品：庞统军争手记。智+2，军师计策伤害+10%（与六韬残页可共存，唯一）" },
   "春秋左氏传": { type: "acc", int: 4, atk: 2, price: 4000, relic: true, desc: "名品：关云长夜读之书。智+4 攻+2（唯一）" },
