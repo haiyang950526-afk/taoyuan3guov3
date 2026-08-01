@@ -45,6 +45,16 @@ MAPS["ch10_chengdu"] = {
     { id: "tavern", x: 16, y: 7,  color: "#b08a4a", name: "酒馆老板", facility: "tavern" },
     // 训练所：城东南露天校场（编成所旁）
     { id: "dojo",   x: 17, y: 13, color: "#8a7a6a", name: "教头", facility: "dojo" },
+    // 麦城篇入口（10 文档）：定军山之后，荆州信使来报，POV 切关羽
+    { id: "mc_start", x: 11, y: 15, color: "#9aa4b8", name: "荆州信使",
+      appearIf: { all: [{ flag: "q10", is: "done" }, { flag: "q10m", not: "done" }] },
+      branches: [
+        { say: "ch10m.intro",
+          do: [{ partySwap: { lv: 48, members: ["关羽", "周仓", "关平", "廖化"] } },
+               { set: { q10m: "start" } },
+               { warp: { map: "ch10m_fanying", x: 8, y: 7 } },
+               { toast: "间章 · 麦城悲歌（临时队伍：关羽/周仓/关平/廖化）" }] },
+      ] },
     // 开放式选择 · 庞统伤退（12 文档 B-5）：送别 + ch11 病榻探看
     { id: "pt_home", x: 5, y: 7, color: "#9a7ab8", name: "庞统",
       appearIf: { flag: "pt_alive", exists: true },

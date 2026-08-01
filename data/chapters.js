@@ -215,6 +215,20 @@ const CHAPTERS = {
       done: "进位汉中王。本章已完。",
     },
   },
+  ch10m: {
+    name: "间章 · 麦城悲歌",
+    maps: ["ch10m_fanying", "ch10m_maicheng", "ch10m_shangyong", "ch10m_linju"],
+    start: { map: "ch10m_fanying", x: 8, y: 8 },
+    home: { map: "ch10m_maicheng", x: 7, y: 7 },
+    questFlag: "q10m",
+    questText: {
+      start: "樊城大捷在即：击破于禁七军。",
+      node1: "威震华夏：江东遣使求婚，帐中诸务，步步留心。",
+      maicheng: "荆州已失：困守麦城，遣使上庸求援。",
+      back: "援否已分：当夜突围！（大路正战 / 小路伏击）",
+      done: "麦城已毕……（五结局已收其一）",
+    },
+  },
   ch11: {
     name: "终章 · 出师未捷",
     maps: ["ch11_hanzhong", "ch11_tianshui", "ch11_jieting", "ch11_qishan", "ch11_wuzhang", "ch11_luoyang",

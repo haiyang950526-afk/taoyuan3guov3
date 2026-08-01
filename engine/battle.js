@@ -676,6 +676,7 @@ function bossRoundHooks() {
       if (sc.say) resolveText(sc.say).forEach(l => blog(l));
       const ef = sc.effect || {};
       if (ef.partySpdMult) B.partySpdMult = { v: ef.partySpdMult, until: r + (ef.dur || 99) - 1 };
+      if (ef.partyAtkMult) for (const h of aliveHeroes()) h.atkBuff = (h.atkBuff || 1) * ef.partyAtkMult;   // 如"虽退不乱"
       for (const t of aliveEnemies()) {
         if (ef.bossOnly && !t.boss) continue;
         if (ef.atkMult) t.atkMult *= ef.atkMult;

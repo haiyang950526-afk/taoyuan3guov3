@@ -29,9 +29,8 @@ MAPS["ch10_dingjun"] = {
       appearIf: { flag: "q10", is: "chengdu" },
       onWin: [{ say: "ch10.dingjunDone" }, { say: "ch10.chapterEnd" },
               { set: { q10: "done" } }, { say: "ch11.intro" },
-              { chapter: "ch11" }, { set: { q11: "start" } },
-              { warp: { map: "ch11_hanzhong", x: 10, y: 16 } },
-              { toast: "终章 · 出师未捷" }] },
+              { warp: { map: "ch10_chengdu", x: 10, y: 16 } },
+              { toast: "回成都休整——北方似乎有信使候着" }] },
   ],
   chests: [
     { x: 2, y: 2, id: "d1", items: { "精铁": 2 } },

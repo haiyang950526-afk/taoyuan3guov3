@@ -45,6 +45,35 @@ const HERO_TPL = {
     growth: { hp: "B", mp: "D", atk: "B", int: "D", def: "B", spd: "C", luck: "C" },
     learn: {},
   },
+  // —— 麦城篇临时英雄（10 文档） ——
+  "关平": {
+    color: "#c8a84a", arms: ["blade"],
+    look: { head: "helmet", weapon: "blade" },
+    base: { hp: 72, mp: 10, atk: 16, int: 5, def: 11, spd: 10, luck: 7 },
+    growth: { hp: "A", mp: "D", atk: "A", int: "D", def: "B", spd: "B", luck: "B" },
+    learn: {},
+  },
+  "廖化": {
+    color: "#8a7a5a", arms: ["blade"],
+    look: { head: "bandana", beard: "small", weapon: "blade" },
+    base: { hp: 70, mp: 12, atk: 13, int: 8, def: 12, spd: 9, luck: 8 },
+    growth: { hp: "B", mp: "C", atk: "B", int: "C", def: "B", spd: "B", luck: "B" },
+    learn: {},
+  },
+  "王甫": {
+    color: "#7a8ab8", arms: ["fan"],
+    look: { head: "lunjin", weapon: "fan" },
+    base: { hp: 55, mp: 30, atk: 6, int: 16, def: 8, spd: 9, luck: 7 },
+    growth: { hp: "C", mp: "A", atk: "D", int: "A", def: "C", spd: "B", luck: "B" },
+    learn: {},
+  },
+  "赵累": {
+    color: "#6a7a6a", arms: ["blade"],
+    look: { head: "helmet", weapon: "blade" },
+    base: { hp: 66, mp: 14, atk: 13, int: 10, def: 12, spd: 9, luck: 7 },
+    growth: { hp: "B", mp: "C", atk: "B", int: "C", def: "B", spd: "B", luck: "B" },
+    learn: {},
+  },
   // 赵云：第五章加入，常胜将军（高速高爆发）
   "赵云": {
     color: "#7ab8e8", arms: ["pike"],

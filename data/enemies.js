@@ -187,6 +187,19 @@ const ENEMIES = {
                 stanceCycle: true, // 巧变, skill: "zhengshu",
                 drops: [{ item: "龙鳞铠", rate: 1 }] },
 
+  // —— 麦城篇（10 文档） ——
+  "于禁(樊城)": { lv: 48, hp: 5200, atk: 86, int: 20, def: 44, spd: 19, luck: 12, gold: [9000, 9000], color: "#3a6a4a", ai: "strategist", boss: true, skill: "zhengshu",
+                allyAura: { stat: "def", mult: 1.5 },
+                drops: [{ item: "玄铁甲", rate: 1 }] },
+  "徐晃":     { lv: 50, hp: 5400, atk: 94, int: 14, def: 48, spd: 21, luck: 12, gold: [9750, 9750], color: "#4a4a3a", ai: "heavy", boss: true,
+                drops: [{ item: "龙泉剑", rate: 1 }] },
+  "潘璋":     { lv: 50, hp: 3200, atk: 90, int: 12, def: 44, spd: 22, luck: 11, gold: [6000, 6000], color: "#5a3a4a", ai: "brute", boss: true,
+                drops: [{ item: "金疮药", rate: 1 }] },
+  "朱然":     { lv: 50, hp: 3000, atk: 84, int: 24, def: 42, spd: 22, luck: 13, gold: [6000, 6000], color: "#3a4a6a", ai: "strategist", boss: true, skill: "zhengshu",
+                drops: [{ item: "还魂丹", rate: 1 }] },
+  "马忠":     { lv: 49, hp: 3400, atk: 88, int: 12, def: 42, spd: 25, luck: 14, gold: [6000, 6000], color: "#4a3a3a", ai: "archer", boss: true,
+                drops: [{ item: "铁脊弓", rate: 1 }] },
+
   // —— 第十一章 · 北伐（lv47-55） ——
   "魏军先锋": { lv: 47, hp: 860, atk: 108, int: 14, def: 52, spd: 21, luck: 9, gold: [1188, 1500], color: "#5a6a8a", ai: "brute",
                 drops: [{ item: "金疮药", rate: 0.15 }, { item: "还魂丹", rate: 0.08 }, { item: "龙泉剑", rate: 0.03 }, { item: "龙鳞盔", rate: 0.03 }] },
@@ -391,6 +404,21 @@ const BATTLE_GROUPS = {
                     chain: ["ch10_zhanghe"] },
   ch10_zhanghe:   { enemies: ["张郃", "蜀军名将"], boss: true,
                     pre: "ch10.zhanghePre", half: "ch10.zhangrenHalf" },
+  // —— 麦城篇（10 文档） ——
+  ch10m_fancheng: { waves: [["曹军先锋", "曹军精骑", "曹军先锋"], ["于禁(樊城)", "曹军都伯", "曹军虎卫"]],
+                    boss: true, pre: "ch10m.fanchengPre", half: "ch10m.fanchengHalf",
+                    fire: { round: 3, say: "ch10m.waterAttack", dmg: 1500 } },   // 水淹七军
+  ch10m_xuhuang:  { enemies: ["徐晃", "曹军虎卫", "曹军虎卫"], boss: true,
+                    pre: "ch10m.xuhuangPre", half: "ch10m.xuhuangHalf" },
+  ch10m_tuwei_big1: { enemies: ["荆南兵", "荆南弓手", "荆南兵"], boss: false,
+                    chain: ["ch10m_tuwei_big2"] },
+  ch10m_tuwei_big2: { enemies: ["潘璋", "朱然"], boss: true,
+                    pre: "ch10m.tuweiBigPre" },
+  ch10m_tuwei_small: { enemies: ["马忠", "荆南弓手", "荆南弓手"], boss: true,
+                    scriptedLoss: true, pre: "ch10m.tuweiSmallPre" },   // 历史线：绊马索
+  ch10m_tuwei_small2: { enemies: ["马忠", "荆南弓手"], boss: true,
+                    pre: "ch10m.tuweiSmallPre2" },   // 刘封援军侧击，可胜
+
   // —— 第十一章 ——
   ch11_first:     { enemies: ["魏军先锋", "魏军先锋", "魏军先锋"], boss: false,
                     pre: "ch11.firstPre" },
