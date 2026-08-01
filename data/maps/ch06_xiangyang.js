@@ -47,7 +47,7 @@ MAPS["ch06_xiangyang"] = {
       branches: [
         { say: "ch06.feast",
           do: [{ set: { q6: "tanxi" } },
-               { warp: { map: "ch06_tunnel", x: 1, y: 9 } },
+               { warp: { map: "ch06_tunnel", x: 2, y: 9 } },
                { toast: "蔡瑁伏兵四起——从地道突围，往檀溪渡口去！" }] },
       ] },
   ],
@@ -56,7 +56,7 @@ MAPS["ch06_xiangyang"] = {
     { x: 10, y: 0,  to: { map: "ch06_field", x: 10, y: 16 } },
     { x: 11, y: 0,  to: { map: "ch06_field", x: 10, y: 16 } },
     // 檀溪脱出期间：回地道入口（宴席突围后若从西口误出襄阳，可由此重返地道，否则卡死）
-    { x: 10, y: 3, if: { flag: "q6", is: "tanxi" }, to: { map: "ch06_tunnel", x: 1, y: 9 } },
+    { x: 10, y: 3, if: { flag: "q6", is: "tanxi" }, to: { map: "ch06_tunnel", x: 2, y: 9 } },
     // 室内下钻（朝门才进，路过不触发）
     { x: 3, y: 5, face: [0, -1], to: { map: "ch06b_inn_in", x: 7, y: 8 } },
     { x: 4, y: 5, face: [0, -1], to: { map: "ch06b_inn_in", x: 7, y: 8 } },

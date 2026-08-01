@@ -27,7 +27,7 @@ MAPS["ch06_tunnel"] = {
   ],
   transitions: [
     // 西口：回襄阳（宴席已散，不宜久留）
-    { x: 1, y: 9, to: { map: "ch06_xiangyang", x: 10, y: 3 } },
+    { x: 1, y: 9, to: { map: "ch06_xiangyang", x: 10, y: 4 } },
     // 东口：出地道往檀溪渡口
     { x: 16, y: 9, to: { map: "ch06_tanxi", x: 1, y: 6 } },
   ],
