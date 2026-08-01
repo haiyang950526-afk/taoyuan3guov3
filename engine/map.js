@@ -45,9 +45,11 @@ const TILE_META = {
 };
 
 // ---------------- 条件 / 文本 / 动作 ----------------
-// 条件：{flag, is} | {flag, not} | {flag, in:[...]} | {flag, exists:true}
+// 条件：{all:[...]} 与运算 | {hasItem:[id,n]} 背包检测 | {flag, is} | {flag, not} | {flag, in:[...]} | {flag, exists:true}
 function evalCond(cond) {
   if (!cond) return true;
+  if (cond.all) return cond.all.every(c => evalCond(c));
+  if (cond.hasItem) return (S.inv[cond.hasItem[0]] || 0) >= (cond.hasItem[1] || 1);
   const v = S.flags[cond.flag];
   if (cond.exists) return v !== undefined;
   if (cond.is !== undefined) return v === cond.is;
@@ -84,6 +86,23 @@ function runActions(list, done, i) {
   }
   else if (a.gold) { S.gold += a.gold; hud(); next(); }
   else if (a.give) { addItem(a.give[0], a.give[1] || 1); next(); }
+  // 扣道具（借马/筹药等）：{take: [物品名, 数量]}
+  else if (a.take) {
+    S.inv[a.take[0]] = Math.max(0, (S.inv[a.take[0]] || 0) - (a.take[1] || 1));
+    hud(); next();
+  }
+  // 永久属性提升（华容道"斩心魔"等）：{statUp: {hero, stat, by}}，经 statBonus 持久化
+  else if (a.statUp) {
+    const su = a.statUp;
+    const h = S.party.concat(S.bench).find(x => x.key === su.hero);
+    if (h) {
+      (h.statBonus = h.statBonus || {})[su.stat] = (h.statBonus[su.stat] || 0) + su.by;
+      recalcHero(h);
+      const NAMES = { hp: "HP", mp: "MP", atk: "攻击", int: "智力", def: "防御", spd: "速度", luck: "时运" };
+      toast(su.hero + " " + (NAMES[su.stat] || su.stat) + " 提升了 " + su.by + "！");
+    }
+    next();
+  }
   else if (a.giveEquip) { addEquipInst(a.giveEquip); toast("获得装备：" + a.giveEquip + "（已入仓库）"); next(); }
   // 终章谢幕：先放五丈原谢幕插画，再回标题页
   else if (a.theEnd) {

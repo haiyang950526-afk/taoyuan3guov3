@@ -32,7 +32,7 @@ function recalcHero(h) {
   var old = h.stats;
   var st = {};
   ["hp", "mp", "atk", "int", "def", "spd", "luck"].forEach(function (k) {
-    st[k] = statAt(tpl, k, h.lv);
+    st[k] = statAt(tpl, k, h.lv) + ((h.statBonus || {})[k] || 0);   // statUp 永久加成
   });
   h.stats = st;
   h.maxHp = st.hp; h.maxMp = st.mp;

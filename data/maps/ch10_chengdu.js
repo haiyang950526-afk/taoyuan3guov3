@@ -45,6 +45,22 @@ MAPS["ch10_chengdu"] = {
     { id: "tavern", x: 16, y: 7,  color: "#b08a4a", name: "酒馆老板", facility: "tavern" },
     // 训练所：城东南露天校场（编成所旁）
     { id: "dojo",   x: 17, y: 13, color: "#8a7a6a", name: "教头", facility: "dojo" },
+    // 开放式选择 · 庞统伤退（12 文档 B-5）：送别 + ch11 病榻探看
+    { id: "pt_home", x: 5, y: 7, color: "#9a7ab8", name: "庞统",
+      appearIf: { flag: "pt_alive", exists: true },
+      branches: [
+        { if: { all: [{ flag: "q11", exists: true }, { flag: "mt_phoenix", not: "done" }] },
+          say: "ch10.ptCh11Alive",
+          do: [{ giveEquip: "凤雏手卷" }, { set: { relic_fengchu: true } },
+               { set: { mt_phoenix: "done" } }] },
+        { say: "ch10.ptFarewell" },
+      ] },
+    { id: "pt_bed", x: 5, y: 7, color: "#9a7ab8", name: "庞统",
+      appearIf: { flag: "pt_coma", exists: true },
+      branches: [
+        { if: { flag: "q11", exists: true }, say: "ch10.ptCh11Coma" },
+        { say: "ch10.ptFarewellComa" },
+      ] },
     { id: "v1",     x: 7,  y: 7,  color: "#4f8cff", name: "市民",
       lines: ["天府之国，总算迎来了明主。", "铁匠铺能强化兵器，就是精铁难得。"] },
     // 联动彩蛋 A6 · 兜售秘籍：巷口精瘦汉子与吐槽路人

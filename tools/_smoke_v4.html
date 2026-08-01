@@ -1,20 +1,260 @@
 <!DOCTYPE html>
-<html><head><meta charset="utf-8"><base href="../"><title>smoke</title></head>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><base href="../">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<!-- 开屏图双保险：HTML 解析阶段就拉取 splash（JS 四级预载的 T0 见 engine/core.js） -->
+<link rel="preload" as="image" href="assets/ui/splash.png" fetchpriority="high">
+<title>桃园三国 · 徐州篇</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    /* 全局禁文本选择/长按呼出（手机长按十字键、连点按钮不再选中文字） */
+    user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+  html, body { height: 100%; background: #0d1120; color: #e8ecf4;
+    font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; overflow: hidden; }
+  /* 纵向条带布局（互不重叠）：HUD条(固定两行) → 主屏幕(canvas) → 通知条(对话/战斗日志,固定占位)
+     → 战斗指令区(仅战斗时出现) → 底部按键区。画布尺寸由 core.js resize() 按 15:14 计算。 */
+  #app { height: 100%; height: 100dvh; display: flex; flex-direction: column;
+    align-items: center; overflow: hidden; }
+  #screen { position: relative; flex: 0 0 auto; }
+  canvas { display: block; background: #0d1120; }
+  /* 游戏画面区禁止双击缩放/滚动手势（按钮区保持全局 manipulation；日志/指令可纵向滚动） */
+  #screen, canvas, #dialog, #battle-ui { touch-action: none; }
+  #battle-log, #battle-cmd { touch-action: pan-y; }
+
+  /* 像素 UI 素材统一不缩放模糊（9-slice 切边实测值见各处注释） */
+  #hud, #dialog, #toast, #panel-box, #panel-title, #confirm-box, #confirm-title,
+  #panel-box button, #battle-cmd button, #scr-title-box button, #confirm-box button,
+  .pad-cluster, #pad-a, #pad-b, #scr-title, #scr-splash { image-rendering: pixelated; }
+
+  /* HUD：主屏幕上方独立的条，固定两行高、内容垂直居中；
+     顶条 top_hint_bar_9slice.png（96×24，实测边 4px，slice 取 5） */
+  #hud { flex: 0 0 auto; width: 100%; max-width: 520px; height: 48px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 4px 12px; font-size: 13px; color: #f0e6cc;
+    border: 5px solid transparent;
+    border-image: url("assets/ui/top_hint_bar_9slice.png") 5 fill; }
+  #hud-quest { color: #ffd166; font-size: 12px; max-width: 55%; text-align: right;
+    line-height: 1.25; max-height: 2.5em; overflow: hidden; }
+
+  /* 提示条 toast_9slice.png（96×32，实测边 5px，slice 取 6）：
+     定位在主屏幕内部上部（top 由 core.js toast() 按画布位置动态计算），
+     fixed + 高 z-index 保证面板/商店打开时提示仍可见 */
+  #toast { position: fixed; top: 56px; left: 50%; transform: translateX(-50%);
+    z-index: 99; max-width: 92%;
+    border: 6px solid transparent;
+    border-image: url("assets/ui/toast_9slice.png") 6 fill;
+    padding: 6px 16px; font-size: 14px; color: #f5e9c8;
+    opacity: 0; transition: opacity .25s; pointer-events: none; }
+  #toast.show { opacity: 1; }
+
+  /* 通知条槽位：主屏幕下方独立条，固定高度（约两行文本+少量 padding；
+     无对话时保留占位，露出页面底色）；宽度由 core.js resize() 设为与画布同宽。
+     地图模式放 #dialog，战斗模式放 #battle-ui（日志+指令同槽） */
+  #slot { flex: 0 0 auto; width: 100%; max-width: 520px; height: 88px; }
+
+  /* 对话框：占满通知条槽位；dialog_wood_gold_clean_9slice.png（48×48，实测边 7px，slice 取 8） */
+  #dialog { width: 100%; height: 100%;
+    border: 8px solid transparent;
+    border-image: url("assets/ui/dialog_wood_gold_clean_9slice.png") 8 fill;
+    padding: 8px 12px; font-size: 16px; line-height: 1.7; color: #3a2a16;
+    display: none; cursor: pointer; user-select: none; align-items: center; gap: 12px; }
+  #dialog.show { display: flex; }
+  #dialog-face { width: 48px; height: 56px; flex: 0 0 auto; display: none;
+    image-rendering: pixelated; background: rgba(120, 90, 40, .18);
+    border: 2px solid #b48a2c; }
+  #dialog-text { flex: 1 1 auto; }
+  /* 继续指示：sel_arrow.png（32×16，左 ▶ 右 ▼，各 16×16），取右半枚 ▼ */
+  #dialog::after { content: ""; position: absolute; right: 10px; bottom: 4px;
+    width: 16px; height: 16px; image-rendering: pixelated;
+    background: url("assets/ui/sel_arrow.png") -16px 0 no-repeat; }
+
+  /* 章节通关插画（全屏遮罩，点击继续） */
+  #illust { position: fixed; inset: 0; background: rgba(6,8,16,.94);
+    display: none; flex-direction: column; align-items: center;
+    justify-content: center; z-index: 20; cursor: pointer; user-select: none; }
+  #illust.show { display: flex; }
+  #illust-img { width: min(92vw, 480px); image-rendering: pixelated;
+    border: 2px solid #b48a2c; }
+  #illust-cap { margin-top: 14px; font-size: 17px; color: #ffd166; letter-spacing: 2px; }
+  #illust-hint { margin-top: 10px; font-size: 12px; color: #8a7a55; }
+
+  /* 通用面板 menu_panel_9slice.png（64×64，实测边 6px，slice 取 8）；
+     面板标题底 title_plaque_9slice.png（128×48，实测边 6px，slice 取 8） */
+  #panel { position: fixed; inset: 0; background: rgba(8,11,22,.8); display: none;
+    align-items: center; justify-content: center; z-index: 30; }
+  #panel.show { display: flex; }
+  #panel-box { width: min(92vw, 420px); max-height: 76vh; overflow-y: auto;
+    border: 12px solid transparent;
+    border-image: url("assets/ui/menu_panel_9slice.png") 8 fill;
+    padding: 10px 12px; color: #3a2a16; }
+  #panel-title { font-size: 18px; text-align: center; margin-bottom: 12px;
+    padding: 6px 14px; color: #ffd166; letter-spacing: 3px;
+    border: 8px solid transparent;
+    border-image: url("assets/ui/title_plaque_9slice.png") 8 fill; }
+  .pline { font-size: 14px; color: #5a4a30; padding: 6px 2px; line-height: 1.5; }
+
+  /* 全部按钮：option_btn 三态切片（96×32，实测边 4~5px，slice 取 5；
+     normal 常态 / active 悬停·聚焦 / pressed 按下；ghost 与禁用态用 option_btn_disabled） */
+  #panel-box button, #battle-cmd button, #scr-title-box button, #confirm-box button {
+    display: block; width: 100%; margin-top: 8px; padding: 9px 12px; font-size: 15px;
+    color: #4a3416; background: none; cursor: pointer;
+    border: 6px solid transparent;
+    border-image: url("assets/ui/option_btn_normal.png") 5 fill; }
+  #panel-box button:hover, #battle-cmd button:hover,
+  #scr-title-box button:hover, #confirm-box button:hover,
+  #panel-box button:focus, #battle-cmd button:focus,
+  #scr-title-box button:focus, #confirm-box button:focus {
+    border-image-source: url("assets/ui/option_btn_active.png"); }
+  #panel-box button:active, #battle-cmd button:active,
+  #scr-title-box button:active, #confirm-box button:active {
+    border-image-source: url("assets/ui/option_btn_pressed.png"); }
+  button.ghost, button:disabled {
+    border-image-source: url("assets/ui/option_btn_disabled_9slice.png") !important;
+    color: #6a6050 !important; }
+  button:disabled { cursor: default; }
+  /* 主菜单双列网格：一屏看全 */
+  #panel-body.menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  #panel-body.menu-grid button { margin-top: 0; padding: 9px 8px; }
+
+  /* 通用确认弹窗 confirm_panel_9slice.png（64×64，实测边 6px，slice 取 8），浮在面板之上 */
+  #confirm { position: fixed; inset: 0; background: rgba(8,11,22,.55); display: none;
+    align-items: center; justify-content: center; z-index: 40; }
+  #confirm.show { display: flex; }
+  #confirm-box { width: min(88vw, 360px);
+    border: 12px solid transparent;
+    border-image: url("assets/ui/confirm_panel_9slice.png") 8 fill;
+    padding: 10px 12px; color: #3a2a16; }
+  #confirm-title { font-size: 17px; text-align: center; margin-bottom: 10px;
+    padding: 5px 12px; color: #ffd166; letter-spacing: 3px;
+    border: 8px solid transparent;
+    border-image: url("assets/ui/title_plaque_9slice.png") 8 fill; }
+
+  /* 对话框内继续指示需要定位父级 */
+  #dialog { position: relative; }
+
+  /* 战斗 UI：日志与指令同在通知条槽位内（槽位固定高，进出战斗不变）——
+     上部 #battle-log 压缩为 1 行可滚动，下部 #battle-cmd 一行五按钮，
+     子菜单按钮多时按钮区内部滚动、槽位总高不变 */
+  #battle-ui { width: 100%; height: 100%; display: none;
+    flex-direction: column;
+    background: rgba(26,20,12,.82); border: 2px solid #b48a2c; }
+  #battle-ui.show { display: flex; }
+  #battle-log { flex: 0 0 25px; width: 100%; overflow-y: auto;
+    border-bottom: 1px solid rgba(180,138,44,.5);
+    padding: 1px 10px; font-size: 12px; line-height: 1.7; color: #f0e6cc; }
+  #battle-cmd { flex: 1 1 auto; min-height: 0; width: 100%; overflow-y: auto;
+    display: flex; flex-wrap: wrap; gap: 4px; align-content: flex-start;
+    padding: 4px 6px; }
+  #battle-cmd .pline { width: 100%; padding: 0 2px; font-size: 11px;
+    line-height: 1.3; color: #e8d9a8; }
+  #battle-cmd button { display: inline-block; width: auto; margin-top: 0;
+    padding: 5px 8px; font-size: 13px; border-width: 5px; }
+
+  /* 十字键/AB：dpad_ab.png 切出的贴图（dpad 52×52 / btn_a·btn_b 58×58），字母仍由 DOM 文字叠加 */
+  #dpad { flex: 0 0 auto; margin-top: auto; width: 100%; max-width: 520px; display: none;
+    justify-content: space-between; align-items: flex-end;
+    padding: 4px 14px calc(6px + env(safe-area-inset-bottom)); }
+  #dpad.show { display: flex; }
+  .pad-cluster { position: relative; width: 125px; height: 125px;
+    background: url("assets/ui/dpad.png") center / contain no-repeat; }
+  .pad-btn { position: absolute; width: 34%; height: 34%; padding: 0;
+    background: none; border: none; color: transparent; font-size: 0; user-select: none; }
+  #pad-up { top: 0; left: 33%; } #pad-down { bottom: 0; left: 33%; }
+  #pad-left { top: 33%; left: 0; } #pad-right { top: 33%; right: 0; }
+  .ab-cluster { display: flex; gap: 12px; align-items: center; }
+  #pad-a, #pad-b { width: 70px; height: 70px; border: none; background: none;
+    font-size: 22px; color: #fff; text-shadow: 1px 1px 0 rgba(0,0,0,.55); }
+  #pad-a { background: url("assets/ui/btn_a.png") center / contain no-repeat; }
+  #pad-b { background: url("assets/ui/btn_b.png") center / contain no-repeat; }
+  #pad-a:active, #pad-b:active, .pad-btn:active { transform: scale(.94); }
+
+  /* 标题页：title_bg.png 全屏，标题字保持描金 */
+  #scr-title { position: fixed; inset: 0; display: none;
+    align-items: center; justify-content: center; z-index: 10;
+    background: #0d1120 url("assets/ui/title_bg.png") center / cover no-repeat; }
+  #scr-title.show { display: flex; }
+  #scr-title-box { width: min(88vw, 380px); text-align: center; }
+  #scr-title-box h1 { font-size: 34px; letter-spacing: 8px; margin-bottom: 6px;
+    color: #ffd166; text-shadow: 0 0 8px #7a5410, 2px 2px 0 #4a2c08; }
+  #scr-title-box .sub { color: #d8c9a0; font-size: 13px; margin-bottom: 34px;
+    text-shadow: 1px 1px 0 rgba(0,0,0,.7); }
+  #scr-title-box .hint { margin-top: 26px; font-size: 12px; color: #b8a97f;
+    line-height: 1.9; text-shadow: 1px 1px 0 rgba(0,0,0,.7); }
+
+  /* 开屏页：splash.png 满屏，z-index 最高，点击/任意键进入标题页 */
+  #scr-splash { position: fixed; inset: 0; z-index: 100; display: none;
+    align-items: flex-end; justify-content: center; cursor: pointer; user-select: none;
+    background: #000 url("assets/ui/splash.png") center / cover no-repeat; }
+  #scr-splash.show { display: flex; }
+  #scr-splash .hint { margin-bottom: 7vh; font-size: 15px; letter-spacing: 3px;
+    color: #ffd166; text-shadow: 1px 1px 0 #000, 0 0 8px rgba(0,0,0,.8);
+    animation: splashBlink 1.2s infinite; }
+  @keyframes splashBlink { 50% { opacity: .3; } }
+</style>
+</head>
 <body>
-<canvas id="cv"></canvas>
-<div id="hud"></div><div id="toast"></div>
-<div id="dpad"></div>
-<button id="pad-up"></button><button id="pad-down"></button>
-<button id="pad-left"></button><button id="pad-right"></button>
-<button id="pad-a"></button><button id="pad-b"></button>
-<div id="dialog"></div><div id="illust"></div>
-<div id="scr-title"></div>
-<span id="hud-gold"></span><span id="hud-map"></span><span id="hud-quest"></span>
-<img id="dialog-face" width="72" height="72"><span id="dialog-text"></span>
-<span id="illust-cap"></span><img id="illust-img">
-<span id="panel-title"></span><span id="panel-body"></span>
-<span id="battle-cmd"></span><span id="battle-log"></span>
-<button id="btn-new"></button><button id="btn-load"></button>
+<div id="app">
+  <div id="hud">
+    <span id="hud-map">徐州城</span>
+    <span id="hud-gold">300 金</span>
+    <span id="hud-quest"></span>
+  </div>
+  <div id="screen">
+    <canvas id="cv"></canvas>
+  </div>
+  <div id="slot">
+    <div id="dialog"><img id="dialog-face" alt=""><span id="dialog-text"></span></div>
+    <div id="battle-ui">
+      <div id="battle-log"></div>
+      <div id="battle-cmd"></div>
+    </div>
+  </div>
+  <div id="dpad">
+    <div class="pad-cluster">
+      <button class="pad-btn" id="pad-up">▲</button>
+      <button class="pad-btn" id="pad-left">◀</button>
+      <button class="pad-btn" id="pad-right">▶</button>
+      <button class="pad-btn" id="pad-down">▼</button>
+    </div>
+    <div class="ab-cluster">
+      <button id="pad-b">B</button>
+      <button id="pad-a">A</button>
+    </div>
+  </div>
+</div>
+
+<div id="panel"><div id="panel-box">
+  <div id="panel-title"></div>
+  <div id="panel-body"></div>
+</div></div>
+
+<div id="confirm"><div id="confirm-box">
+  <div id="confirm-title"></div>
+  <div id="confirm-body"></div>
+</div></div>
+
+<div id="toast"></div>
+
+<div id="illust">
+  <img id="illust-img" alt="">
+  <div id="illust-cap"></div>
+  <div id="illust-hint">点击继续</div>
+</div>
+
+<div id="scr-splash"><div class="hint">点击任意处进入</div></div>
+
+<div id="scr-title"><div id="scr-title-box">
+  <h1>桃园三国</h1>
+  <div class="sub">全十一章 · 桃园三国（三档存档 · 存本机浏览器）</div>
+  <button id="btn-new">新的征途</button>
+  <button id="btn-load" class="ghost">继续征途（读档）</button>
+  <div class="hint">触屏：十字键移动 · A 对话/确认 · B 菜单<br>
+  电脑：方向键/WASD 移动 · Enter/Z 确认 · Esc/X 菜单<br>
+  193 年徐州起兵 → 228 年星落五丈原，全主线可通</div>
+</div></div>
+
 <script src="data/text.js"></script>
 <script src="data/items.js"></script>
 <script src="data/skills.js"></script>
@@ -201,6 +441,7 @@
 <script src="engine/battle.js"></script>
 <script src="engine/ui.js"></script>
 <script src="engine/minigame.js"></script>
+
 <script>
 window.__errs = [];
 window.onerror = (m, s, l) => { window.__errs.push(m + " @" + s + ":" + l); };
@@ -212,7 +453,6 @@ window.addEventListener("load", () => {
       hide("scr-title");
       if (q[0] !== "ch00_city" || q.length > 1) warpTo(q[0], +(q[1]||5), +(q[2]||5));
       S.warpLock = false;
-      // 预热：把渲染本图需要的全部图片实例化，确保截图前加载完
       const c0 = cam();
       for (let y = 0; y < mapDef().grid.length; y++) for (let x = 0; x < mapDef().grid[0].length; x++) {
         drawTileImage(tileAt(x, y), -9999, -9999, x, y);
@@ -229,4 +469,5 @@ window.addEventListener("load", () => {
   }, 100);
 });
 </script>
-</body></html>
+</body>
+</html>

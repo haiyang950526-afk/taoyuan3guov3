@@ -483,6 +483,8 @@ function runQueue(queue) {
       let dmg = magicDmg(bStat(a, "int"), coef, tInt, linked);
       // 名品 · 六韬残页被动：军师计策伤害+10%（全游戏唯一百分比被动，relic_liutao flag）
       if (S.flags.relic_liutao) dmg = Math.round(dmg * 1.1);
+      // 名品 · 凤雏手卷被动：军师计策伤害+10%（与六韬残页可共存，relic_fengchu flag）
+      if (S.flags.relic_fengchu) dmg = Math.round(dmg * 1.1);
       // BOSS 机制：计策弱点/敌侧魔抗/铁索连环
       if (isEnemy(act.target)) {
         const wk = act.target.weakMagic && act.target.weakMagic[act.skill];
@@ -524,6 +526,8 @@ function runQueue(queue) {
         let dmg = magicDmg(bStat(a, "int"), coef, e.int, linked);
         // 名品 · 六韬残页被动：军师计策伤害+10%（同上，全体计策也生效）
         if (S.flags.relic_liutao) dmg = Math.round(dmg * 1.1);
+        // 名品 · 凤雏手卷被动：军师计策伤害+10%（同上，与六韬可共存）
+        if (S.flags.relic_fengchu) dmg = Math.round(dmg * 1.1);
         // BOSS 机制：计策弱点/敌侧魔抗（全体计策不吃连环单体折扣、不重复延烧）
         const wk = e.weakMagic && e.weakMagic[act.skill];
         if (wk) dmg = Math.round(dmg * wk);
